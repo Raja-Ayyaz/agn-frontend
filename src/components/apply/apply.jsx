@@ -76,7 +76,7 @@ export default function ApplyPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3 hover:opacity-80 transition">
             <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">MA</span>
+              <span className="text-yellow-400 font-black text-lg">AGN</span>
             </div>
             <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
           </a>
@@ -371,7 +371,7 @@ export default function ApplyPage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-black font-black text-lg">MA</span>
+                <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
@@ -411,8 +411,8 @@ export default function ApplyPage() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@mitchelladam.co.uk
+                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                    info@agnjobbank.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">

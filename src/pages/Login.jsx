@@ -70,9 +70,9 @@ export default function Login() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">MA</span>
+              <span className="text-yellow-400 font-black text-lg">AGN</span>
             </div>
-            <span className="hidden sm:inline font-black text-black text-sm">MITCHELL ADAM</span>
+            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="/" className="text-black font-bold hover:opacity-70 transition text-sm">
@@ -128,14 +128,14 @@ export default function Login() {
                 Welcome Back
               </h1>
               <p className="text-lg text-black mb-8 max-w-md leading-relaxed font-medium">
-                Access your Mitchell Adam recruitment dashboard to manage placements, track candidates, and grow your
+                Access your AGN job bank recruitment dashboard to manage placements, track candidates, and grow your
                 business.
               </p>
 
               {/* Company Info Boxes */}
               <div className="space-y-4">
                 <div className="bg-white/90 backdrop-blur-sm rounded-xl p-6 border-2 border-black/10">
-                  <h3 className="font-black text-black mb-2">Why Choose Mitchell Adam?</h3>
+                  <h3 className="font-black text-black mb-2">Why Choose AGN job bank?</h3>
                   <p className="text-sm text-gray-700">
                     10+ years of expertise in financial recruitment with 500+ successful placements
                   </p>
@@ -312,7 +312,7 @@ export default function Login() {
 
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-12 text-balance">About Mitchell Adam</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-black mb-12 text-balance">About AGN job bank</h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition">
@@ -357,9 +357,9 @@ export default function Login() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-black font-black text-lg">MA</span>
+                <span className="text-black font-black text-lg">AGN</span>
               </div>
-              <h3 className="text-xl font-black text-white mb-2">Mitchell Adam</h3>
+              <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Specialists in financial recruitment, connecting talent with opportunity.
               </p>
@@ -397,8 +397,8 @@ export default function Login() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@mitchelladam.co.uk
+                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                    info@agnjobbank.com
                   </a>
                 </li>
               </ul>
@@ -424,7 +424,7 @@ export default function Login() {
           </div>
 
           <div className="border-t border-gray-800 pt-8">
-            <p className="text-gray-400 text-sm">© 2025 Mitchell Adam Recruitment. All rights reserved.</p>
+            <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
           </div>
         </div>
       </footer>

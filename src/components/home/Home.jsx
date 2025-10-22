@@ -412,7 +412,7 @@ export default function Home() {
             {/* Brand */}
             <div>
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-black font-black text-lg">MA</span>
+                <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
@@ -459,8 +459,8 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@mitchelladam.co.uk
+                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                    info@agnjobbank.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">

@@ -74,9 +74,9 @@ export default function HirePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-3 hover:opacity-80 transition">
             <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">MA</span>
+              <span className="text-yellow-400 font-black text-lg">AGN</span>
             </div>
-            <span className="hidden sm:inline font-black text-black text-sm">MITCHELL ADAM</span>
+            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
           </a>
           <div className="hidden md:flex items-center gap-8">
             <a href="/" className="text-black font-bold hover:opacity-70 transition text-sm">
@@ -99,7 +99,7 @@ export default function HirePage() {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-6 text-balance animate-fade-in">
-            Hire with Mitchell Adam
+            Hire with AGN job bank
           </h1>
           <p className="text-lg text-black mb-8 max-w-2xl leading-relaxed font-medium animate-fade-in-delay">
             Find exceptional finance professionals to drive your business forward. Post roles, review candidates, and
@@ -276,7 +276,7 @@ export default function HirePage() {
                 Adam<span className="text-yellow-400">.</span>
               </h2>
               <p className="text-gray-300 text-lg mb-6 leading-relaxed">
-                With over a decade of experience in financial recruitment, Mitchell Adam has built a reputation for
+                With over a decade of experience in financial recruitment, AGN job bank has built a reputation for
                 excellence, integrity, and results. We understand the unique challenges of hiring finance professionals
                 and have the expertise to deliver.
               </p>
@@ -410,9 +410,9 @@ export default function HirePage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-black font-black text-lg">MA</span>
+                <span className="text-black font-black text-lg">AGN</span>
               </div>
-              <h3 className="text-xl font-black text-white mb-2">Mitchell Adam</h3>
+              <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Specialists in financial recruitment, connecting talent with opportunity.
               </p>
@@ -450,8 +450,8 @@ export default function HirePage() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@mitchelladam.co.uk
+                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                    info@agnjobbank.com
                   </a>
                 </li>
               </ul>
@@ -477,7 +477,7 @@ export default function HirePage() {
           </div>
 
           <div className="border-t border-gray-800 pt-8">
-            <p className="text-gray-400 text-sm">© 2025 Mitchell Adam Recruitment. All rights reserved.</p>
+            <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
           </div>
         </div>
       </footer>

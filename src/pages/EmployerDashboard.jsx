@@ -424,9 +424,9 @@ export default function EmployerDashboard() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@agnjobbank.com
-                  </a>
+                    <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                      info@agnjobbank.com
+                    </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <MapPin size={18} className="text-yellow-400" />
