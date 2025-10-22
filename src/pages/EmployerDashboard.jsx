@@ -380,7 +380,7 @@ export default function EmployerDashboard() {
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
                 <span className="text-black font-black text-lg">AGN</span>
               </div>
-              <h3 className="text-xl font-black text-white mb-2">Mitchell Adam</h3>
+              
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Specialists in financial recruitment, connecting talent with opportunity.
@@ -456,7 +456,7 @@ export default function EmployerDashboard() {
 
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025 Mitchell Adam Recruitment. All rights reserved.</p>
+             
               <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
               <div className="flex gap-6">
                 <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
