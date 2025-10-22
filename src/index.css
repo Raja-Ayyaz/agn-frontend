@@ -34,3 +34,94 @@ form button {
 form button:hover {
   background-color: #555;
 }
+
+/* Mobile / responsive improvements */
+html, body {
+  -webkit-text-size-adjust: 100%; /* prevent iOS font autosizing */
+}
+
+/* Make images and media scale within their containers */
+img, picture, video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Prevent horizontal scroll caused by long fixed-width elements */
+* {
+  box-sizing: border-box;
+}
+body {
+  overflow-x: hidden;
+}
+
+/* Fluid typography for small screens */
+h1, h2, h3, h4, h5 {
+  line-height: 1.05;
+}
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.05rem; }
+
+  /* Larger touch targets */
+  button, a[class], .card-btn {
+    min-height: 44px;
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 16px;
+  }
+
+  /* Navigation spacing adjustments */
+  nav .max-w-7xl { padding-left: 12px; padding-right: 12px; }
+
+  /* Make forms use full width on mobile */
+  form { max-width: 100%; padding-left: 8px; padding-right: 8px; }
+  .w-12.h-12 { width: 44px; height: 44px; }
+
+  /* Reduce heavy shadows on mobile for performance */
+  .shadow-xl, .shadow-2xl { box-shadow: none !important; }
+}
+
+/* Make sure fixed nav doesn't cover content on smaller screens */
+.fixed { position: sticky; top: 0; z-index: 60; }
+
+/* Small utility to vertically center hero text on mobile */
+@media (max-width: 480px) {
+  .pt-32 { padding-top: 6rem; }
+  .pb-20 { padding-bottom: 3rem; }
+}
+
+/* Mobile full-screen nav overlay (toggle by adding .mobile-nav-open to body) */
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 70;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-nav-overlay .menu {
+  background: white;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 20px;
+}
+.mobile-nav-open .mobile-nav-overlay { display: flex; }
+
+/* Responsive container widths */
+@media (min-width: 640px) {
+  .container { max-width: 640px; margin: 0 auto; }
+}
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+}
+@media (min-width: 1024px) {
+  .container { max-width: 1024px; }
+}
+
+/* Utility to ensure large buttons wrap nicely on narrow screens */
+.btn-wrap { white-space: normal; }
