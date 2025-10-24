@@ -7,6 +7,8 @@ import HirePage from './components/hire/Hire';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import EmployerDashboard from './pages/EmployerDashboard';
+import AdminPsnnel from './components/admin/admin_psnnel';
+import AdminLogin from './components/admin/admin_login';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
           <Route path="/apply" element={<ApplyForm />} />
           <Route path="/hire" element={<HirePage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/panel" element={<AdminPsnnel />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
         </Routes>

@@ -46,7 +46,7 @@ export default function Home() {
 
   const openHire = (e) => {
     if (e && e.preventDefault) e.preventDefault()
-    navigate('/login')
+    navigate('/hire')
     try {
       window.scrollTo(0, 0)
     } catch (err) {}
@@ -86,7 +86,7 @@ export default function Home() {
             <a href="/hire" onClick={openHire} className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
               <UserPlus size={16} /> HIRE
             </a>
-            <a href="/login" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
+            <a href="/admin/login" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
               <LogIn size={16} /> LOGIN
             </a>
             <a href="#about" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
@@ -112,7 +112,7 @@ export default function Home() {
                   <UserPlus size={16} /> HIRE
                 </a>
                 <a href="/login" className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-                  <LogIn size={16} /> LOGIN
+              <LogIn size={16} /> LOGIN
                 </a>
                 <a href="#about" className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
                   <HomeIcon size={16} /> ABOUT
