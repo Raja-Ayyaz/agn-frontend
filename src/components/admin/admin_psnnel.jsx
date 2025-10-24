@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Menu, X, Phone, Mail, MapPin, Linkedin, Twitter, Download, Search, Upload, Trash2 } from "lucide-react"
 
@@ -111,7 +109,7 @@ export default function AdminPanel() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">MA</span>
+              <span className="text-yellow-400 font-black text-lg">AGN</span>
             </div>
             <span className="hidden sm:inline font-black text-black text-sm">ADMIN PANEL</span>
           </div>
@@ -379,9 +377,9 @@ export default function AdminPanel() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                <span className="text-black font-black text-lg">MA</span>
-              </div>
-              <h3 className="text-xl font-black text-white mb-2">Mitchell Adam</h3>
+                    <span className="text-black font-black text-lg">AGN</span>
+                  </div>
+                  <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Specialists in financial recruitment, connecting talent with opportunity.
               </p>
@@ -424,8 +422,8 @@ export default function AdminPanel() {
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@mitchelladam.co.uk" className="hover:text-yellow-400 transition">
-                    info@mitchelladam.co.uk
+                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
+                    info@agnjobbank.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
@@ -456,7 +454,7 @@ export default function AdminPanel() {
 
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025 Mitchell Adam Recruitment. All rights reserved.</p>
+              <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
               <div className="flex gap-6">
                 <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
                   Privacy Policy
