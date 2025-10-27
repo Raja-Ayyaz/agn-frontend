@@ -1,0 +1,2 @@
+employee_id,name,age,email,mobile_no,location,nearest_route,cnic_no,educational_profile,recent_completed_education,field,experience,experience_detail,cv,masked_cv
+1,John Doe,28,john@example.com,03001234567,Karachi,University Road,42101-1234567-8,BS Computer Science,BSCS,Software Engineer,2 years,Worked at XYZ software house.,CV text content here,
