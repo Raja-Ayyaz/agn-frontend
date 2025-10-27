@@ -9,6 +9,7 @@ import Signup from './pages/Signup';
 import EmployerDashboard from './pages/EmployerDashboard';
 import AdminPsnnel from './components/admin/admin_psnnel';
 import AdminLogin from './components/admin/admin_login';
+import { LogIn } from 'lucide-react';
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/apply" element={<ApplyForm />} />
-          <Route path="/hire" element={<HirePage />} />
+          <Route path="/hire" element={<Login />} />
           <Route path="/login" element={<AdminLogin />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/panel" element={<AdminPsnnel />} />
@@ -29,3 +30,9 @@ function App() {
 }
 
 export default App;
+
+
+
+
+
+
