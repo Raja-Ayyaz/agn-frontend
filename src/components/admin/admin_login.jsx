@@ -138,15 +138,16 @@ export default function AdminLogin() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
+                          className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-3 text-gray-600 hover:text-black transition"
-                      >
-                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          className="absolute inset-y-0 right-4 flex items-center text-gray-600 hover:text-black transition"
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                     </div>
                   </div>
 

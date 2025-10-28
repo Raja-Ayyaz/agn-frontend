@@ -129,13 +129,14 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="w-full px-4 py-3 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-white/50 text-black placeholder-gray-500 focus:outline-none focus:border-black focus:bg-white transition"
+                      className="w-full px-4 py-3 pr-10 rounded-lg bg-white/80 backdrop-blur-sm border-2 border-white/50 text-black placeholder-gray-500 focus:outline-none focus:border-black focus:bg-white transition"
                       placeholder="Enter your password"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-black hover:opacity-70 transition"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      className="absolute inset-y-0 right-3 flex items-center text-black hover:opacity-70 transition"
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
