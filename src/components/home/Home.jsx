@@ -216,6 +216,36 @@ export default function Home() {
         .soft-pulse {
           animation: softPulse 4s ease-in-out infinite;
         }
+
+        /* Enhanced hero image styling */
+        .image-enhanced { position: relative; overflow: hidden; border-radius: 1rem; }
+        .hero-image {
+          display: block;
+          width: 100%;
+          height: 100%;
+          min-width: 100%;
+          min-height: 100%;
+          object-position: center center;
+          transform: scale(1.02);
+          transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease;
+          will-change: transform;
+          filter: brightness(0.82) contrast(1.03) saturate(1.02);
+        }
+        .image-enhanced:hover .hero-image { transform: scale(1.06); filter: brightness(0.95) contrast(1.04); }
+        .image-vignette {
+          pointer-events: none;
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          /* subtler vignette focused on center, avoid darkening corners */
+          background: radial-gradient(ellipse at center, rgba(0,0,0,0) 55%, rgba(0,0,0,0.12) 100%);
+          mix-blend-mode: normal;
+          opacity: 0.85;
+        }
+        /* Replace bright yellow glow with a darker shadow for the homepage image */
+        .image-enhanced.glow-hover:hover {
+          box-shadow: 0 24px 48px rgba(0,0,0,0.45) !important;
+        }
       `}</style>
 
       {/* Shared Navigation */}
@@ -325,9 +355,17 @@ export default function Home() {
                 Find out More <ArrowRight className="ml-2 transition-transform duration-300" size={20} />
               </button>
             </div>
-            <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl h-96 flex items-center justify-center overflow-hidden relative glow-hover">
+            <div className="image-enhanced bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl h-96 flex items-center justify-center overflow-hidden relative glow-hover">
+              <img
+                src={encodeURI("/images/homepage image.jpg")}
+                alt="Homepage"
+                className="hero-image object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none"
+                }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-              <Briefcase size={64} className="text-yellow-400 relative z-10 icon-bounce" />
+              <div className="image-vignette" aria-hidden="true"></div>
             </div>
           </div>
         </div>

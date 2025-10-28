@@ -2,8 +2,6 @@
 
 import {
   ArrowRight,
-  Menu,
-  X,
   Phone,
   Mail,
   Linkedin,
@@ -12,6 +10,10 @@ import {
   Users,
   Briefcase,
   TrendingUp,
+  GraduationCap,
+  BarChart3,
+  Crown,
+  Building2,
 } from "lucide-react"
 import { useState } from "react"
 import "./globals.css"
@@ -28,8 +30,7 @@ export default function HirePage() {
   })
   const [submitted, setSubmitted] = useState(false)
   const [sideImage, setSideImage] = useState(null)
-  // Static image path served from the public folder (place your image at public/images/hire-side.jpg)
-  const STATIC_SIDE_IMAGE = '/images/hire-side.jpg'
+  const STATIC_SIDE_IMAGE = "/images/Hire_side.jpg"
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -74,107 +75,106 @@ export default function HirePage() {
       <NavBar />
 
       {/* Hero Section */}
-      <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl"></div>
+      <section className="bg-gradient-to-br from-yellow-400 via-yellow-300 to-amber-300 pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-40 blur-3xl animate-float"></div>
+        <div
+          className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl animate-float"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-40 left-20 w-40 h-40 bg-amber-200 rounded-full opacity-30 blur-3xl animate-float"
+          style={{ animationDelay: "2s" }}
+        ></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-6 text-balance animate-fade-in">
+          <h1 className="text-5xl md:text-7xl font-black text-black leading-tight mb-6 text-balance animate-fade-in">
             Hire with AGN job bank
           </h1>
-          <p className="text-lg text-black mb-8 max-w-2xl leading-relaxed font-medium animate-fade-in-delay">
+          <p className="text-lg md:text-xl text-black mb-8 max-w-2xl leading-relaxed font-medium animate-fade-in-delay">
             Find exceptional finance professionals to drive your business forward. Post roles, review candidates, and
             build your dream team.
           </p>
         </div>
       </section>
 
-      {/* Registration Form Section — two-column: decorative empty side + form on right */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white relative">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-          {/* Decorative left side (empty on purpose) */}
-          <div className="hidden md:flex items-center justify-center">
-            <label className="hire-side w-full h-full rounded-2xl flex items-center justify-center cursor-pointer overflow-hidden relative">
-              {/* show uploaded image if present, otherwise use static image placed in public/images/ */}
+      {/* Registration Form Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white relative">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+          <div className="hidden md:flex items-center justify-center animate-slide-in-left md:mt-8">
+            <div className="hire-side w-full h-96 rounded-3xl overflow-hidden flex items-center justify-center">
               <img
-                src={sideImage || STATIC_SIDE_IMAGE}
-                alt="side preview"
+                src={STATIC_SIDE_IMAGE}
+                alt="Hire side"
                 className="object-cover w-full h-full"
                 onError={(e) => {
-                  // if static image isn't present, fall back to a simple placeholder text
-                  e.currentTarget.style.display = 'none'
+                  e.currentTarget.style.display = "none"
                 }}
               />
-              {/* fallback label content when no static image exists and no upload done */}
-              {!sideImage && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 pointer-events-none">
-                  <p className="font-black text-lg text-black mb-2">Place your image at</p>
-                  <p className="text-sm text-gray-600">/public/images/hire-side.jpg</p>
-                </div>
-              )}
-              {/* click to replace/upload (optional) */}
-              <input type="file" accept="image/*" onChange={handleSideImage} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-            </label>
+            </div>
           </div>
 
-          {/* Form column - on medium+ screens this will appear on the right */}
-          <div className="w-full">
+          {/* Form column */}
+          <div className="w-full animate-slide-in-right">
             <div className="mx-auto md:ml-auto md:w-11/12 lg:w-3/4">
-              <div className="text-center mb-6 animate-fade-in">
+              <div className="text-center mb-8 animate-fade-in">
                 <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Get Started Today</h2>
-                <p className="text-gray-600 text-lg font-medium">Create your employer account and start hiring top finance talent</p>
+                <p className="text-gray-600 text-lg font-medium">
+                  Create your employer account and start hiring top finance talent
+                </p>
               </div>
 
               {submitted && (
-                <div className="mb-8 bg-green-50 border-2 border-green-400 rounded-xl p-6 flex items-start gap-4 animate-slide-down">
+                <div className="mb-8 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-400 rounded-2xl p-6 flex items-start gap-4 animate-scale-in shadow-lg">
                   <div className="w-8 h-8 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                     <span className="text-white font-black">✓</span>
                   </div>
                   <div>
                     <h3 className="font-black text-green-900 text-lg mb-1">Employer Registered!</h3>
-                    <p className="text-green-800">We've saved your employer details. Check your email for next steps.</p>
+                    <p className="text-green-800">
+                      We've saved your employer details. Check your email for next steps.
+                    </p>
                   </div>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-8 animate-fade-in-delay-2">
-                <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
+              <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-delay-2">
+                <div className="bg-white rounded-3xl p-8 border-2 border-gray-200 shadow-md hover:shadow-xl transition-smooth-lg">
                   <h3 className="text-2xl font-black text-black mb-6">Employer Details</h3>
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-black text-black mb-2">Username *</label>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Username *</label>
                       <input
                         type="text"
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition focus:shadow-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-black text-black mb-2">Company Name</label>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Company Name</label>
                       <input
                         type="text"
                         name="company_name"
                         value={formData.company_name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition focus:shadow-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-black text-black mb-2">Email *</label>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Email *</label>
                       <input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition focus:shadow-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
                       />
                     </div>
-                    <div>
-                      <label className="block text-sm font-black text-black mb-2">Password *</label>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Password *</label>
                       <input
                         type="password"
                         name="password"
@@ -182,7 +182,7 @@ export default function HirePage() {
                         onChange={handleChange}
                         required
                         maxLength={15}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition focus:shadow-lg"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
                       />
                     </div>
                   </div>
@@ -191,13 +191,13 @@ export default function HirePage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-6 rounded-xl transition transform hover:scale-105 active:scale-95"
+                    className="flex-1 bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   >
                     Create Employer Account <ArrowRight className="ml-2 inline" size={20} />
                   </button>
                   <a
                     href="/"
-                    className="flex-1 border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-6 rounded-xl bg-white transition text-center"
+                    className="flex-1 border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 rounded-xl bg-white transition-smooth text-center shadow-md hover:shadow-lg"
                   >
                     Back Home
                   </a>
@@ -209,36 +209,40 @@ export default function HirePage() {
       </section>
 
       {/* Why Hire With Us Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Why Hire With Us?</h2>
-          <p className="text-gray-600 mb-12 text-lg font-medium">
-            Access a curated network of finance professionals ready to make an impact
-          </p>
+          <div className="mb-16 animate-fade-in-up">
+            <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Why Hire With Us?</h2>
+            <p className="text-gray-600 text-lg font-medium">
+              Access a curated network of finance professionals ready to make an impact
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                icon: <Users size={32} />,
+                icon: <Users size={28} />,
                 title: "Vetted Talent Pool",
                 description: "All candidates are thoroughly screened and verified for qualifications and experience",
               },
               {
-                icon: <TrendingUp size={32} />,
+                icon: <TrendingUp size={28} />,
                 title: "Quick Placements",
                 description: "Average time to hire reduced by 60% with our streamlined recruitment process",
               },
               {
-                icon: <Briefcase size={32} />,
+                icon: <Briefcase size={28} />,
                 title: "Flexible Solutions",
                 description: "Permanent, contract, interim, or executive search - we have the right fit for you",
               },
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition hover:scale-105"
+                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105 group"
               >
-                <div className="text-yellow-400 mb-4">{item.icon}</div>
+                <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:from-yellow-200 group-hover:to-amber-200 transition-smooth-lg group-hover:scale-110 group-hover:shadow-lg">
+                  <div className="text-yellow-600 group-hover:text-yellow-700 transition-smooth">{item.icon}</div>
+                </div>
                 <h3 className="text-xl font-black text-black mb-3">{item.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{item.description}</p>
               </div>
@@ -248,48 +252,61 @@ export default function HirePage() {
       </section>
 
       {/* About Agency Section */}
-      <section className="bg-slate-900 text-white py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
+      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-20 right-10 w-96 h-96 bg-yellow-400 rounded-full opacity-5 blur-3xl"></div>
+
+        <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="animate-slide-in-left">
               <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-balance">
                 About Mitchell <br />
                 Adam<span className="text-yellow-400">.</span>
               </h2>
-              <p className="text-gray-300 text-lg mb-6 leading-relaxed">
+              <p className="text-gray-300 text-lg mb-8 leading-relaxed">
                 With over a decade of experience in financial recruitment, AGN job bank has built a reputation for
                 excellence, integrity, and results. We understand the unique challenges of hiring finance professionals
                 and have the expertise to deliver.
               </p>
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-4 mb-8">
                 {[
                   "10+ years in finance recruitment",
                   "500+ successful placements",
                   "98% client satisfaction rate",
                   "24/7 dedicated support",
                 ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3">
-                    <CheckCircle size={20} className="text-yellow-400 flex-shrink-0" />
-                    <span className="text-gray-300">{item}</span>
+                  <li key={idx} className="stagger-item flex items-center gap-3 group">
+                    <div className="w-6 h-6 bg-yellow-400/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-400/40 transition-smooth">
+                      <CheckCircle
+                        size={18}
+                        className="text-yellow-400 flex-shrink-0 group-hover:scale-110 transition-smooth"
+                      />
+                    </div>
+                    <span className="text-gray-300 group-hover:text-white transition-smooth">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl h-96 flex items-center justify-center overflow-hidden relative">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-              <span className="text-8xl relative z-10">🏢</span>
+            <div className="animate-slide-in-right">
+              <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-3xl h-96 flex items-center justify-center overflow-hidden relative shadow-2xl group hover:shadow-yellow-400/20 transition-smooth-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div className="w-24 h-24 bg-gradient-to-br from-yellow-400/30 to-amber-400/20 rounded-3xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-smooth group-hover:from-yellow-400/50 group-hover:to-amber-400/40">
+                  <Building2 size={56} className="text-yellow-300" />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Our Clients Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Our Clients</h2>
-          <p className="text-gray-600 mb-12 text-lg font-medium">
-            We partner with leading companies across diverse industries
-          </p>
+          <div className="mb-16 animate-fade-in-up">
+            <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Our Clients</h2>
+            <p className="text-gray-600 text-lg font-medium">
+              We partner with leading companies across diverse industries
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {[
@@ -312,7 +329,7 @@ export default function HirePage() {
             ].map((client, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition"
+                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105"
               >
                 <h3 className="text-2xl font-black text-black mb-3">{client.industry}</h3>
                 <p className="text-gray-600 leading-relaxed">{client.description}</p>
@@ -323,41 +340,54 @@ export default function HirePage() {
       </section>
 
       {/* Available Jobs Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Available Job Levels</h2>
-          <p className="text-gray-600 mb-12 text-lg font-medium">
-            We recruit across all career stages and specializations
-          </p>
+          <div className="mb-16 animate-fade-in-up">
+            <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Available Job Levels</h2>
+            <p className="text-gray-600 text-lg font-medium">We recruit across all career stages and specializations</p>
+          </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 title: "Entry Level & Graduate",
                 roles: ["Graduate Accountants", "Junior Finance Analysts", "Finance Administrators"],
-                icon: "🎓",
+                icon: <GraduationCap size={32} />,
+                bgColor: "from-blue-100 to-cyan-100",
+                iconColor: "text-blue-600",
               },
               {
                 title: "Mid-Level Professionals",
                 roles: ["Senior Accountants", "Finance Managers", "Management Accountants"],
-                icon: "📊",
+                icon: <BarChart3 size={32} />,
+                bgColor: "from-purple-100 to-pink-100",
+                iconColor: "text-purple-600",
               },
               {
                 title: "Senior & Executive",
                 roles: ["Finance Directors", "CFOs", "Finance Controllers"],
-                icon: "👔",
+                icon: <Crown size={32} />,
+                bgColor: "from-amber-100 to-orange-100",
+                iconColor: "text-amber-600",
               },
             ].map((level, idx) => (
               <div
                 key={idx}
-                className="bg-gray-50 rounded-2xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition"
+                className="stagger-item bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105 group"
               >
-                <div className="text-5xl mb-4">{level.icon}</div>
+                <div
+                  className={`w-16 h-16 bg-gradient-to-br ${level.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:shadow-lg transition-smooth-lg group-hover:scale-110`}
+                >
+                  <div className={`${level.iconColor} group-hover:scale-110 transition-smooth`}>{level.icon}</div>
+                </div>
                 <h3 className="text-xl font-black text-black mb-4">{level.title}</h3>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {level.roles.map((role, i) => (
-                    <li key={i} className="text-gray-600 flex items-center gap-2">
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full"></span>
+                    <li
+                      key={i}
+                      className="text-gray-600 flex items-center gap-3 group/item hover:text-black transition-smooth"
+                    >
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-smooth"></span>
                       {role}
                     </li>
                   ))}
@@ -369,16 +399,30 @@ export default function HirePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-yellow-400 py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-8 text-balance">
+      <section className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-amber-300 py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-40 h-40 bg-yellow-500 rounded-full blur-3xl animate-float"></div>
+          <div
+            className="absolute bottom-10 right-10 w-40 h-40 bg-orange-400 rounded-full blur-3xl animate-float"
+            style={{ animationDelay: "1.5s" }}
+          ></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black text-black mb-8 text-balance animate-fade-in">
             Ready to find your next hire?
           </h2>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button type="button" className="bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-6 rounded-xl transition inline-flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-delay">
+            <button
+              type="button"
+              className="bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+            >
               Post a Job <ArrowRight className="ml-2" size={20} />
             </button>
-            <button type="button" className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-6 bg-transparent rounded-xl transition inline-flex items-center justify-center">
+            <button
+              type="button"
+              className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 bg-transparent rounded-xl transition-smooth inline-flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+            >
               Browse Candidates <ArrowRight className="ml-2" size={20} />
             </button>
           </div>
@@ -389,8 +433,8 @@ export default function HirePage() {
       <footer className="bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
+            <div className="animate-fade-in-up">
+              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4 hover:scale-110 transition-smooth">
                 <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
@@ -399,59 +443,59 @@ export default function HirePage() {
               </p>
             </div>
 
-            <div>
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
               <h4 className="font-black text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="/" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="/" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
                     Home
                   </a>
                 </li>
                 <li>
-                  <a href="/apply" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="/apply" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
                     Apply
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
                     Services
                   </a>
                 </li>
               </ul>
             </div>
 
-            <div>
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
               <h4 className="font-black text-white mb-4">Contact</h4>
               <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-gray-400">
-                  <Phone size={18} className="text-yellow-400" />
-                  <a href="tel:01216511235" className="hover:text-yellow-400 transition">
-                    +92 3037774400
-                  </a>
+                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-smooth group">
+                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-smooth">
+                    <Phone size={16} className="text-yellow-400 group-hover:text-black transition-smooth" />
+                  </div>
+                  <a href="tel:01216511235">+92 3037774400</a>
                 </li>
-                <li className="flex items-center gap-2 text-gray-400">
-                  <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
-                    agnjobbank123@gmail.com
-                  </a>
+                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-smooth group">
+                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-smooth">
+                    <Mail size={16} className="text-yellow-400 group-hover:text-black transition-smooth" />
+                  </div>
+                  <a href="mailto:agnjobbank123@gmail.com">agnjobbank123@gmail.com</a>
                 </li>
               </ul>
             </div>
 
-            <div>
+            <div className="animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
               <h4 className="font-black text-white mb-4">Follow Us</h4>
               <div className="flex gap-4">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
                 >
-                  <Linkedin size={20} />
+                  <Linkedin size={20} className="group-hover:scale-110 transition-smooth" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
                 >
-                  <Twitter size={20} />
+                  <Twitter size={20} className="group-hover:scale-110 transition-smooth" />
                 </a>
               </div>
             </div>

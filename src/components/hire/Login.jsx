@@ -152,7 +152,7 @@ export default function Login() {
                 {/* Password */}
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-slate-700">Password</label>
-                  <div className="relative">
+                  <div className="relative flex flex-row items-center justify-center">
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -165,7 +165,7 @@ export default function Login() {
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label={showPassword ? "Hide password" : "Show password"}
-                      className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700 focus:outline-none"
+                      className="bg-transparent hover:bg-tranparent flex items-center text-slate-500 hover:text-slate-700 focus:outline-none"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
