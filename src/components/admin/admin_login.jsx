@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Eye, EyeOff, ArrowRight, Menu, X, Phone, Mail, MapPin, Linkedin, Twitter } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import NavBar from "../shared/NavBar"
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("")
@@ -35,47 +36,8 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-yellow-400 z-50 shadow-lg animate-slide-down">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">AGN</span>
-            </div>
-            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-black font-bold hover:opacity-70 transition text-sm">
-              HOME
-            </Link>
-            <Link to="/apply" className="text-black font-bold hover:opacity-70 transition text-sm">
-              APPLY
-            </Link>
-            <Link to="/hire" className="text-black font-bold hover:opacity-70 transition text-sm">
-              HIRE
-            </Link>
-          </div>
-          <button className="md:hidden text-black p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-yellow-400 border-t-2 border-black">
-            <div className="px-4 py-4 space-y-3">
-              <Link to="/" className="block text-black font-bold hover:opacity-70 transition">
-                HOME
-              </Link>
-              <Link to="/apply" className="block text-black font-bold hover:opacity-70 transition">
-                APPLY
-              </Link>
-              <Link to="/hire" className="block text-black font-bold hover:opacity-70 transition">
-                HIRE
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
+      {/* Shared Navigation */}
+      <NavBar />
 
       {/* Hero Section */}
       <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -306,7 +268,7 @@ export default function AdminLogin() {
               Call Us
             </a>
             <a
-              href="mailto:info@agnjobbank.com"
+              href="mailto:agnjobbank123@gmail.com"
               className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 group"
             >
               <Mail size={20} />
@@ -360,18 +322,18 @@ export default function AdminLogin() {
                 <li className="flex items-center gap-2 text-gray-400">
                   <Phone size={18} className="text-yellow-400" />
                   <a href="tel:01216511235" className="hover:text-yellow-400 transition">
-                    0121 651 1235
+                    +92 3037774400
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
-                    info@agnjobbank.com
+                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
+                    agnjobbank123@gmail.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <MapPin size={18} className="text-yellow-400" />
-                  <span>Birmingham, UK</span>
+                  <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
                 </li>
               </ul>
             </div>

@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import "./globals.css"
+import NavBar from "../shared/NavBar"
 
 export default function HirePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -69,28 +70,8 @@ export default function HirePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-yellow-400 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">AGN</span>
-            </div>
-            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
-          </a>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-black font-bold hover:opacity-70 transition text-sm">
-              HOME
-            </a>
-            <a href="/apply" className="text-black font-bold hover:opacity-70 transition text-sm">
-              APPLY
-            </a>
-          </div>
-          <button className="md:hidden text-black p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-      </nav>
+      {/* Shared Navigation */}
+      <NavBar />
 
       {/* Hero Section */}
       <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -453,10 +434,6 @@ export default function HirePage() {
                   <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
                     agnjobbank123@gmail.com
                   </a>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400">
-                  <MapPin size={18} className="text-yellow-400" />
-                  <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
                 </li>
               </ul>
             </div>

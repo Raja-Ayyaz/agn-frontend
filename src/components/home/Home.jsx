@@ -1,35 +1,60 @@
 "use client"
 
-import { ArrowRight, Menu, X, Phone, Mail, MapPin, Linkedin, Twitter, Clipboard, Search, Briefcase, BarChart2, TrendingUp, Target, Clock, UserCheck, User, UserPlus, Home as HomeIcon, LogIn, FilePlus } from "lucide-react"
+import {
+  ArrowRight,
+  Menu,
+  X,
+  Phone,
+  Mail,
+  MapPin,
+  Linkedin,
+  Twitter,
+  Clipboard,
+  Search,
+  Briefcase,
+  BarChart2,
+  TrendingUp,
+  Target,
+  Clock,
+  UserCheck,
+  User,
+  UserPlus,
+  HomeIcon,
+  LogIn,
+  FilePlus,
+} from "lucide-react"
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import NavBar from "../shared/NavBar"
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const navigate = useNavigate()
 
   useEffect(() => {
-    const els = Array.from(document.querySelectorAll('.js-h2'))
+    const els = Array.from(document.querySelectorAll(".js-h2"))
     if (!els.length) return
-    const obs = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const el = entry.target
-          // staggered reveal
-          const idx = els.indexOf(el)
-          const baseDelay = (el.classList.contains('delay') ? 120 : 0)
-          setTimeout(() => {
-            if (el.classList.contains('js-h2-slow')) {
-              el.classList.add('h2-animate-slow')
-            } else {
-              el.classList.add('h2-animate')
-            }
-            // once animated, unobserve
-            observer.unobserve(el)
-          }, idx * 90 + baseDelay)
-        }
-      })
-    }, { threshold: 0.2 })
+    const obs = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target
+            const idx = els.indexOf(el)
+            const baseDelay = el.classList.contains("delay") ? 120 : 0
+            setTimeout(
+              () => {
+                if (el.classList.contains("js-h2-slow")) {
+                  el.classList.add("h2-animate-slow")
+                } else {
+                  el.classList.add("h2-animate")
+                }
+                observer.unobserve(el)
+              },
+              idx * 90 + baseDelay,
+            )
+          }
+        })
+      },
+      { threshold: 0.2 },
+    )
 
     els.forEach((el) => obs.observe(el))
     return () => obs.disconnect()
@@ -37,8 +62,7 @@ export default function Home() {
 
   const openApply = (e) => {
     if (e && e.preventDefault) e.preventDefault()
-    navigate('/apply')
-    // ensure page is at top when route changes
+    window.location.href = "/apply"
     try {
       window.scrollTo(0, 0)
     } catch (err) {}
@@ -46,7 +70,7 @@ export default function Home() {
 
   const openHire = (e) => {
     if (e && e.preventDefault) e.preventDefault()
-    navigate('/hire')
+    window.location.href = "/hire"
     try {
       window.scrollTo(0, 0)
     } catch (err) {}
@@ -54,110 +78,192 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* small component-scoped styles for accents and card animations */}
       <style>{`
-        .h2-accent { height: 10px; border-radius: 9999px; background: linear-gradient(90deg,#f59e0b,#fb923c); transform-origin: left; transform: scaleX(0); transition: transform .5s cubic-bezier(.2,.9,.3,1); }
-        .group:hover .h2-accent, .group:focus-within .h2-accent { transform: scaleX(1); }
-        .card-btn { transition: transform .25s ease, box-shadow .25s ease; }
-        .card-btn:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
-        /* H2 entrance animation */
-        @keyframes h2In { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .js-h2 { opacity: 0; transform: translateY(12px); }
-        .h2-animate { opacity: 1; transform: translateY(0); animation: h2In .6s cubic-bezier(.2,.9,.3,1) forwards; }
-        .h2-animate.delay { animation-delay: .18s; }
-        .h2-animate-slow { opacity: 1; transform: translateY(0); animation: h2In .9s cubic-bezier(.2,.9,.3,1) forwards; }
+        /* Enhanced logo animation with smooth floating and rotation */
+        @keyframes logoFloat {
+          0%, 100% { transform: translateY(0px) rotate(0deg); }
+          50% { transform: translateY(-8px) rotate(3deg); }
+        }
+        .logo-animated {
+          animation: logoFloat 3.5s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
+        }
+
+        /* Smooth H2 entrance with spring easing */
+        @keyframes h2In {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .js-h2 { opacity: 0; transform: translateY(20px); }
+        .h2-animate { animation: h2In 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .h2-animate.delay { animation-delay: 0.2s; }
+        .h2-animate-slow { animation: h2In 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+        /* Accent line with smooth scale animation */
+        .h2-accent {
+          height: 4px;
+          border-radius: 9999px;
+          background: linear-gradient(90deg, #f59e0b, #fb923c);
+          transform-origin: left;
+          transform: scaleX(0);
+          transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .group:hover .h2-accent,
+        .group:focus-within .h2-accent {
+          transform: scaleX(1);
+        }
+
+        /* Card slide-up animation with stagger */
+        @keyframes cardSlideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .card-animate {
+          animation: cardSlideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Enhanced button with smooth overlay and lift effect */
+        @keyframes buttonOverlay {
+          from { left: -100%; }
+          to { left: 100%; }
+        }
+        .btn-primary {
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-primary::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.1);
+          animation: buttonOverlay 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+          z-index: 0;
+        }
+        .btn-primary:hover {
+          transform: translateY(-4px) scale(1.02);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+        }
+        .btn-primary:active {
+          transform: translateY(-1px) scale(0.98);
+        }
+
+        /* CTA card with glow effect on hover */
+        .cta-card {
+          transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+          position: relative;
+          overflow: hidden;
+        }
+        .cta-card::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+        .cta-card:hover::before {
+          opacity: 1;
+        }
+        .cta-card:hover {
+          transform: translateY(-10px) scale(1.02);
+          box-shadow: 0 24px 48px rgba(0, 0, 0, 0.15);
+          border-color: #f59e0b;
+        }
+
+        /* Icon bounce animation */
+        @keyframes iconBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
+        }
+        .icon-bounce {
+          animation: iconBounce 2.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        /* Stagger delays for grid items */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+
+        /* Glow effect on hover */
+        .glow-hover {
+          transition: all 0.3s ease;
+        }
+        .glow-hover:hover {
+          box-shadow: 0 0 24px rgba(245, 158, 11, 0.35);
+        }
+
+        /* Stat counter animation */
+        @keyframes statGrow {
+          from { opacity: 0; transform: scale(0.8); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .stat-item {
+          animation: statGrow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        /* Smooth pulse for decorative elements */
+        @keyframes softPulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.6; }
+        }
+        .soft-pulse {
+          animation: softPulse 4s ease-in-out infinite;
+        }
       `}</style>
 
-      <script>{`/* empty placeholder to keep style block above isolated for JSX */`}</script>
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-yellow-400 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">AGN</span>
-            </div>
-            
-            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="/apply" onClick={openApply} className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
-              <FilePlus size={16} /> APPLY
-            </a>
-            <a href="/hire" onClick={openHire} className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
-              <UserPlus size={16} /> HIRE
-            </a>
-            <a href="/admin/login" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
-              <LogIn size={16} /> LOGIN
-            </a>
-            <a href="#about" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
-              <HomeIcon size={16} /> ABOUT
-            </a>
-            <a href="#contact" className="flex items-center gap-2 text-black font-bold hover:opacity-70 transition text-sm">
-              <Mail size={16} /> CONTACT
-            </a>
-          </div>
-          <button className="md:hidden text-black p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-yellow-400 border-t-2 border-black">
-            <div className="px-4 py-4 space-y-3">
-                <a href="/apply" onClick={openApply} className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-                  <FilePlus size={16} /> APPLY
-                </a>
-                <a href="/hire" onClick={openHire} className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-                  <UserPlus size={16} /> HIRE
-                </a>
-                <a href="/login" className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-              <LogIn size={16} /> LOGIN
-                </a>
-                <a href="#about" className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-                  <HomeIcon size={16} /> ABOUT
-                </a>
-                <a href="#contact" className="block text-black font-bold hover:opacity-70 transition flex items-center gap-2">
-                  <Mail size={16} /> CONTACT
-                </a>
-            </div>
-          </div>
-        )}
-      </nav>
+      {/* Shared Navigation */}
+      <NavBar />
 
       {/* Hero Section */}
       <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute -left-32 top-40 w-80 h-80 bg-yellow-200 rounded-full opacity-40 blur-3xl"></div>
+        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl soft-pulse"></div>
+        <div
+          className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl soft-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute -left-32 top-40 w-80 h-80 bg-yellow-200 rounded-full opacity-40 blur-3xl soft-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-5xl md:text-7xl font-black text-black leading-tight mb-6 text-balance">
+              <h1 className="text-5xl md:text-7xl font-black text-black leading-tight mb-6 text-balance animate-in fade-in slide-in-from-left-8 duration-700">
                 Where talent meets{" "}
                 <span className="relative inline-block">
                   opportunity
-                  <span className="absolute -bottom-3 left-0 w-10 h-10 bg-black rounded-full"></span>
+                  <span
+                    className="absolute -bottom-3 left-0 w-10 h-10 bg-black rounded-full animate-in zoom-in duration-700"
+                    style={{ animationDelay: "0.3s" }}
+                  ></span>
                 </span>
               </h1>
-              <p className="text-lg text-black mb-8 max-w-md leading-relaxed font-medium">
+              <p
+                className="text-lg text-black mb-8 max-w-md leading-relaxed font-medium animate-in fade-in slide-in-from-left-8 duration-700"
+                style={{ animationDelay: "0.2s" }}
+              >
                 Specialists in financial recruitment, connecting businesses with exceptional people
               </p>
 
-              {/* CTA Cards */}
               <div className="grid sm:grid-cols-2 gap-4">
                 <a
                   href="/apply"
                   onClick={openApply}
-                  className="card-btn bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 transform cursor-pointer block border border-transparent hover:border-yellow-300"
+                  className="cta-card bg-white rounded-2xl p-6 shadow-md border border-transparent cursor-pointer block card-animate stagger-1"
                 >
                   <h3 className="text-xl font-black text-black mb-2">I want to apply</h3>
                   <p className="text-gray-600 mb-4 text-sm">Find your next finance role</p>
                   <div className="flex items-center justify-between">
-                    <ArrowRight className="text-black font-bold" size={24} />
-                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <ArrowRight className="text-black font-bold transition-transform duration-300" size={24} />
+                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center icon-bounce">
                       <Clipboard size={22} className="text-black" />
                     </div>
                   </div>
@@ -166,13 +272,16 @@ export default function Home() {
                 <a
                   href="/hire"
                   onClick={openHire}
-                  className="card-btn bg-white rounded-2xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 transform cursor-pointer block border border-transparent hover:border-yellow-300"
+                  className="cta-card bg-white rounded-2xl p-6 shadow-md border border-transparent cursor-pointer block card-animate stagger-2"
                 >
                   <h3 className="text-xl font-black text-black mb-2">I want to hire</h3>
                   <p className="text-gray-600 mb-4 text-sm">Find your perfect candidate</p>
                   <div className="flex items-center justify-between">
-                    <ArrowRight className="text-black font-bold" size={24} />
-                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <ArrowRight className="text-black font-bold transition-transform duration-300" size={24} />
+                    <div
+                      className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center icon-bounce"
+                      style={{ animationDelay: "0.5s" }}
+                    >
                       <Search size={22} className="text-black" />
                     </div>
                   </div>
@@ -181,12 +290,12 @@ export default function Home() {
             </div>
 
             {/* Phone number callout */}
-              <div className="hidden md:flex justify-end">
-              <div className="bg-white rounded-full px-8 py-4 shadow-xl flex items-center gap-3 hover:shadow-2xl transition transform hover:-translate-y-1">
-                <Phone size={28} className="text-black font-bold" />
+            <div className="hidden md:flex justify-end">
+              <div className="glow-hover bg-white rounded-full px-8 py-4 shadow-xl flex items-center gap-3 hover:shadow-2xl transition transform hover:-translate-y-1 duration-300 animate-in fade-in slide-in-from-right-8 duration-700">
+                <Phone size={28} className="text-black font-bold icon-bounce" />
                 <div>
                   <p className="text-xs text-gray-600 font-semibold">Call us</p>
-                  <p className="font-black text-black text-lg">0121 651 1235</p>
+                  <p className="font-black text-black text-lg">+92 3037774400</p>
                 </div>
               </div>
             </div>
@@ -212,13 +321,13 @@ export default function Home() {
                 candidates into their next role and clients find valued finance professionals. Operating for over a
                 decade in this market, we know our industry inside and out.
               </p>
-              <button className="bg-yellow-400 text-black hover:bg-yellow-500 font-black text-base px-8 py-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 inline-flex items-center gap-2">
-                Find out More <ArrowRight className="ml-2" size={20} />
+              <button className="btn-primary bg-yellow-400 text-black font-black text-base px-8 py-4 rounded-lg shadow-md inline-flex items-center gap-2 relative z-10">
+                Find out More <ArrowRight className="ml-2 transition-transform duration-300" size={20} />
               </button>
             </div>
-            <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl h-96 flex items-center justify-center overflow-hidden relative">
+            <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl h-96 flex items-center justify-center overflow-hidden relative glow-hover">
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-              <Briefcase size={64} className="text-yellow-400 relative z-10" />
+              <Briefcase size={64} className="text-yellow-400 relative z-10 icon-bounce" />
             </div>
           </div>
         </div>
@@ -259,15 +368,18 @@ export default function Home() {
             ].map((level, idx) => (
               <div
                 key={idx}
-                className="bg-gray-50 rounded-xl p-8 hover:shadow-lg hover:bg-yellow-50 transition border border-gray-200"
+                className={`card-animate bg-gray-50 rounded-xl p-8 hover:shadow-lg hover:bg-yellow-50 transition border border-gray-200 hover:border-yellow-400 cursor-pointer stagger-${idx + 1}`}
               >
-                <div className="w-14 h-14 bg-yellow-400 rounded-full mb-4 flex items-center justify-center font-black text-black text-xl">
+                <div className="w-14 h-14 bg-yellow-400 rounded-full mb-4 flex items-center justify-center font-black text-black text-xl shadow-md hover:shadow-lg transition duration-300">
                   <level.Icon size={28} className="text-black" />
                 </div>
                 <h3 className="text-xl font-black text-black mb-3">{level.title}</h3>
                 <p className="text-gray-600 mb-6 leading-relaxed">{level.description}</p>
-                <a href="#" className="text-black font-black flex items-center gap-2 hover:gap-3 transition group">
-                  Search <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
+                <a
+                  href="#"
+                  className="text-black font-black flex items-center gap-2 hover:gap-3 transition group duration-300"
+                >
+                  Search <ArrowRight size={20} className="group-hover:translate-x-1 transition duration-300" />
                 </a>
               </div>
             ))}
@@ -311,9 +423,9 @@ export default function Home() {
             ].map((service, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition"
+                className={`card-animate bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition cursor-pointer stagger-${idx + 1}`}
               >
-                <div className="w-16 h-16 mb-4 flex items-center justify-center bg-yellow-50 rounded-full">
+                <div className="w-16 h-16 mb-4 flex items-center justify-center bg-yellow-50 rounded-full shadow-md hover:shadow-lg transition duration-300">
                   <service.Icon size={28} className="text-black" />
                 </div>
                 <h3 className="text-2xl font-black text-black mb-3">{service.title}</h3>
@@ -328,7 +440,9 @@ export default function Home() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="group inline-block mb-12">
-            <h2 className="js-h2 js-h2-slow text-4xl md:text-5xl font-black text-black text-balance">A Few Words On Us.</h2>
+            <h2 className="js-h2 js-h2-slow text-4xl md:text-5xl font-black text-black text-balance">
+              A Few Words On Us.
+            </h2>
             <span className="h2-accent mt-4 block w-48"></span>
           </div>
 
@@ -355,10 +469,17 @@ export default function Home() {
                 rating: 5,
               },
             ].map((testimonial, idx) => (
-              <div key={idx} className="bg-gray-50 rounded-xl p-8 border border-gray-200 hover:shadow-lg transition">
+              <div
+                key={idx}
+                className="card-animate bg-gray-50 rounded-xl p-8 border border-gray-200 hover:shadow-lg hover:border-yellow-400 transition cursor-pointer"
+              >
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <span key={i} className="text-yellow-400 text-xl">
+                    <span
+                      key={i}
+                      className="text-yellow-400 text-xl animate-in zoom-in"
+                      style={{ animationDelay: `${i * 0.1}s` }}
+                    >
                       ★
                     </span>
                   ))}
@@ -381,7 +502,7 @@ export default function Home() {
               { number: "98%", label: "Client Satisfaction" },
               { number: "24/7", label: "Support" },
             ].map((stat, idx) => (
-              <div key={idx}>
+              <div key={idx} className={`stat-item stagger-${idx + 1}`}>
                 <div className="text-5xl md:text-6xl font-black text-yellow-400 mb-2">{stat.number}</div>
                 <p className="text-gray-300 font-semibold">{stat.label}</p>
               </div>
@@ -393,13 +514,18 @@ export default function Home() {
       {/* Footer CTA */}
       <section className="bg-yellow-400 py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-8 text-balance">Ready to get started?</h2>
+          <h2 className="text-4xl md:text-5xl font-black text-black mb-8 text-balance animate-in fade-in duration-700">
+            Ready to get started?
+          </h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button onClick={openApply} className="bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-6">
-              Apply Now <ArrowRight className="ml-2" size={20} />
+            <button
+              onClick={openApply}
+              className="btn-primary bg-black text-yellow-400 font-black text-lg px-8 py-6 rounded-lg shadow-md relative z-10 inline-flex items-center gap-2"
+            >
+              Apply Now <ArrowRight size={20} />
             </button>
-            <button className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-6 bg-transparent">
-              Hire Talent <ArrowRight className="ml-2" size={20} />
+            <button className="btn-primary border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-6 rounded-lg bg-transparent relative z-10 inline-flex items-center gap-2">
+              Hire Talent <ArrowRight size={20} />
             </button>
           </div>
         </div>
@@ -411,7 +537,7 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             {/* Brand */}
             <div>
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4 shadow-lg">
                 <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
@@ -425,22 +551,22 @@ export default function Home() {
               <h4 className="font-black text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="#apply" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="#apply" className="text-gray-400 hover:text-yellow-400 transition font-medium duration-300">
                     Apply
                   </a>
                 </li>
                 <li>
-                  <a href="#hire" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="#hire" className="text-gray-400 hover:text-yellow-400 transition font-medium duration-300">
                     Hire
                   </a>
                 </li>
                 <li>
-                  <a href="#about" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="#about" className="text-gray-400 hover:text-yellow-400 transition font-medium duration-300">
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium duration-300">
                     Services
                   </a>
                 </li>
@@ -453,19 +579,19 @@ export default function Home() {
               <ul className="space-y-3">
                 <li className="flex items-center gap-2 text-gray-400">
                   <Phone size={18} className="text-yellow-400" />
-                  <a href="tel:01216511235" className="hover:text-yellow-400 transition">
-                    0121 651 1235
+                  <a href="tel:01216511235" className="hover:text-yellow-400 transition duration-300">
+                    +92 3037774400
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:info@agnjobbank.com" className="hover:text-yellow-400 transition">
-                    info@agnjobbank.com
-                  </a>
+                    <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition duration-300">
+                      agnjobbank123@gmail.com
+                    </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
                   <MapPin size={18} className="text-yellow-400" />
-                  <span>Birmingham, UK</span>
+                    <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
                 </li>
               </ul>
             </div>
@@ -476,13 +602,13 @@ export default function Home() {
               <div className="flex gap-4">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition transform hover:scale-110 duration-300"
                 >
                   <Linkedin size={20} />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition transform hover:scale-110 duration-300"
                 >
                   <Twitter size={20} />
                 </a>
@@ -493,13 +619,12 @@ export default function Home() {
           {/* Footer Bottom */}
           <div className="border-t border-gray-800 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-             
               <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
               <div className="flex gap-6">
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium duration-300">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium duration-300">
                   Terms of Service
                 </a>
               </div>

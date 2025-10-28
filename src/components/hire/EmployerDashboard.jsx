@@ -3,6 +3,7 @@
 import { ArrowRight, Menu, X, Phone, Mail, MapPin, Linkedin, Twitter, CheckCircle } from "lucide-react"
 
 import { useState } from "react"
+import NavBar from "../shared/NavBar"
 
 export default function EmployerDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -22,53 +23,8 @@ export default function EmployerDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-yellow-400 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 hover:opacity-80 transition">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-              <span className="text-yellow-400 font-black text-lg">AGN</span>
-            </div>
-            <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
-          </a>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="/" className="text-black font-bold hover:opacity-70 transition text-sm">
-              HOME
-            </a>
-            <a href="#about" className="text-black font-bold hover:opacity-70 transition text-sm">
-              ABOUT
-            </a>
-            <a href="#jobs" className="text-black font-bold hover:opacity-70 transition text-sm">
-              JOBS
-            </a>
-            <a href="#contact" className="text-black font-bold hover:opacity-70 transition text-sm">
-              CONTACT
-            </a>
-          </div>
-          <button className="md:hidden text-black p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-yellow-400 border-t-2 border-black">
-            <div className="px-4 py-4 space-y-3">
-              <a href="/" className="block text-black font-bold hover:opacity-70 transition">
-                HOME
-              </a>
-              <a href="#about" className="block text-black font-bold hover:opacity-70 transition">
-                ABOUT
-              </a>
-              <a href="#jobs" className="block text-black font-bold hover:opacity-70 transition">
-                JOBS
-              </a>
-              <a href="#contact" className="block text-black font-bold hover:opacity-70 transition">
-                CONTACT
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
+      {/* Shared Navigation */}
+      <NavBar />
 
       {/* Hero Section */}
       <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">

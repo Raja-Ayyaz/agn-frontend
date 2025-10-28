@@ -1,29 +1,19 @@
 "use client"
 
-import { ArrowRight, Menu, X, Phone, Mail, Linkedin, Twitter, Upload, Eye, EyeOff } from "lucide-react"
+import { ArrowRight, Menu, X, Phone, Mail, Linkedin, Twitter, Eye, EyeOff } from "lucide-react"
 import { useState } from "react"
 import { useNavigate } from 'react-router-dom'
-import NavBar from "../components/shared/NavBar"
+import NavBar from "../shared/NavBar"
 
 export default function Login() {
-  // mobile menu state moved into shared NavBar
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [uploadedImage, setUploadedImage] = useState(null)
   // signup flow removed — Signup.jsx deleted
   const navigate = useNavigate()
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        setUploadedImage(event.target?.result)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  // image upload removed from login page
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -164,7 +154,7 @@ export default function Login() {
                 {/* Sign Up Link */}
                 <p className="text-center text-sm text-black font-medium">
                   Don't have an account?{' '}
-                  <a href="mailto:agnjobbank123@gmail.com" className="font-black hover:opacity-70 transition">Contact us to sign up</a>
+                  <button type="button" onClick={() => navigate('/employer-signup')} className="font-black hover:opacity-70 transition">Sign up as an employer</button>
                 </p>
               </form>
             </div>
@@ -174,50 +164,7 @@ export default function Login() {
 
       {/* Signup modal removed (Signup.jsx deleted) */}
 
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">Upload Company Logo</h2>
-          <p className="text-gray-600 mb-12 text-lg font-medium">Add your company branding to your profile</p>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Upload Area */}
-            <div className="bg-white rounded-2xl p-8 border-4 border-dashed border-yellow-400 hover:border-black transition cursor-pointer">
-              <label className="flex flex-col items-center justify-center gap-4 cursor-pointer">
-                <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                  <Upload size={32} className="text-black" />
-                </div>
-                <div className="text-center">
-                  <p className="font-black text-black text-lg mb-1">Click to upload</p>
-                  <p className="text-gray-600 text-sm">or drag and drop</p>
-                  <p className="text-gray-500 text-xs mt-2">PNG, JPG, GIF up to 10MB</p>
-                </div>
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              </label>
-            </div>
-
-            {/* Preview */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-gray-200 flex items-center justify-center">
-              {uploadedImage ? (
-                <div className="text-center">
-                  <img
-                    src={uploadedImage || "/placeholder.svg"}
-                    alt="Uploaded"
-                    className="max-w-full max-h-64 rounded-lg mb-4"
-                  />
-                  <p className="text-sm text-gray-600 font-medium">Image uploaded successfully!</p>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-3xl">🖼️</span>
-                  </div>
-                  <p className="text-gray-600 font-medium">Your image preview will appear here</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Upload section removed from login page */}
 
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
