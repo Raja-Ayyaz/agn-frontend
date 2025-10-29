@@ -16,19 +16,22 @@ import {
   Building2,
 } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import "./globals.css"
 import NavBar from "../shared/NavBar"
+import { employerSignup } from "../../Api/Service/apiService"
 
 export default function HirePage() {
+  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [formData, setFormData] = useState({
-    employer_id: "",
     username: "",
     company_name: "",
     email: "",
     password: "",
   })
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState("")
   const [sideImage, setSideImage] = useState(null)
   const STATIC_SIDE_IMAGE = "/images/Hire_side.jpg"
 
@@ -45,28 +48,34 @@ export default function HirePage() {
     reader.readAsDataURL(file)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const payload = {
-      username: formData.username,
-      company_name: formData.company_name,
-      email: formData.email,
-      password: formData.password,
-    }
+    setError("")
+    setSubmitted(false)
 
-    fetch("http://localhost:8000/insert_employer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("Success:", data)
-        setSubmitted(true)
-        setFormData({ employer_id: "", username: "", company_name: "", email: "", password: "" })
-        setTimeout(() => setSubmitted(false), 5000)
+    try {
+      const result = await employerSignup({
+        username: formData.username,
+        company_name: formData.company_name,
+        email: formData.email,
+        password: formData.password,
       })
-      .catch((err) => console.error("Error:", err))
+
+      if (result.ok) {
+        setSubmitted(true)
+        setFormData({ username: "", company_name: "", email: "", password: "" })
+        
+        // Redirect to login page after 2 seconds
+        setTimeout(() => {
+          navigate('/hire')
+        }, 2000)
+      } else {
+        setError(result.error || "Registration failed")
+      }
+    } catch (err) {
+      console.error("Error:", err)
+      setError(err.message || "An error occurred during registration")
+    }
   }
 
   return (
@@ -131,8 +140,20 @@ export default function HirePage() {
                   <div>
                     <h3 className="font-black text-green-900 text-lg mb-1">Employer Registered!</h3>
                     <p className="text-green-800">
-                      We've saved your employer details. Check your email for next steps.
+                      Account created successfully! Redirecting to login page...
                     </p>
+                  </div>
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-8 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-400 rounded-2xl p-6 flex items-start gap-4 animate-scale-in shadow-lg">
+                  <div className="w-8 h-8 bg-red-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white font-black">✕</span>
+                  </div>
+                  <div>
+                    <h3 className="font-black text-red-900 text-lg mb-1">Registration Failed</h3>
+                    <p className="text-red-800">{error}</p>
                   </div>
                 </div>
               )}

@@ -54,7 +54,42 @@ export default function ApplyPage() {
   }
 
   const handleFileChange = (e) => {
-    setCvFile(e.target.files[0])
+    const file = e.target.files[0]
+    if (!file) {
+      setCvFile(null)
+      return
+    }
+    // Validate file type and size (5MB max)
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ]
+    if (!allowed.includes(file.type) && !/\.pdf$|\.docx?$/.test(file.name.toLowerCase())) {
+      setError("Only PDF or Word files are allowed (PDF, DOC, DOCX).")
+      setCvFile(null)
+      showToast("error", "Please upload a PDF or Word document (DOC/DOCX)")
+      return
+    }
+    const maxBytes = 5 * 1024 * 1024
+    if (file.size > maxBytes) {
+      setError("File too large. Maximum allowed size is 5MB.")
+      setCvFile(null)
+      showToast("error", "File too large — maximum 5MB")
+      return
+    }
+    setError(null)
+    setCvFile(file)
+  }
+
+  // Simple toast system
+  const [toasts, setToasts] = useState([])
+  const showToast = (type, text, duration = 4500) => {
+    const id = Date.now() + Math.random()
+    setToasts((t) => [...t, { id, type, text }])
+    setTimeout(() => {
+      setToasts((t) => t.filter((x) => x.id !== id))
+    }, duration)
   }
 
   const handleSubmit = (e) => {
@@ -64,6 +99,7 @@ export default function ApplyPage() {
 
     if (!formData.name || !formData.email || !formData.mobile_no) {
       setError("Please fill in all required fields (Name, Email, Mobile Number)")
+      showToast("error", "Please fill in required fields: Name, Email, Mobile Number")
       setIsLoading(false)
       return
     }
@@ -94,6 +130,7 @@ export default function ApplyPage() {
       .then((result) => {
         setIsLoading(false)
         setSubmitted(true)
+        showToast("success", "Application submitted successfully")
         setFormData({
           name: "",
           age: "",
@@ -116,10 +153,13 @@ export default function ApplyPage() {
         setIsLoading(false)
         if (error.name === "AbortError") {
           setError("Request timeout. Please check your connection and try again.")
+          showToast("error", "Request timeout — please try again")
         } else if (error.message.includes("Failed to fetch")) {
           setError("Unable to connect to server. Please ensure the backend is running and try again.")
+          showToast("error", "Unable to connect to server")
         } else {
           setError("Failed to submit application. Please try again or contact support.")
+          showToast("error", "Failed to submit application")
         }
         console.error("Error:", error)
       })
@@ -505,6 +545,7 @@ export default function ApplyPage() {
                   type="file"
                   name="cv"
                   onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   required
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
@@ -773,6 +814,19 @@ export default function ApplyPage() {
           </div>
         </div>
       </footer>
+      {/* Toast container */}
+      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-200 ${
+              t.type === "success" ? "bg-emerald-600" : "bg-rose-600"
+            }`}
+          >
+            {t.text}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

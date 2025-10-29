@@ -15,9 +15,15 @@ import {
   Award,
   Zap,
   Shield,
+  FileText,
+  Download,
+  Clock,
+  AlertCircle,
+  XCircle,
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import NavBar from "../shared/NavBar"
+import { listEmployees, createHireRequest, getEmployerHireRequests } from '../../Api/Service/apiService'
 
 export default function EmployerDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -25,26 +31,225 @@ export default function EmployerDashboard() {
   const [experience, setExperience] = useState("")
   const [submitted, setSubmitted] = useState(false)
   const [searchResults, setSearchResults] = useState(null)
+  const [experienceOptions, setExperienceOptions] = useState([])
+  const [fieldOptions, setFieldOptions] = useState([])
+  const [expandedCandidate, setExpandedCandidate] = useState(null)
+  const [hireModalOpen, setHireModalOpen] = useState(false)
+  const [selectedCandidate, setSelectedCandidate] = useState(null)
+  const [hireMessage, setHireMessage] = useState("")
+  const [submittingHire, setSubmittingHire] = useState(false)
+  const [requestsModalOpen, setRequestsModalOpen] = useState(false)
+  const [hireRequests, setHireRequests] = useState([])
+  const [loadingRequests, setLoadingRequests] = useState(false)
 
   const handleSearch = (e) => {
     e.preventDefault()
-    // Simulate search results
-    setSearchResults({
-      jobTitle,
-      experience,
-      count: Math.floor(Math.random() * 15) + 5,
-      timestamp: new Date().toLocaleTimeString(),
-    })
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
-    }, 2000)
+    // Query backend for matching employees by role (field) and experience
+    ;(async () => {
+      try {
+        const params = {}
+        if (jobTitle) {
+          // if the user typed a partial role (e.g. "Software"), prefer the full role
+          // from `fieldOptions` that startsWith the typed text (case-insensitive).
+          const typed = String(jobTitle || "").trim()
+          const match = (fieldOptions || []).find((f) =>
+            String(f || "").toLowerCase().startsWith(typed.toLowerCase())
+          )
+          params.role = match || jobTitle
+        }
+        if (experience) params.experience = experience
+        const res = await listEmployees(params)
+        if (res && res.ok) {
+          const rows = res.rows || []
+          setSearchResults({
+            jobTitle,
+            experience,
+            count: rows.length,
+            timestamp: new Date().toLocaleTimeString(),
+            rows,
+          })
+        } else {
+          setSearchResults({ jobTitle, experience, count: 0, timestamp: new Date().toLocaleTimeString(), rows: [] })
+        }
+      } catch (err) {
+        console.error("Search error", err)
+        setSearchResults({ jobTitle, experience, count: 0, timestamp: new Date().toLocaleTimeString(), rows: [] })
+      }
+      setSubmitted(true)
+      setTimeout(() => setSubmitted(false), 700)
+    })()
   }
+
+  // Convert experience string from DB into years representation
+  function toYearsLabel(exp) {
+    if (!exp && exp !== 0) return ""
+    const s = String(exp)
+    // try to find first number in the string
+    const m = s.match(/\d+/)
+    if (m) {
+      const n = parseInt(m[0], 10)
+      return n === 1 ? "1 year" : `${n} years`
+    }
+    // treat fresh/no experience as 0 years so it appears in the dropdown
+    const low = s.toLowerCase()
+    if (low.includes('fresh') || low.includes('fresher') || low.includes('no professional') || low.includes('no experience')) {
+      return '0 years'
+    }
+    return s
+  }
+
+  // load options on mount
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        // fetch a large sample (adjust limit if needed)
+        const res = await listEmployees({ limit: 1000 })
+        if (!mounted) return
+        if (res && res.ok) {
+          const rows = res.rows || []
+          const expSet = new Set()
+          const fieldSet = new Set()
+          rows.forEach((r) => {
+            if (r.experience) expSet.add(toYearsLabel(r.experience))
+            if (r.field) fieldSet.add(r.field)
+          })
+          // sort experience options by numeric value when possible
+          const expArr = Array.from(expSet).filter(Boolean).sort((a, b) => {
+            const na = parseInt(a, 10) || 0
+            const nb = parseInt(b, 10) || 0
+            return na - nb
+          })
+          setExperienceOptions(expArr)
+          setFieldOptions(Array.from(fieldSet).filter(Boolean).sort())
+        }
+      } catch (err) {
+        console.error("Failed to load employee options", err)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const clearResults = () => {
     setSearchResults(null)
     setJobTitle("")
     setExperience("")
+  }
+
+  const openHireModal = (candidate) => {
+    setSelectedCandidate(candidate)
+    setHireMessage("")
+    setHireModalOpen(true)
+  }
+
+  const closeHireModal = () => {
+    setHireModalOpen(false)
+    setSelectedCandidate(null)
+    setHireMessage("")
+  }
+
+  const handleHireSubmit = async () => {
+    if (!hireMessage.trim()) {
+      alert("Please enter a message for your hire request")
+      return
+    }
+
+    setSubmittingHire(true)
+    try {
+      // Get employer_id from localStorage
+      const employerId = localStorage.getItem('agn_employer_id')
+      if (!employerId) {
+        alert("Employer ID not found. Please login again.")
+        return
+      }
+
+      const response = await createHireRequest({
+        employer_id: parseInt(employerId),
+        employee_id: selectedCandidate.employee_id,
+        message: hireMessage.trim()
+      })
+
+      if (response && response.ok) {
+        alert(`Hire request sent successfully for ${selectedCandidate.name}!`)
+        closeHireModal()
+      } else {
+        alert(response?.error || "Failed to create hire request")
+      }
+    } catch (error) {
+      console.error("Hire request error:", error)
+      alert(error.message || "Failed to create hire request. Please try again.")
+    } finally {
+      setSubmittingHire(false)
+    }
+  }
+
+  const openRequestsModal = async () => {
+    setRequestsModalOpen(true)
+    setLoadingRequests(true)
+    try {
+      const employerId = localStorage.getItem('agn_employer_id')
+      if (!employerId) {
+        alert("Employer ID not found. Please login again.")
+        return
+      }
+
+      const response = await getEmployerHireRequests(parseInt(employerId))
+      if (response && response.ok) {
+        setHireRequests(response.requests || [])
+      } else {
+        alert(response?.error || "Failed to load hire requests")
+      }
+    } catch (error) {
+      console.error("Load requests error:", error)
+      alert("Failed to load hire requests. Please try again.")
+    } finally {
+      setLoadingRequests(false)
+    }
+  }
+
+  const closeRequestsModal = () => {
+    setRequestsModalOpen(false)
+    setHireRequests([])
+  }
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending':
+        return <Clock className="text-yellow-600" size={20} />
+      case 'accepted':
+        return <CheckCircle className="text-green-600" size={20} />
+      case 'rejected':
+        return <XCircle className="text-red-600" size={20} />
+      default:
+        return <AlertCircle className="text-gray-600" size={20} />
+    }
+  }
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+      case 'accepted':
+        return 'bg-green-100 text-green-800 border-green-300'
+      case 'rejected':
+        return 'bg-red-100 text-red-800 border-red-300'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-300'
+    }
+  }
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
+    const date = new Date(dateString)
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
   }
 
   return (
@@ -60,6 +265,13 @@ export default function EmployerDashboard() {
               <h3 className="font-black text-black text-sm">Quick Search</h3>
               <p className="text-gray-600 text-xs">Find candidates instantly</p>
             </div>
+            <button
+              onClick={openRequestsModal}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-black px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm flex items-center gap-2"
+            >
+              <FileText size={18} />
+              My Hire Requests
+            </button>
             <button
               onClick={() => document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth" })}
               className="bg-yellow-500 hover:bg-yellow-600 text-black font-black px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm"
@@ -95,16 +307,6 @@ export default function EmployerDashboard() {
               <p className="text-lg text-black mb-8 max-w-md leading-relaxed font-medium">
                 Access our network of vetted finance professionals ready to join your team
               </p>
-            </div>
-
-            <div className="hidden md:flex justify-end animate-slide-in-right">
-              <div className="bg-white rounded-full px-8 py-4 shadow-xl flex items-center gap-3 hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                <Phone size={28} className="text-yellow-500 font-bold" />
-                <div>
-                  <p className="text-xs text-gray-600 font-semibold">Call us</p>
-                  <p className="font-black text-black text-lg">+92 3037774400</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -143,12 +345,27 @@ export default function EmployerDashboard() {
                     <label className="block font-black text-black mb-3 text-sm">Job Title or Role</label>
                     <input
                       type="text"
+                      list="field-options"
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g., Senior Accountant, Finance Manager"
                       required
                       className="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-yellow-400"
                     />
+                    <datalist id="field-options">
+                      {(fieldOptions || [])
+                        .filter((f) => {
+                          if (!jobTitle) return true
+                          try {
+                            return String(f || "").toLowerCase().startsWith(String(jobTitle || "").toLowerCase())
+                          } catch (e) {
+                            return true
+                          }
+                        })
+                        .map((f) => (
+                          <option key={f} value={f} />
+                        ))}
+                    </datalist>
                   </div>
 
                   <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
@@ -156,15 +373,24 @@ export default function EmployerDashboard() {
                     <select
                       value={experience}
                       onChange={(e) => setExperience(e.target.value)}
-                      required
                       className="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-yellow-400"
                     >
                       <option value="">Select experience level</option>
-                      <option value="entry">Entry Level / Graduate</option>
-                      <option value="part-qualified">Part Qualified</option>
-                      <option value="qualified">Qualified Professional</option>
-                      <option value="senior">Senior / Management</option>
-                      <option value="executive">Executive / Director</option>
+                      {experienceOptions.length > 0 ? (
+                        experienceOptions.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="entry">Entry Level / Graduate</option>
+                          <option value="part-qualified">Part Qualified</option>
+                          <option value="qualified">Qualified Professional</option>
+                          <option value="senior">Senior / Management</option>
+                          <option value="executive">Executive / Director</option>
+                        </>
+                      )}
                     </select>
                   </div>
                 </div>
@@ -209,31 +435,130 @@ export default function EmployerDashboard() {
               </div>
 
               <div className="space-y-3 mb-6">
-                {[...Array(Math.min(searchResults.count, 3))].map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200 hover:border-blue-400 transition-all duration-200 transform hover:scale-102 cursor-pointer group"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Users className="text-blue-500" size={18} />
-                          <h4 className="font-black text-black">Candidate {i + 1}</h4>
-                        </div>
-                        <p className="text-sm text-gray-600 mb-2">Qualified professional with relevant experience</p>
-                        <div className="flex gap-2">
-                          <span className="bg-blue-200 text-blue-900 text-xs font-bold px-3 py-1 rounded-full">
-                            Available
-                          </span>
-                          <span className="bg-green-200 text-green-900 text-xs font-bold px-3 py-1 rounded-full">
-                            Verified
-                          </span>
+                {(searchResults.rows || []).slice(0, Math.min(searchResults.rows.length, 6)).map((r, i) => {
+                  const isExpanded = expandedCandidate === r.employee_id
+                  return (
+                    <div
+                      key={r.employee_id || i}
+                      className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 hover:border-blue-400 transition-all duration-200 group"
+                    >
+                      <div
+                        className="p-4 cursor-pointer"
+                        onClick={() => setExpandedCandidate(isExpanded ? null : r.employee_id)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Users className="text-blue-500" size={18} />
+                              <h4 className="font-black text-black">{r.name || `Candidate ${i + 1}`}</h4>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{r.field || 'Relevant role'}</p>
+                            <div className="flex gap-2">
+                              <span className="bg-blue-200 text-blue-900 text-xs font-bold px-3 py-1 rounded-full">
+                                {r.location || 'Location unknown'}
+                              </span>
+                              <span className="bg-green-200 text-green-900 text-xs font-bold px-3 py-1 rounded-full">
+                                {r.experience ? toYearsLabel(r.experience) : 'Experience N/A'}
+                              </span>
+                            </div>
+                          </div>
+                          <ArrowRight
+                            className={`text-blue-500 transition-transform ${isExpanded ? 'rotate-90' : 'group-hover:translate-x-1'}`}
+                            size={20}
+                          />
                         </div>
                       </div>
-                      <ArrowRight className="text-blue-500 group-hover:translate-x-1 transition-transform" size={20} />
+
+                      {/* Expanded section with CV and Hire button */}
+                      {isExpanded && (
+                        <div className="border-t border-blue-200 p-4 bg-white animate-fade-in">
+                          <div className="space-y-4">
+                            {/* Candidate Details */}
+                            <div className="grid md:grid-cols-2 gap-3 text-sm">
+                              {r.educational_profile && (
+                                <div className="flex items-center gap-2">
+                                  <Award size={16} className="text-blue-500" />
+                                  <span className="text-gray-700">{r.educational_profile}</span>
+                                </div>
+                              )}
+                              {r.experience_detail && (
+                                <div className="flex items-start gap-2 md:col-span-2">
+                                  <Briefcase size={16} className="text-blue-500 mt-1" />
+                                  <span className="text-gray-700">{r.experience_detail}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* CV Preview */}
+                            {r.masked_cv && (
+                              <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <FileText className="text-blue-600" size={20} />
+                                    <span className="font-bold text-black text-sm">Masked CV</span>
+                                  </div>
+                                  <a
+                                    href={r.masked_cv}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-semibold"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <Download size={16} />
+                                    Download
+                                  </a>
+                                </div>
+                                {r.masked_cv.toLowerCase().endsWith('.pdf') ? (
+                                  <iframe
+                                    src={r.masked_cv}
+                                    className="w-full h-96 border border-gray-300 rounded"
+                                    title={`CV of ${r.name}`}
+                                  />
+                                ) : (
+                                  <a
+                                    href={r.masked_cv}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline text-sm"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    View CV: {r.masked_cv}
+                                  </a>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-3">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  openHireModal(r)
+                                }}
+                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                              >
+                                <CheckCircle size={18} />
+                                Hire {r.name?.split(' ')[0]}
+                              </button>
+                              {r.cv && (
+                                <a
+                                  href={r.cv}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                                >
+                                  <FileText size={18} />
+                                  Original CV
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-lg transition-all duration-200 transform hover:scale-105">
@@ -242,6 +567,247 @@ export default function EmployerDashboard() {
             </div>
           </div>
         </section>
+      )}
+
+      {/* Hire Request Modal */}
+      {hireModalOpen && selectedCandidate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-yellow-400 to-orange-400 p-6 rounded-t-2xl">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl font-black text-black mb-2">Send Hire Request</h3>
+                  <p className="text-black text-sm font-semibold">
+                    Request to hire {selectedCandidate.name}
+                  </p>
+                </div>
+                <button
+                  onClick={closeHireModal}
+                  className="text-black hover:text-gray-700 transition-colors"
+                  disabled={submittingHire}
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Candidate Summary */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-center gap-3 mb-3">
+                  <Users className="text-blue-600" size={24} />
+                  <div>
+                    <h4 className="font-black text-black text-lg">{selectedCandidate.name}</h4>
+                    <p className="text-sm text-gray-600">{selectedCandidate.field}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600 font-semibold">Location:</span>
+                    <p className="text-black font-bold">{selectedCandidate.location}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-600 font-semibold">Experience:</span>
+                    <p className="text-black font-bold">{toYearsLabel(selectedCandidate.experience)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message Input */}
+              <div>
+                <label className="block font-black text-black mb-3 text-sm">
+                  Message / Comments <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={hireMessage}
+                  onChange={(e) => setHireMessage(e.target.value)}
+                  placeholder="Enter your message or comments for this hire request..."
+                  rows={6}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition-all duration-200 font-medium resize-none"
+                  disabled={submittingHire}
+                  required
+                />
+                <p className="text-gray-500 text-xs mt-2">
+                  Please provide details about the position, salary expectations, or any other relevant information.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4 border-t border-gray-200">
+                <button
+                  onClick={closeHireModal}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-black font-black py-3 px-4 rounded-lg transition-all duration-200"
+                  disabled={submittingHire}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleHireSubmit}
+                  disabled={submittingHire || !hireMessage.trim()}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                >
+                  {submittingHire ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={18} />
+                      Confirm & Send Request
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hire Requests Modal */}
+      {requestsModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slide-up">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 rounded-t-2xl sticky top-0 z-10">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl font-black text-white mb-2">My Hire Requests</h3>
+                  <p className="text-blue-100 text-sm font-semibold">
+                    View all your hire requests and their current status
+                  </p>
+                </div>
+                <button
+                  onClick={closeRequestsModal}
+                  className="text-white hover:text-blue-200 transition-colors"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              {loadingRequests ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : hireRequests.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="mx-auto text-gray-400 mb-4" size={64} />
+                  <h4 className="text-xl font-black text-gray-700 mb-2">No Hire Requests Yet</h4>
+                  <p className="text-gray-500">
+                    You haven't sent any hire requests. Search for candidates and click the "Hire" button to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="text-yellow-600" size={20} />
+                        <span className="text-xs text-gray-600 font-semibold">Pending</span>
+                      </div>
+                      <p className="text-2xl font-black text-yellow-700">
+                        {hireRequests.filter(r => r.status === 'pending').length}
+                      </p>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle className="text-green-600" size={20} />
+                        <span className="text-xs text-gray-600 font-semibold">Accepted</span>
+                      </div>
+                      <p className="text-2xl font-black text-green-700">
+                        {hireRequests.filter(r => r.status === 'accepted').length}
+                      </p>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                      <div className="flex items-center gap-2 mb-1">
+                        <XCircle className="text-red-600" size={20} />
+                        <span className="text-xs text-gray-600 font-semibold">Rejected</span>
+                      </div>
+                      <p className="text-2xl font-black text-red-700">
+                        {hireRequests.filter(r => r.status === 'rejected').length}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Requests List */}
+                  <div className="space-y-3">
+                    {hireRequests.map((request, index) => (
+                      <div
+                        key={request.request_id || index}
+                        className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border-2 border-gray-200 hover:border-blue-400 transition-all duration-200 overflow-hidden"
+                      >
+                        <div className="p-5">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-3 mb-2">
+                                <Users className="text-blue-600" size={24} />
+                                <h4 className="text-lg font-black text-black">
+                                  {request.employee_name || 'Unknown Candidate'}
+                                </h4>
+                                <div className={`px-3 py-1 rounded-full border-2 flex items-center gap-1 ${getStatusColor(request.status)}`}>
+                                  {getStatusIcon(request.status)}
+                                  <span className="text-xs font-black uppercase">{request.status}</span>
+                                </div>
+                              </div>
+                              <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                                <div className="flex items-center gap-1">
+                                  <Briefcase size={14} />
+                                  <span>{request.employee_field || 'N/A'}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <MapPin size={14} />
+                                  <span>{request.employee_location || 'N/A'}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Request Details */}
+                          <div className="grid md:grid-cols-2 gap-4 mb-4">
+                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                              <p className="text-xs text-gray-600 font-semibold mb-1">Request Sent</p>
+                              <p className="text-sm font-black text-black">{formatDate(request.request_date)}</p>
+                            </div>
+                            {request.response_date && (
+                              <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                <p className="text-xs text-gray-600 font-semibold mb-1">Response Date</p>
+                                <p className="text-sm font-black text-black">{formatDate(request.response_date)}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Message */}
+                          {request.message && (
+                            <div className="bg-white rounded-lg p-4 border border-gray-200">
+                              <p className="text-xs text-gray-600 font-semibold mb-2">Your Message</p>
+                              <p className="text-sm text-gray-700 leading-relaxed">{request.message}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="border-t border-gray-200 p-6 bg-gray-50 rounded-b-2xl">
+              <button
+                onClick={closeRequestsModal}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* About Agency Section */}

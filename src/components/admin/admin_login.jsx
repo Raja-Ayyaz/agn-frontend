@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { Eye, EyeOff, ArrowRight, Menu, X, Phone, Mail, MapPin, Linkedin, Twitter } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import NavBar from "../shared/NavBar"
+import { employerLogin, adminLogin } from '../../Api/Service/apiService'
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("")
@@ -12,7 +13,7 @@ export default function AdminLogin() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
 
@@ -22,14 +23,49 @@ export default function AdminLogin() {
     }
 
     try {
-      localStorage.setItem("agn_admin_user", username)
-      localStorage.setItem("agn_admin_authenticated", "1")
-      setSuccess(true)
-      // redirect to the admin panel route in this app
-      setTimeout(() => {
-        navigate('/admin/panel')
-      }, 400)
+      // Try employer login first
+      try {
+        const res = await employerLogin(username, password)
+        // employerLogin now returns { ok: true, employer_id, role }
+        if (res && res.ok) {
+          const role = (res.role || "").toLowerCase()
+          if (role === 'admin') {
+            localStorage.setItem("agn_admin_user", username)
+            localStorage.setItem("agn_admin_authenticated", "1")
+            setSuccess(true)
+            setTimeout(() => navigate('/admin/panel'), 300)
+            return
+          }
+
+          // default to employer dashboard for non-admin roles
+          localStorage.setItem("agn_employer_user", username)
+          localStorage.setItem("agn_employer_authenticated", "1")
+          localStorage.setItem("agn_employer_id", String(res.employer_id || ""))
+          setSuccess(true)
+          setTimeout(() => navigate('/employer-dashboard'), 300)
+          return
+        }
+      } catch (e) {
+        // employer login failed — fallthrough to admin check
+      }
+
+      // Try admin login
+      try {
+        const res2 = await adminLogin(username, password)
+        if (res2 && res2.ok) {
+          localStorage.setItem("agn_admin_user", username)
+          localStorage.setItem("agn_admin_authenticated", "1")
+          setSuccess(true)
+          setTimeout(() => navigate('/admin/panel'), 300)
+          return
+        }
+      } catch (e) {
+        // both failed
+      }
+
+      setError("Invalid credentials or account role not recognized")
     } catch (err) {
+      console.error(err)
       setError("An error occurred. Please try again.")
     }
   }
@@ -114,7 +150,7 @@ export default function AdminLogin() {
             {/* Login Form */}
             <div className="animate-fade-in-delay-2">
               <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-xl border-2 border-yellow-400 hover:shadow-2xl transition">
-                <h3 className="text-2xl font-black text-black mb-6">Admin Login</h3>
+                <h3 className="text-2xl font-black text-black mb-6">Login</h3>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Username Field */}
@@ -188,9 +224,17 @@ export default function AdminLogin() {
                   </button>
                 </form>
 
-                <p className="text-xs text-gray-600 mt-6 text-center">
-                  Frontend-only login for testing. Use any non-empty credentials.
-                </p>
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-600 mb-2">
+                    Don't have an account?{' '}
+                    <Link 
+                      to="/employer-signup" 
+                      className="text-yellow-600 hover:text-yellow-700 font-black underline transition"
+                    >
+                      Sign Up Here
+                    </Link>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

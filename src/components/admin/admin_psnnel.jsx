@@ -1,428 +1,291 @@
 import { useState } from "react"
-import { Menu, X, Phone, Mail, MapPin, Linkedin, Twitter, Download, Search, Upload, Trash2 } from "lucide-react"
-import NavBar from "../shared/NavBar"
+import { 
+  Menu, 
+  X, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Linkedin, 
+  Twitter, 
+  Download, 
+  Search, 
+  Upload, 
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  Building2,
+  FileText,
+  Settings,
+  LogOut,
+  LayoutDashboard
+} from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import ManageEmployees from "../dashboard/ManageEmployees"
+import ManageCompanies from "../dashboard/ManageCompanies"
+import HireRequests from "../dashboard/HireRequests"
+import SettingsPanel from "../dashboard/SettingsPanel"
 
 export default function AdminPanel() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [filters, setFilters] = useState({
-    mobile_no: "",
-    role: "",
-    experience: "",
-    name: "",
-    email: "",
-    location: "",
-  })
-
-  const [results, setResults] = useState([])
-  const [jsonInput, setJsonInput] = useState("")
-  const [message, setMessage] = useState("No API configured — paste sample JSON or load the built-in sample results.")
-
-  function updateFilter(key, val) {
-    setFilters((prev) => ({ ...prev, [key]: val }))
+  const navigate = useNavigate()
+  const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [activeSection, setActiveSection] = useState("dashboard")
+  const [toasts, setToasts] = useState([])
+  
+  const showToast = (type, text, duration = 4500) => {
+    const id = Date.now() + Math.random()
+    setToasts((t) => [...t, { id, type, text }])
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), duration)
   }
 
-  function onSearch(e) {
-    e && e.preventDefault()
-    setMessage('Search is UI-only. Paste JSON results into the textarea below or click "Load sample results".')
-    setResults([])
+  const handleLogout = () => {
+    localStorage.removeItem("agn_admin_user")
+    localStorage.removeItem("agn_admin_authenticated")
+    showToast("success", "Logged out successfully")
+    setTimeout(() => navigate('/'), 1000)
   }
 
-  function loadSample() {
-    const sample = [
-      {
-        employee_id: 1,
-        name: "Alice Doe",
-        email: "alice@example.com",
-        mobile_no: "+123456789",
-        field: "Software Engineer",
-        experience: "3 years",
-        masked_cv: "masked_1.pdf",
-      },
-      {
-        employee_id: 2,
-        name: "Bob Singh",
-        email: "bob@example.com",
-        mobile_no: "+198765432",
-        field: "Product Manager",
-        experience: "5 years",
-        masked_cv: "masked_2.pdf",
-      },
-      {
-        employee_id: 3,
-        name: "Carol White",
-        email: "carol@example.com",
-        mobile_no: "+145678901",
-        field: "Finance Manager",
-        experience: "7 years",
-        masked_cv: "masked_3.pdf",
-      },
-    ]
-    setResults(sample)
-    setMessage(`Loaded ${sample.length} sample rows.`)
-  }
-
-  function loadFromJson() {
-    if (!jsonInput || !jsonInput.trim()) {
-      setMessage("Paste a JSON array of objects in the textarea first.")
-      return
-    }
-    try {
-      const parsed = JSON.parse(jsonInput)
-      if (!Array.isArray(parsed)) {
-        setMessage("The pasted JSON must be an array of objects (e.g. [{...}, {...}]).")
-        return
-      }
-      setResults(parsed)
-      setMessage(`Loaded ${parsed.length} rows from pasted JSON.`)
-    } catch (err) {
-      setMessage("Invalid JSON: " + err.message)
-    }
-  }
-
-  function downloadCsv() {
-    if (!results || results.length === 0) {
-      setMessage("No results to export.")
-      return
-    }
-    const cols = Object.keys(results[0])
-    const rows = results.map((r) => cols.map((c) => (r[c] == null ? "" : String(r[c]))))
-    const csv = [cols.join(","), ...rows.map((r) => r.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(","))].join(
-      "\n",
-    )
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `employees_export_${new Date().toISOString().replace(/[:.]/g, "-")}.csv`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
-    setMessage(`Exported ${results.length} rows to CSV.`)
-  }
-
-  const cols = results && results.length > 0 ? Object.keys(results[0]) : []
+  const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "employees", label: "Manage Employees", icon: Users },
+    { id: "companies", label: "Manage Companies", icon: Building2 },
+    { id: "hire-requests", label: "Hire Requests", icon: FileText },
+    { id: "settings", label: "Settings", icon: Settings },
+  ]
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Shared Navigation (admin) */}
-      <NavBar />
-
-      {/* Hero Section */}
-      <section className="bg-yellow-400 pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl"></div>
-
-        <div className="max-w-7xl mx-auto relative z-10 animate-fade-in">
-          <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-4 text-balance">
-            Candidate Management System
-          </h1>
-          <p className="text-lg text-black mb-8 max-w-2xl leading-relaxed font-medium">
-            Search, filter, and manage candidates with advanced tools. Export data and track recruitment progress.
-          </p>
+    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+      {/* Sidebar */}
+      <aside 
+        className={`${
+          sidebarExpanded ? 'w-64' : 'w-20'
+        } bg-gradient-to-b from-slate-900 to-slate-800 text-white transition-all duration-300 ease-in-out flex flex-col fixed h-screen z-50 shadow-2xl`}
+      >
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+          {sidebarExpanded ? (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-black font-black text-lg">A</span>
+              </div>
+              <div>
+                <h2 className="font-black text-white text-lg">Admin</h2>
+                <p className="text-xs text-gray-400">Control Panel</p>
+              </div>
+            </div>
+          ) : (
+            <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-black font-black text-lg">A</span>
+            </div>
+          )}
         </div>
-      </section>
 
-      {/* Main Content */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          {/* Filter Section */}
-          <div className="mb-12 animate-fade-in-delay">
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-8 border-2 border-yellow-400 shadow-lg hover:shadow-xl transition">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <Search size={20} className="text-black font-bold" />
-                </div>
-                <h2 className="text-2xl font-black text-black">Search & Filter Candidates</h2>
-              </div>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setSidebarExpanded(!sidebarExpanded)}
+          className="absolute -right-3 top-24 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center hover:bg-yellow-500 transition shadow-lg"
+        >
+          {sidebarExpanded ? (
+            <ChevronLeft size={16} className="text-black" />
+          ) : (
+            <ChevronRight size={16} className="text-black" />
+          )}
+        </button>
 
-              <form onSubmit={onSearch} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Phone Number</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="Enter phone number"
-                      value={filters.mobile_no}
-                      onChange={(e) => updateFilter("mobile_no", e.target.value)}
-                    />
-                  </div>
+        {/* Menu Items */}
+        <nav className="flex-1 py-6">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={`w-full flex items-center gap-4 px-6 py-4 transition-all ${
+                  activeSection === item.id
+                    ? 'bg-yellow-400 text-black border-l-4 border-yellow-600'
+                    : 'text-gray-300 hover:bg-slate-700 hover:text-white'
+                } ${!sidebarExpanded && 'justify-center px-0'}`}
+              >
+                <Icon size={22} className={sidebarExpanded ? '' : 'mx-auto'} />
+                {sidebarExpanded && (
+                  <span className="font-bold text-sm">{item.label}</span>
+                )}
+              </button>
+            )
+          })}
+        </nav>
 
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Role / Field</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="e.g. Software Engineer"
-                      value={filters.role}
-                      onChange={(e) => updateFilter("role", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Experience</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="e.g. 5 years"
-                      value={filters.experience}
-                      onChange={(e) => updateFilter("experience", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Name</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="Candidate name"
-                      value={filters.name}
-                      onChange={(e) => updateFilter("name", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Email</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="Email address"
-                      value={filters.email}
-                      onChange={(e) => updateFilter("email", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-sm font-black text-black mb-2">Location</label>
-                    <input
-                      className="w-full border-2 border-gray-300 p-3 rounded-lg focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition bg-white hover:border-yellow-300"
-                      placeholder="City or region"
-                      value={filters.location}
-                      onChange={(e) => updateFilter("location", e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-3 pt-4">
-                  <button
-                    type="submit"
-                    className="bg-black text-yellow-400 px-6 py-3 rounded-lg font-black hover:bg-gray-900 transition transform hover:scale-105 flex items-center gap-2"
-                  >
-                    <Search size={18} /> Run Search
-                  </button>
-                  <button
-                    type="button"
-                    onClick={loadSample}
-                    className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-black hover:bg-yellow-500 transition transform hover:scale-105 flex items-center gap-2"
-                  >
-                    <Upload size={18} /> Load Sample
-                  </button>
-                  <button
-                    type="button"
-                    onClick={downloadCsv}
-                    className="ml-auto bg-green-600 text-white px-6 py-3 rounded-lg font-black hover:bg-green-700 transition transform hover:scale-105 flex items-center gap-2"
-                  >
-                    <Download size={18} /> Export CSV
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          {/* JSON Input Section */}
-          <div className="mb-12 animate-fade-in-delay-2">
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 border-2 border-yellow-400 shadow-lg">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                  <Upload size={20} className="text-black font-bold" />
-                </div>
-                <h2 className="text-2xl font-black text-white">Import Data</h2>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-black text-yellow-400 mb-2">Paste JSON Array</label>
-                  <textarea
-                    className="w-full border-2 border-gray-600 p-4 rounded-lg h-32 bg-slate-700 text-white font-mono text-sm focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 transition"
-                    placeholder='[{"name":"John","email":"john@example.com"}]'
-                    value={jsonInput}
-                    onChange={(e) => setJsonInput(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={loadFromJson}
-                    className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-black hover:bg-yellow-500 transition transform hover:scale-105 flex items-center gap-2"
-                  >
-                    <Upload size={18} /> Load JSON
-                  </button>
-                  <button
-                    onClick={() => {
-                      setJsonInput("")
-                      setMessage("Cleared pasted JSON")
-                    }}
-                    className="bg-red-600 text-white px-6 py-3 rounded-lg font-black hover:bg-red-700 transition transform hover:scale-105 flex items-center gap-2"
-                  >
-                    <Trash2 size={18} /> Clear
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Status Message */}
-          <div className="mb-8 animate-fade-in">
-            <div className="bg-blue-50 border-2 border-blue-400 rounded-xl p-4">
-              <p className="text-sm font-semibold text-blue-900">
-                <span className="font-black">Status:</span> {message}
-              </p>
-            </div>
-          </div>
-
-          {/* Results Section */}
-          <div className="animate-fade-in">
-            <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-lg overflow-hidden">
-              <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-8 py-6">
-                <h3 className="text-2xl font-black text-white">Results ({results.length})</h3>
-              </div>
-
-              {results.length === 0 ? (
-                <div className="p-12 text-center">
-                  <div className="text-6xl mb-4">📋</div>
-                  <p className="text-gray-600 font-semibold">No results to display.</p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    Use "Load sample results" or paste JSON and click "Load JSON".
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-yellow-400 border-b-2 border-gray-300">
-                      <tr>
-                        {cols.map((c) => (
-                          <th key={c} className="px-6 py-4 font-black text-black">
-                            {c}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {results.map((row, i) => (
-                        <tr
-                          key={i}
-                          className={`border-b transition hover:bg-yellow-50 ${
-                            i % 2 === 0 ? "bg-white" : "bg-gray-50"
-                          }`}
-                        >
-                          {cols.map((c) => (
-                            <td key={c} className="px-6 py-4 text-gray-700 font-medium">
-                              {String(row[c] ?? "")}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Logout Button */}
+        <div className="p-4 border-t border-slate-700">
+          <button
+            onClick={handleLogout}
+            className={`w-full flex items-center gap-4 px-6 py-4 text-red-400 hover:bg-red-900/20 hover:text-red-300 transition rounded-lg ${
+              !sidebarExpanded && 'justify-center px-0'
+            }`}
+          >
+            <LogOut size={22} className={sidebarExpanded ? '' : 'mx-auto'} />
+            {sidebarExpanded && <span className="font-bold text-sm">Logout</span>}
+          </button>
         </div>
-      </section>
+      </aside>
 
-      {/* Footer */}
-      <footer className="bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+      {/* Main Content Area */}
+      <div className={`flex-1 ${sidebarExpanded ? 'ml-64' : 'ml-20'} transition-all duration-300 min-h-screen flex flex-col`}>
+        {/* Top Navigation Bar */}
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+          <div className="px-8 py-4 flex items-center justify-between">
             <div>
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
-                    <span className="text-black font-black text-lg">AGN</span>
+              <h1 className="text-2xl font-black text-black">
+                {menuItems.find(item => item.id === activeSection)?.label || 'Admin Panel'}
+              </h1>
+              <p className="text-sm text-gray-500">Welcome back, Administrator</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-black font-black">AD</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="p-8 flex-1 overflow-y-auto">
+          {activeSection === "dashboard" && (
+            <div>
+              {/* Dashboard Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {/* Stats Cards */}
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
+                  <div className="flex items-center justify-between mb-4">
+                    <Users size={32} />
+                    <span className="text-3xl font-black">234</span>
                   </div>
-                  <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                Specialists in financial recruitment, connecting talent with opportunity.
-              </p>
-            </div>
+                  <h3 className="text-sm font-medium opacity-90">Total Employees</h3>
+                </div>
 
-            <div>
-              <h4 className="font-black text-white mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a href="/" className="text-gray-400 hover:text-yellow-400 transition font-medium">
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium">
-                    Candidates
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium">
-                    Reports
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition font-medium">
-                    Settings
-                  </a>
-                </li>
-              </ul>
-            </div>
+                <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
+                  <div className="flex items-center justify-between mb-4">
+                    <Building2 size={32} />
+                    <span className="text-3xl font-black">48</span>
+                  </div>
+                  <h3 className="text-sm font-medium opacity-90">Active Companies</h3>
+                </div>
 
-            <div>
-              <h4 className="font-black text-white mb-4">Contact</h4>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-gray-400">
-                  <Phone size={18} className="text-yellow-400" />
-                  <a href="tel:01216511235" className="hover:text-yellow-400 transition">
-                    +92 3037774400
-                  </a>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400">
-                  <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
-                    agnjobbank123@gmail.com
-                  </a>
-                </li>
-                <li className="flex items-center gap-2 text-gray-400">
-                  <MapPin size={18} className="text-yellow-400" />
-                  <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
-                </li>
-              </ul>
-            </div>
+                <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
+                  <div className="flex items-center justify-between mb-4">
+                    <FileText size={32} />
+                    <span className="text-3xl font-black">12</span>
+                  </div>
+                  <h3 className="text-sm font-medium opacity-90">Pending Requests</h3>
+                </div>
 
-            <div>
-              <h4 className="font-black text-white mb-4">Follow Us</h4>
-              <div className="flex gap-4">
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
-                >
-                  <Linkedin size={20} />
-                </a>
-                <a
-                  href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
-                >
-                  <Twitter size={20} />
-                </a>
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
+                  <div className="flex items-center justify-between mb-4">
+                    <Download size={32} />
+                    <span className="text-3xl font-black">156</span>
+                  </div>
+                  <h3 className="text-sm font-medium opacity-90">CVs Processed</h3>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
+                  <h3 className="text-xl font-black text-black mb-4">Recent Activity</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Users size={20} className="text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">New employee added</p>
+                        <p className="text-xs text-gray-500">John Doe - Software Engineer</p>
+                      </div>
+                      <span className="text-xs text-gray-400">2h ago</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <Building2 size={20} className="text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">Company registered</p>
+                        <p className="text-xs text-gray-500">TechCorp Solutions</p>
+                      </div>
+                      <span className="text-xs text-gray-400">5h ago</span>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <FileText size={20} className="text-yellow-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">Hire request received</p>
+                        <p className="text-xs text-gray-500">Finance Manager position</p>
+                      </div>
+                      <span className="text-xs text-gray-400">1d ago</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
+                  <h3 className="text-xl font-black text-black mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() => setActiveSection("employees")}
+                      className="p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition text-left group"
+                    >
+                      <Users size={24} className="text-blue-600 mb-2 group-hover:scale-110 transition" />
+                      <p className="font-bold text-sm text-black">Add Employee</p>
+                    </button>
+                    <button
+                      onClick={() => setActiveSection("companies")}
+                      className="p-4 bg-green-50 hover:bg-green-100 rounded-xl transition text-left group"
+                    >
+                      <Building2 size={24} className="text-green-600 mb-2 group-hover:scale-110 transition" />
+                      <p className="font-bold text-sm text-black">Add Company</p>
+                    </button>
+                    <button
+                      onClick={() => setActiveSection("hire-requests")}
+                      className="p-4 bg-yellow-50 hover:bg-yellow-100 rounded-xl transition text-left group"
+                    >
+                      <FileText size={24} className="text-yellow-600 mb-2 group-hover:scale-110 transition" />
+                      <p className="font-bold text-sm text-black">View Requests</p>
+                    </button>
+                    <button
+                      onClick={() => setActiveSection("settings")}
+                      className="p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition text-left group"
+                    >
+                      <Settings size={24} className="text-purple-600 mb-2 group-hover:scale-110 transition" />
+                      <p className="font-bold text-sm text-black">Settings</p>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="border-t border-gray-800 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
-              <div className="flex gap-6">
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
-                  Privacy Policy
-                </a>
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
-                  Terms of Service
-                </a>
-              </div>
-            </div>
+          {activeSection === "employees" && <ManageEmployees />}
+
+          {activeSection === "companies" && <ManageCompanies />}
+
+          {activeSection === "hire-requests" && <HireRequests />}
+
+          {activeSection === "settings" && <SettingsPanel />}
+        </main>
+      </div>
+
+      {/* Toast container */}
+      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2">
+        {toasts.map((t) => (
+          <div
+            key={t.id}
+            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-200 ${
+              t.type === "success" ? "bg-emerald-600" : t.type === "info" ? "bg-sky-600" : "bg-rose-600"
+            }`}
+          >
+            {t.text}
           </div>
-        </div>
-      </footer>
+        ))}
+      </div>
     </div>
   )
 }
