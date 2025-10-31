@@ -489,44 +489,7 @@ export default function EmployerDashboard() {
                               )}
                             </div>
 
-                            {/* CV Preview */}
-                            {r.masked_cv && (
-                              <div className="border border-blue-200 rounded-lg p-3 bg-blue-50">
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center gap-2">
-                                    <FileText className="text-blue-600" size={20} />
-                                    <span className="font-bold text-black text-sm">Masked CV</span>
-                                  </div>
-                                  <a
-                                    href={r.masked_cv}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-semibold"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Download size={16} />
-                                    Download
-                                  </a>
-                                </div>
-                                {r.masked_cv.toLowerCase().endsWith('.pdf') ? (
-                                  <iframe
-                                    src={r.masked_cv}
-                                    className="w-full h-96 border border-gray-300 rounded"
-                                    title={`CV of ${r.name}`}
-                                  />
-                                ) : (
-                                  <a
-                                    href={r.masked_cv}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline text-sm"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    View CV: {r.masked_cv}
-                                  </a>
-                                )}
-                              </div>
-                            )}
+                          
 
                             {/* Action Buttons */}
                             <div className="flex gap-3">
@@ -540,16 +503,16 @@ export default function EmployerDashboard() {
                                 <CheckCircle size={18} />
                                 Hire {r.name?.split(' ')[0]}
                               </button>
-                              {r.cv && (
+                              {r.masked_cv && (
                                 <a
-                                  href={r.cv}
+                                  href={r.masked_cv}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   onClick={(e) => e.stopPropagation()}
                                   className="bg-blue-600 hover:bg-blue-700 text-white font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                                 >
                                   <FileText size={18} />
-                                  Original CV
+                                  Download CV
                                 </a>
                               )}
                             </div>

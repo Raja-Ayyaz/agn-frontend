@@ -92,6 +92,26 @@ export async function respondToHireRequest({ request_id, status, response_messag
   });
 }
 
+export async function getDashboardStats() {
+  return request('/api/admin/dashboard/stats');
+}
+
+export async function getRecentActivity() {
+  return request('/api/admin/dashboard/recent-activity');
+}
+
+export async function deleteEmployee(employeeId) {
+  return request(`/api/employee/${employeeId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function deleteEmployer(employerId) {
+  return request(`/api/employer/${employerId}`, {
+    method: 'DELETE',
+  });
+}
+
 export default {
   adminLogin,
   employerLogin,
@@ -104,4 +124,8 @@ export default {
   getEmployerHireRequests,
   getAllHireRequests,
   respondToHireRequest,
+  getDashboardStats,
+  getRecentActivity,
+  deleteEmployee,
+  deleteEmployer,
 };

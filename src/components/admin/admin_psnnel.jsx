@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   Menu, 
   X, 
@@ -21,21 +21,129 @@ import {
   LayoutDashboard
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import ManageEmployees from "../dashboard/ManageEmployees"
-import ManageCompanies from "../dashboard/ManageCompanies"
-import HireRequests from "../dashboard/HireRequests"
-import SettingsPanel from "../dashboard/SettingsPanel"
+import { getDashboardStats, getRecentActivity } from '../../Api/Service/apiService'
+import ManageEmployees from "./dashboard/ManageEmployees"
+import ManageCompanies from "./dashboard/ManageCompanies"
+import HireRequests from "./dashboard/HireRequests"
+import SettingsPanel from "./dashboard/SettingsPanel"
 
 export default function AdminPanel() {
   const navigate = useNavigate()
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
   const [activeSection, setActiveSection] = useState("dashboard")
   const [toasts, setToasts] = useState([])
+  const [dashboardStats, setDashboardStats] = useState({
+    total_employees: 0,
+    active_companies: 0,
+    pending_requests: 0,
+    cvs_processed: 0
+  })
+  const [recentActivities, setRecentActivities] = useState([])
+  const [loadingStats, setLoadingStats] = useState(true)
+  const [loadingActivities, setLoadingActivities] = useState(true)
   
   const showToast = (type, text, duration = 4500) => {
     const id = Date.now() + Math.random()
     setToasts((t) => [...t, { id, type, text }])
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), duration)
+  }
+
+  // Fetch dashboard data on mount and when switching to dashboard
+  useEffect(() => {
+    if (activeSection === "dashboard") {
+      fetchDashboardData()
+    }
+  }, [activeSection])
+
+  const fetchDashboardData = async () => {
+    // Fetch stats
+    setLoadingStats(true)
+    try {
+      const statsResponse = await getDashboardStats()
+      console.log("Dashboard Stats Response:", statsResponse)
+      if (statsResponse && statsResponse.ok) {
+        setDashboardStats(statsResponse.stats)
+      }
+    } catch (error) {
+      console.error("Error fetching dashboard stats:", error)
+      showToast("error", "Failed to load dashboard statistics")
+    } finally {
+      setLoadingStats(false)
+    }
+
+    // Fetch recent activity
+    setLoadingActivities(true)
+    try {
+      const activityResponse = await getRecentActivity()
+      console.log("Recent Activity Response:", activityResponse)
+      console.log("Activities array:", activityResponse?.activities)
+      console.log("Activities length:", activityResponse?.activities?.length)
+      if (activityResponse && activityResponse.ok) {
+        console.log("Setting recent activities:", activityResponse.activities)
+        setRecentActivities(activityResponse.activities || [])
+      } else {
+        console.log("Activity response not ok or missing")
+        setRecentActivities([])
+      }
+    } catch (error) {
+      console.error("Error fetching recent activity:", error)
+      showToast("error", "Failed to load recent activity")
+      setRecentActivities([])
+    } finally {
+      setLoadingActivities(false)
+    }
+  }
+
+  const getActivityIcon = (type) => {
+    switch (type) {
+      case 'employee':
+        return { icon: Users, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' }
+      case 'company':
+        return { icon: Building2, bgColor: 'bg-green-100', iconColor: 'text-green-600' }
+      case 'hire_request':
+        return { icon: FileText, bgColor: 'bg-yellow-100', iconColor: 'text-yellow-600' }
+      default:
+        return { icon: FileText, bgColor: 'bg-gray-100', iconColor: 'text-gray-600' }
+    }
+  }
+
+  const getActivityTitle = (type) => {
+    switch (type) {
+      case 'employee':
+        return 'New employee added'
+      case 'company':
+        return 'Company registered'
+      case 'hire_request':
+        return 'Hire request received'
+      default:
+        return 'Activity'
+    }
+  }
+
+  const formatTimeAgo = (timestamp) => {
+    if (!timestamp) return 'Recently'
+    
+    // Parse the timestamp - if it doesn't have timezone info, treat it as UTC
+    let date = new Date(timestamp)
+    
+    // If the timestamp doesn't include 'Z' or timezone offset, it's likely UTC from database
+    // MySQL/TiDB returns timestamps without timezone indicator, so we need to parse as UTC
+    if (!timestamp.includes('Z') && !timestamp.includes('+') && !timestamp.includes('-', 10)) {
+      // Manually parse as UTC by adding 'Z'
+      date = new Date(timestamp + 'Z')
+    }
+    
+    const now = new Date()
+    const diffMs = now - date
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffDays < 7) return `${diffDays}d ago`
+    return date.toLocaleDateString()
   }
 
   const handleLogout = () => {
@@ -130,7 +238,7 @@ export default function AdminPanel() {
       </aside>
 
       {/* Main Content Area */}
-      <div className={`flex-1 ${sidebarExpanded ? 'ml-64' : 'ml-20'} transition-all duration-300 min-h-screen flex flex-col`}>
+      <div className={`flex-1 ${sidebarExpanded ? 'ml-64' : 'ml-20'} transition-all duration-300 min-h-screen flex flex-col max-w-full overflow-hidden`}>
         {/* Top Navigation Bar */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
           <div className="px-8 py-4 flex items-center justify-between">
@@ -149,7 +257,7 @@ export default function AdminPanel() {
         </header>
 
         {/* Content Area */}
-        <main className="p-8 flex-1 overflow-y-auto">
+        <main className="p-8 flex-1 overflow-auto max-w-full">
           {activeSection === "dashboard" && (
             <div>
               {/* Dashboard Overview */}
@@ -158,7 +266,11 @@ export default function AdminPanel() {
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
                   <div className="flex items-center justify-between mb-4">
                     <Users size={32} />
-                    <span className="text-3xl font-black">234</span>
+                    {loadingStats ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                      <span className="text-3xl font-black">{dashboardStats.total_employees}</span>
+                    )}
                   </div>
                   <h3 className="text-sm font-medium opacity-90">Total Employees</h3>
                 </div>
@@ -166,7 +278,11 @@ export default function AdminPanel() {
                 <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
                   <div className="flex items-center justify-between mb-4">
                     <Building2 size={32} />
-                    <span className="text-3xl font-black">48</span>
+                    {loadingStats ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                      <span className="text-3xl font-black">{dashboardStats.active_companies}</span>
+                    )}
                   </div>
                   <h3 className="text-sm font-medium opacity-90">Active Companies</h3>
                 </div>
@@ -174,7 +290,11 @@ export default function AdminPanel() {
                 <div className="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
                   <div className="flex items-center justify-between mb-4">
                     <FileText size={32} />
-                    <span className="text-3xl font-black">12</span>
+                    {loadingStats ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                      <span className="text-3xl font-black">{dashboardStats.pending_requests}</span>
+                    )}
                   </div>
                   <h3 className="text-sm font-medium opacity-90">Pending Requests</h3>
                 </div>
@@ -182,7 +302,11 @@ export default function AdminPanel() {
                 <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition">
                   <div className="flex items-center justify-between mb-4">
                     <Download size={32} />
-                    <span className="text-3xl font-black">156</span>
+                    {loadingStats ? (
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                    ) : (
+                      <span className="text-3xl font-black">{dashboardStats.cvs_processed}</span>
+                    )}
                   </div>
                   <h3 className="text-sm font-medium opacity-90">CVs Processed</h3>
                 </div>
@@ -192,38 +316,33 @@ export default function AdminPanel() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">
                   <h3 className="text-xl font-black text-black mb-4">Recent Activity</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Users size={20} className="text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-sm">New employee added</p>
-                        <p className="text-xs text-gray-500">John Doe - Software Engineer</p>
-                      </div>
-                      <span className="text-xs text-gray-400">2h ago</span>
+                  {loadingActivities ? (
+                    <div className="flex justify-center items-center py-8">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <Building2 size={20} className="text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-sm">Company registered</p>
-                        <p className="text-xs text-gray-500">TechCorp Solutions</p>
-                      </div>
-                      <span className="text-xs text-gray-400">5h ago</span>
+                  ) : recentActivities.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">No recent activity</p>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <FileText size={20} className="text-yellow-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-sm">Hire request received</p>
-                        <p className="text-xs text-gray-500">Finance Manager position</p>
-                      </div>
-                      <span className="text-xs text-gray-400">1d ago</span>
+                  ) : (
+                    <div className="space-y-4">
+                      {recentActivities.map((activity, index) => {
+                        const { icon: Icon, bgColor, iconColor } = getActivityIcon(activity.type)
+                        return (
+                          <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                            <div className={`w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
+                              <Icon size={20} className={iconColor} />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-sm">{getActivityTitle(activity.type)}</p>
+                              <p className="text-xs text-gray-500">{activity.name}{activity.detail ? ` - ${activity.detail}` : ''}</p>
+                            </div>
+                            <span className="text-xs text-gray-400">{formatTimeAgo(activity.timestamp)}</span>
+                          </div>
+                        )
+                      })}
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-lg">

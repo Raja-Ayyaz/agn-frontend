@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { Download, Search, Upload, Trash2 } from "lucide-react"
+import { deleteEmployee } from "../../../Api/Service/apiService"
 
 export default function ManageEmployees() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -94,6 +95,27 @@ export default function ManageEmployees() {
     input.click()
   }
 
+  async function handleDeleteEmployee(empId, empName) {
+    if (!confirm(`Are you sure you want to delete employee "${empName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      showToast("info", `Deleting employee ${empName}...`)
+      const response = await deleteEmployee(empId)
+      
+      if (response && response.ok) {
+        showToast("success", `Employee ${empName} deleted successfully`)
+        // Remove from local state
+        setAllEmployees((prev) => prev.filter((emp) => emp.employee_id !== empId))
+      } else {
+        showToast("error", `Failed to delete: ${response?.error || 'Unknown error'}`)
+      }
+    } catch (err) {
+      showToast("error", `Delete error: ${err.message}`)
+    }
+  }
+
   // Define the columns to display in the table
   const columns = [
     { key: "employee_id", label: "ID" },
@@ -146,8 +168,8 @@ export default function ManageEmployees() {
       </div>
 
       {/* Results Table */}
-      <div>
-        <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-lg overflow-hidden">
+      <div className="w-full">
+        <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-lg">
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-8 py-6">
             <h3 className="text-2xl font-black text-white">Employees ({filteredResults.length})</h3>
           </div>
@@ -165,8 +187,14 @@ export default function ManageEmployees() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div 
+              className="overflow-x-auto"
+              style={{ 
+                width: '100%',
+                maxWidth: '100%'
+              }}
+            >
+              <table className="text-left text-sm" style={{ width: 'max-content', minWidth: '100%' }}>
                 <thead className="bg-yellow-400 border-b-2 border-gray-300">
                   <tr>
                     {columns.map((col) => (
@@ -174,7 +202,7 @@ export default function ManageEmployees() {
                         {col.label}
                       </th>
                     ))}
-                    <th className="px-6 py-4 font-black text-black">Actions</th>
+                    <th className="px-6 py-4 font-black text-black whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -186,7 +214,7 @@ export default function ManageEmployees() {
                       }`}
                     >
                       {columns.map((col) => (
-                        <td key={col.key} className="px-6 py-4 text-gray-700 font-medium max-w-xs truncate">
+                        <td key={col.key} className="px-6 py-4 text-gray-700 font-medium whitespace-nowrap">
                           {col.key === "cv" || col.key === "masked_cv" ? (
                             row[col.key] ? (
                               <a
@@ -205,13 +233,21 @@ export default function ManageEmployees() {
                           )}
                         </td>
                       ))}
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => updateCvForEmployee(row.employee_id)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap"
-                        >
-                          Update CV
-                        </button>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => updateCvForEmployee(row.employee_id)}
+                            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition whitespace-nowrap flex items-center gap-1.5 text-xs"
+                          >
+                            <Upload size={14} /> Update CV
+                          </button>
+                          <button
+                            onClick={() => handleDeleteEmployee(row.employee_id, row.name)}
+                            className="bg-red-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-red-700 transition whitespace-nowrap flex items-center gap-1.5 text-xs"
+                          >
+                            <Trash2 size={14} /> Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

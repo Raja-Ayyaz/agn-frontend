@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Users, Briefcase, MapPin, Clock, CheckCircle, XCircle, AlertCircle, Mail, Building2, FileText, X } from "lucide-react"
-import { getAllHireRequests, respondToHireRequest } from '../../Api/Service/apiService'
+import { getAllHireRequests, respondToHireRequest } from '../../../Api/Service/apiService'
 
 export default function HireRequests() {
   const [allRequests, setAllRequests] = useState([])

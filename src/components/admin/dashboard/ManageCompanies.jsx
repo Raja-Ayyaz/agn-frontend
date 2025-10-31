@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import { Search } from "lucide-react"
+import { Search, Trash2 } from "lucide-react"
+import { deleteEmployer } from "../../../Api/Service/apiService"
 
 export default function ManageCompanies() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -65,6 +66,27 @@ export default function ManageCompanies() {
     }
   }
 
+  async function handleDeleteCompany(employerId, companyName) {
+    if (!confirm(`Are you sure you want to delete company "${companyName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      showToast("info", `Deleting company ${companyName}...`)
+      const response = await deleteEmployer(employerId)
+      
+      if (response && response.ok) {
+        showToast("success", `Company ${companyName} deleted successfully`)
+        // Remove from local state
+        setAllCompanies((prev) => prev.filter((company) => company.employer_id !== employerId))
+      } else {
+        showToast("error", `Failed to delete: ${response?.error || 'Unknown error'}`)
+      }
+    } catch (err) {
+      showToast("error", `Delete error: ${err.message}`)
+    }
+  }
+
   // Define the columns to display in the table (excluding password and role)
   const columns = [
     { key: "employer_id", label: "ID" },
@@ -107,8 +129,8 @@ export default function ManageCompanies() {
       </div>
 
       {/* Results Table */}
-      <div>
-        <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-lg overflow-hidden">
+      <div className="w-full">
+        <div className="bg-white rounded-2xl border-2 border-gray-200 shadow-lg">
           <div className="bg-gradient-to-r from-slate-900 to-slate-800 px-8 py-6">
             <h3 className="text-2xl font-black text-white">Companies ({filteredResults.length})</h3>
           </div>
@@ -126,15 +148,25 @@ export default function ManageCompanies() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            <div 
+              style={{ 
+                width: '100%',
+                overflowX: 'auto',
+                overflowY: 'visible',
+                WebkitOverflowScrolling: 'touch',
+                scrollbarWidth: 'auto',
+                scrollbarColor: '#fbbf24 #e5e7eb'
+              }}
+            >
+              <table className="text-left text-sm border-collapse" style={{ width: 'max-content', minWidth: '2000px', tableLayout: 'fixed' }}>
                 <thead className="bg-yellow-400 border-b-2 border-gray-300">
                   <tr>
                     {columns.map((col) => (
-                      <th key={col.key} className="px-6 py-4 font-black text-black whitespace-nowrap">
+                      <th key={col.key} className="px-6 py-4 font-black text-black whitespace-nowrap" style={{ minWidth: '200px' }}>
                         {col.label}
                       </th>
                     ))}
+                    <th className="px-6 py-4 font-black text-black whitespace-nowrap" style={{ minWidth: '250px', width: '250px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -146,10 +178,18 @@ export default function ManageCompanies() {
                       }`}
                     >
                       {columns.map((col) => (
-                        <td key={col.key} className="px-6 py-4 text-gray-700 font-medium max-w-xs truncate">
+                        <td key={col.key} className="px-6 py-4 text-gray-700 font-medium" style={{ minWidth: '200px' }}>
                           {String(row[col.key] ?? "-")}
                         </td>
                       ))}
+                      <td className="px-6 py-4" style={{ minWidth: '250px', width: '250px' }}>
+                        <button
+                          onClick={() => handleDeleteCompany(row.employer_id, row.comapny_name || row.username)}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition whitespace-nowrap flex items-center gap-2"
+                        >
+                          <Trash2 size={16} /> Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

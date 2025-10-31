@@ -113,7 +113,6 @@ export default function ApplyPage() {
     }
 
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000)
 
     fetch("http://localhost:8000/insert_employee", {
       method: "POST",
@@ -121,7 +120,6 @@ export default function ApplyPage() {
       signal: controller.signal,
     })
       .then((response) => {
-        clearTimeout(timeoutId)
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`)
         }
@@ -149,7 +147,6 @@ export default function ApplyPage() {
         setTimeout(() => setSubmitted(false), 6000)
       })
       .catch((error) => {
-        clearTimeout(timeoutId)
         setIsLoading(false)
         if (error.name === "AbortError") {
           setError("Request timeout. Please check your connection and try again.")
@@ -166,90 +163,85 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Shared Navigation */}
       <NavBar />
 
       {/* Hero Section */}
-      <section className="bg-yellow-400 pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl animate-pulse"></div>
-        <div
-          className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl animate-pulse"
-          style={{ animationDelay: "1s" }}
-        ></div>
+      <section className="bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-500 pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-20 right-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
 
-        <div className="max-w-4xl mx-auto relative z-10">
-          <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-4 text-balance animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto relative z-10 text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4">
             Apply for Your Next Finance Role
           </h1>
-          <p
-            className="text-lg text-black mb-2 max-w-2xl leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-4 duration-700"
-            style={{ animationDelay: "0.2s" }}
-          >
+          <p className="text-lg md:text-xl text-black/90 max-w-3xl mx-auto leading-relaxed">
             Join our network of finance professionals. Fill out the form below and let's find your perfect opportunity.
           </p>
         </div>
       </section>
 
       {/* Quick Stats Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-6">
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: Zap, label: "Fast Process", value: "3-5 Days", delay: "0s" },
-              { icon: Target, label: "Success Rate", value: "92%", delay: "0.1s" },
-              { icon: Clock, label: "Avg Response", value: "24 Hours", delay: "0.2s" },
+              { icon: Zap, label: "Fast Process", value: "3-5 Days" },
+              { icon: Target, label: "Success Rate", value: "92%" },
+              { icon: Clock, label: "Avg Response", value: "24 Hours" },
             ].map((stat, idx) => (
               <div
                 key={idx}
-                className="bg-gradient-to-br from-yellow-400 to-amber-400 rounded-xl p-6 text-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-in fade-in slide-in-from-bottom-4 duration-700"
-                style={{ animationDelay: stat.delay }}
+                className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-6 text-center border border-yellow-200 hover:border-yellow-400 hover:shadow-md transition-all duration-300"
               >
-                <stat.icon size={32} className="text-black mx-auto mb-3" />
-                <p className="text-black font-black text-sm mb-1">{stat.label}</p>
-                <p className="text-black font-black text-2xl">{stat.value}</p>
+                <stat.icon size={28} className="text-yellow-600 mx-auto mb-3" />
+                <p className="text-gray-700 font-semibold text-sm mb-1">{stat.label}</p>
+                <p className="text-black font-bold text-2xl">{stat.value}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Why Apply Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-black text-black mb-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-4">
             Why Apply with AGN Job Bank?
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            We're committed to helping finance professionals find their ideal career opportunities
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 icon: Briefcase,
                 title: "Exclusive Opportunities",
                 desc: "Access premium finance roles not listed elsewhere",
-                delay: "0s",
               },
               {
                 icon: TrendingUp,
                 title: "Career Growth",
                 desc: "Work with industry leaders and advance your career",
-                delay: "0.1s",
               },
               {
                 icon: Award,
                 title: "Competitive Packages",
                 desc: "Attractive salaries and comprehensive benefits",
-                delay: "0.2s",
               },
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-yellow-400 animate-in fade-in slide-in-from-bottom-4 duration-700 group"
-                style={{ animationDelay: item.delay }}
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300"
               >
-                <div className="w-14 h-14 bg-yellow-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-125 transition-transform duration-300 group-hover:rotate-12">
-                  <item.icon size={28} className="text-black" />
+                <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mb-4">
+                  <item.icon size={24} className="text-black" />
                 </div>
-                <h3 className="text-xl font-black text-black mb-3">{item.title}</h3>
-                <p className="text-gray-600 font-medium">{item.desc}</p>
+                <h3 className="text-lg font-bold text-black mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -257,45 +249,23 @@ export default function ApplyPage() {
       </section>
 
       {/* Form Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
+          {/* Success Message */}
           {submitted && (
-            <div className="mb-8 animate-in slide-in-from-top-4 fade-in duration-500 zoom-in">
-              <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 border-2 border-green-400 rounded-2xl p-8 flex items-start gap-4 shadow-2xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-green-400/10 to-emerald-400/10 animate-pulse"></div>
-                <div
-                  className="absolute top-2 right-4 w-2 h-2 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0s" }}
-                ></div>
-                <div
-                  className="absolute top-8 right-12 w-2 h-2 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-                <div
-                  className="absolute top-4 right-20 w-2 h-2 bg-green-400 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.4s" }}
-                ></div>
-
-                <div className="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1 animate-bounce relative z-10 shadow-lg">
-                  <CheckCircle size={24} className="text-white" />
+            <div className="mb-8 bg-green-50 border-l-4 border-green-500 rounded-lg p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <CheckCircle size={24} className="text-green-500" />
                 </div>
-                <div className="flex-1 relative z-10">
-                  <h3
-                    className="font-black text-green-900 text-xl mb-2 animate-in fade-in slide-in-from-left-4 duration-500"
-                    style={{ animationDelay: "0.1s" }}
-                  >
-                    🎉 Application Submitted Successfully!
+                <div className="flex-1">
+                  <h3 className="font-bold text-green-900 text-lg mb-1">
+                    Application Submitted Successfully!
                   </h3>
-                  <p
-                    className="text-green-800 font-medium mb-2 animate-in fade-in slide-in-from-left-4 duration-500"
-                    style={{ animationDelay: "0.2s" }}
-                  >
+                  <p className="text-green-800 mb-2">
                     Thank you for applying. We'll review your application and get in touch soon with next steps.
                   </p>
-                  <p
-                    className="text-sm text-green-700 animate-in fade-in slide-in-from-left-4 duration-500"
-                    style={{ animationDelay: "0.3s" }}
-                  >
+                  <p className="text-sm text-green-700">
                     Expected response time: 3-5 business days
                   </p>
                 </div>
@@ -303,18 +273,18 @@ export default function ApplyPage() {
             </div>
           )}
 
+          {/* Error Message */}
           {error && (
-            <div className="mb-8 animate-in slide-in-from-top-4 fade-in duration-500">
-              <div className="bg-gradient-to-r from-red-50 via-rose-50 to-red-50 border-2 border-red-400 rounded-2xl p-8 flex items-start gap-4 shadow-lg hover:shadow-xl transition-shadow duration-300 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-red-400/10 to-rose-400/10 animate-pulse"></div>
-                <div className="w-12 h-12 bg-red-400 rounded-full flex items-center justify-center flex-shrink-0 mt-1 animate-pulse relative z-10 shadow-lg">
-                  <AlertCircle size={24} className="text-white" />
+            <div className="mb-8 bg-red-50 border-l-4 border-red-500 rounded-lg p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <AlertCircle size={24} className="text-red-500" />
                 </div>
-                <div className="flex-1 relative z-10">
-                  <h3 className="font-black text-red-900 text-xl mb-2">⚠️ Submission Error</h3>
-                  <p className="text-red-800 font-medium mb-2">{error}</p>
+                <div className="flex-1">
+                  <h3 className="font-bold text-red-900 text-lg mb-1">Submission Error</h3>
+                  <p className="text-red-800 mb-2">{error}</p>
                   <p className="text-sm text-red-700">
-                    💡 Tip: Make sure all required fields are filled and your internet connection is stable.
+                    Please ensure all required fields are filled and your internet connection is stable.
                   </p>
                 </div>
               </div>
@@ -323,17 +293,17 @@ export default function ApplyPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Personal Information Section */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border-2 border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black shadow-md hover:scale-110 transition-transform duration-300 hover:rotate-12">
-                  1
-                </span>
-                Personal Information
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Full Name *
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">1</span>
+                </div>
+                <h2 className="text-2xl font-bold text-black">Personal Information</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -341,13 +311,13 @@ export default function ApplyPage() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="John Smith"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Age *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Age <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -355,13 +325,13 @@ export default function ApplyPage() {
                     value={formData.age}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="28"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Email *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -369,13 +339,13 @@ export default function ApplyPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="john@example.com"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Mobile Number *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Mobile Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -383,13 +353,13 @@ export default function ApplyPage() {
                     value={formData.mobile_no}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="07700 000000"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Location *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Location <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -397,12 +367,12 @@ export default function ApplyPage() {
                     value={formData.location}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
-                    placeholder="Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
+                    placeholder="City, Country"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Nearest Route
                   </label>
                   <input
@@ -410,13 +380,13 @@ export default function ApplyPage() {
                     name="nearest_route"
                     value={formData.nearest_route}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="e.g., M5, M6"
                   />
                 </div>
-                <div className="md:col-span-2 group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    CNIC/ID Number *
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    CNIC/ID Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -424,7 +394,7 @@ export default function ApplyPage() {
                     value={formData.cnic_no}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="12345-6789012-3"
                   />
                 </div>
@@ -432,20 +402,17 @@ export default function ApplyPage() {
             </div>
 
             {/* Education Section */}
-            <div
-              className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border-2 border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black shadow-md hover:scale-110 transition-transform duration-300 hover:rotate-12">
-                  2
-                </span>
-                Education
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Educational Profile *
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">2</span>
+                </div>
+                <h2 className="text-2xl font-bold text-black">Education</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Educational Profile <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -453,13 +420,13 @@ export default function ApplyPage() {
                     value={formData.educational_profile}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="e.g., Bachelor's in Accounting"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Recent Completed Education *
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Recent Completed Education <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -467,7 +434,7 @@ export default function ApplyPage() {
                     value={formData.recent_completed_education}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="e.g., ACCA, ACA, CIMA"
                   />
                 </div>
@@ -475,20 +442,17 @@ export default function ApplyPage() {
             </div>
 
             {/* Experience Section */}
-            <div
-              className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border-2 border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black shadow-md hover:scale-110 transition-transform duration-300 hover:rotate-12">
-                  3
-                </span>
-                Experience
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
-                    Position Applying For *
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">3</span>
+                </div>
+                <h2 className="text-2xl font-bold text-black">Experience</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Position Applying For <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -496,12 +460,12 @@ export default function ApplyPage() {
                     value={formData.applying_for}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="e.g., Senior Accountant"
                   />
                 </div>
-                <div className="group">
-                  <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Years of Experience
                   </label>
                   <input
@@ -509,13 +473,13 @@ export default function ApplyPage() {
                     name="experience"
                     value={formData.experience}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all"
                     placeholder="5"
                   />
                 </div>
               </div>
-              <div className="group">
-                <label className="block text-sm font-black text-black mb-2 group-hover:text-yellow-600 transition-colors duration-300">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Experience Details
                 </label>
                 <textarea
@@ -523,71 +487,62 @@ export default function ApplyPage() {
                   value={formData.experience_detail}
                   onChange={handleChange}
                   rows={5}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-yellow-400 focus:outline-none transition-all duration-300 font-medium resize-none hover:border-gray-400 focus:scale-105 focus:shadow-lg group-hover:border-yellow-300"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent outline-none transition-all resize-none"
                   placeholder="Tell us about your relevant experience, key achievements, and why you're interested in this role..."
                 />
               </div>
             </div>
 
             {/* CV Upload Section */}
-            <div
-              className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 border-2 border-yellow-300 shadow-md hover:shadow-lg transition-shadow duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-3">
-                <span className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center text-black font-black shadow-md hover:scale-110 transition-transform duration-300 hover:rotate-12">
-                  4
-                </span>
-                Upload CV
-              </h2>
-              <div className="border-2 border-dashed border-yellow-400 rounded-xl p-8 text-center hover:bg-yellow-100 transition-all duration-300 cursor-pointer relative group">
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200 shadow-sm p-8">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold text-lg">4</span>
+                </div>
+                <h2 className="text-2xl font-bold text-black">Upload CV</h2>
+              </div>
+              <div className="relative">
                 <input
                   type="file"
                   name="cv"
                   onChange={handleFileChange}
                   accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   required
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <div className="group-hover:scale-110 transition-transform duration-300">
-                  <Upload
-                    size={40}
-                    className="mx-auto mb-3 text-yellow-600 group-hover:text-yellow-700 group-hover:animate-bounce"
-                  />
+                <div className="border-2 border-dashed border-yellow-400 rounded-lg p-8 text-center bg-white hover:bg-yellow-50 transition-colors cursor-pointer">
+                  <Upload size={40} className="mx-auto mb-3 text-yellow-600" />
+                  <p className="font-semibold text-black text-lg mb-1">
+                    {cvFile ? cvFile.name : "Drop your CV here or click to browse"}
+                  </p>
+                  <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 5MB)</p>
                 </div>
-                <p className="font-black text-black text-lg mb-1">
-                  {cvFile ? cvFile.name : "Drop your CV here or click to browse"}
-                </p>
-                <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 5MB)</p>
               </div>
             </div>
 
-            {/* Submit button */}
-            <div
-              className="flex gap-4 pt-4 animate-in fade-in slide-in-from-bottom-4 duration-700"
-              style={{ animationDelay: "0.4s" }}
-            >
+            {/* Submit Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-black text-yellow-400 hover:bg-gray-900 font-black text-base px-6 py-3 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+                className="flex-1 bg-black text-white hover:bg-gray-800 font-semibold text-base px-6 py-4 rounded-lg transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isLoading ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                     Submitting...
                   </>
                 ) : (
                   <>
                     Submit Application
-                    <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight size={18} />
                   </>
                 )}
               </button>
               <button
                 type="button"
                 onClick={() => window.history.back()}
-                className="flex-1 border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-base px-6 py-3 rounded-lg bg-white transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-black hover:text-black font-semibold text-base px-6 py-4 rounded-lg bg-white transition-all duration-300 hover:shadow-lg"
               >
                 Back
               </button>
@@ -598,52 +553,46 @@ export default function ApplyPage() {
 
       {/* Success Stories Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-black text-black mb-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-4">
             Success Stories from Our Candidates
           </h2>
-          <div className="grid md:grid-cols-3 gap-6">
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            See what our successful candidates have to say about their experience with AGN Job Bank
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 name: "Sarah Johnson",
                 role: "Senior Accountant",
                 company: "KPMG",
                 testimonial: "AGN Job Bank helped me land my dream role. The process was smooth and professional.",
-                delay: "0s",
               },
               {
                 name: "Michael Chen",
                 role: "Finance Manager",
                 company: "Deloitte",
                 testimonial: "Excellent support throughout the application process. Highly recommended!",
-                delay: "0.1s",
               },
               {
                 name: "Emma Williams",
                 role: "Tax Specialist",
                 company: "EY",
                 testimonial: "Within 2 weeks of applying, I had my job offer. Amazing experience!",
-                delay: "0.2s",
               },
             ].map((testimonial, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-8 border-2 border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:border-yellow-400 animate-in fade-in slide-in-from-bottom-4 duration-700 group"
-                style={{ animationDelay: testimonial.delay }}
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300"
               >
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      size={18}
-                      className="fill-yellow-400 text-yellow-400 group-hover:scale-125 transition-transform duration-300"
-                      style={{ transitionDelay: `${i * 50}ms` }}
-                    />
+                    <Star key={i} size={16} className="fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-gray-700 font-medium mb-6 italic">"{testimonial.testimonial}"</p>
-                <div className="border-t-2 border-gray-200 pt-4">
-                  <p className="font-black text-black">{testimonial.name}</p>
+                <p className="text-gray-700 mb-6 italic text-sm leading-relaxed">"{testimonial.testimonial}"</p>
+                <div className="border-t border-gray-200 pt-4">
+                  <p className="font-bold text-black">{testimonial.name}</p>
                   <p className="text-sm text-gray-600">
                     {testimonial.role} at {testimonial.company}
                   </p>
@@ -656,45 +605,45 @@ export default function ApplyPage() {
 
       {/* About Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl font-black text-black mb-12 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-4">
             About AGN Job Bank
           </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-8 border-2 border-yellow-300 animate-in fade-in slide-in-from-bottom-4 duration-700 hover:shadow-lg transition-shadow duration-300 group">
-              <h3 className="text-2xl font-black text-black mb-4 flex items-center gap-3 group-hover:text-yellow-600 transition-colors duration-300">
-                <Users size={28} className="text-yellow-600 group-hover:scale-125 transition-transform duration-300" />
-                Our Mission
-              </h3>
-              <p className="text-gray-700 font-medium leading-relaxed">
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            Your trusted partner in finance recruitment
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-8 border border-yellow-200">
+              <div className="flex items-center gap-3 mb-4">
+                <Users size={24} className="text-yellow-600" />
+                <h3 className="text-xl font-bold text-black">Our Mission</h3>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
                 We connect talented finance professionals with leading organizations across the UK. With over 15 years
                 of experience in recruitment, we understand what both employers and candidates need to succeed.
               </p>
             </div>
-            <div
-              className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 border-2 border-gray-300 animate-in fade-in slide-in-from-bottom-4 duration-700 hover:shadow-lg transition-shadow duration-300 group"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <h3 className="text-2xl font-black text-black mb-4 flex items-center gap-3 group-hover:text-yellow-600 transition-colors duration-300">
-                <Award size={28} className="text-black group-hover:scale-125 transition-transform duration-300" />
-                Why Choose Us
-              </h3>
-              <ul className="space-y-3 text-gray-700 font-medium">
-                <li className="flex items-center gap-2 group/item hover:translate-x-2 transition-transform duration-300">
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-transform duration-300"></span>
-                  Personalized recruitment support
+            <div className="bg-white rounded-xl p-8 border border-gray-200">
+              <div className="flex items-center gap-3 mb-4">
+                <Award size={24} className="text-black" />
+                <h3 className="text-xl font-bold text-black">Why Choose Us</h3>
+              </div>
+              <ul className="space-y-3 text-gray-700">
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Personalized recruitment support</span>
                 </li>
-                <li className="flex items-center gap-2 group/item hover:translate-x-2 transition-transform duration-300">
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-transform duration-300"></span>
-                  Access to exclusive opportunities
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Access to exclusive opportunities</span>
                 </li>
-                <li className="flex items-center gap-2 group/item hover:translate-x-2 transition-transform duration-300">
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-transform duration-300"></span>
-                  Fast-track interview process
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Fast-track interview process</span>
                 </li>
-                <li className="flex items-center gap-2 group/item hover:translate-x-2 transition-transform duration-300">
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-transform duration-300"></span>
-                  Dedicated career guidance
+                <li className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Dedicated career guidance</span>
                 </li>
               </ul>
             </div>
@@ -703,43 +652,34 @@ export default function ApplyPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+      <footer className="bg-black text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4 hover:scale-110 transition-transform duration-300 cursor-pointer hover:rotate-12">
-                <span className="text-black font-black text-lg">AGN</span>
+              <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mb-4">
+                <span className="text-black font-bold text-lg">AGN</span>
               </div>
-              <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
+              <h3 className="text-lg font-bold text-white mb-2">AGN job bank</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Specialists in financial recruitment, connecting talent with opportunity.
               </p>
             </div>
 
             <div>
-              <h4 className="font-black text-white mb-4">Quick Links</h4>
+              <h4 className="font-bold text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="/"
-                    className="text-gray-400 hover:text-yellow-400 transition-all duration-300 font-medium hover:translate-x-1 inline-block"
-                  >
+                  <a href="/" className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">
                     Home
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/#about"
-                    className="text-gray-400 hover:text-yellow-400 transition-all duration-300 font-medium hover:translate-x-1 inline-block"
-                  >
+                  <a href="/#about" className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">
                     About
                   </a>
                 </li>
                 <li>
-                  <a
-                    href="/apply"
-                    className="text-gray-400 hover:text-yellow-400 transition-all duration-300 font-medium hover:translate-x-1 inline-block"
-                  >
+                  <a href="/apply" className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">
                     Apply
                   </a>
                 </li>
@@ -747,66 +687,54 @@ export default function ApplyPage() {
             </div>
 
             <div>
-              <h4 className="font-black text-white mb-4">Contact</h4>
+              <h4 className="font-bold text-white mb-4">Contact</h4>
               <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-all duration-300 cursor-pointer group">
-                  <Phone
-                    size={18}
-                    className="text-yellow-400 group-hover:scale-125 transition-transform duration-300"
-                  />
-                  <a href="tel:01216511235" className="hover:text-yellow-400 transition">
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Phone size={16} className="text-yellow-400 flex-shrink-0" />
+                  <a href="tel:+923037774400" className="hover:text-yellow-400 transition-colors">
                     +92 3037774400
                   </a>
                 </li>
-                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-all duration-300 cursor-pointer group">
-                  <Mail size={18} className="text-yellow-400 group-hover:scale-125 transition-transform duration-300" />
-                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
+                <li className="flex items-center gap-2 text-gray-400 text-sm">
+                  <Mail size={16} className="text-yellow-400 flex-shrink-0" />
+                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition-colors">
                     agnjobbank123@gmail.com
                   </a>
                 </li>
-                <li className="flex items-center gap-2 text-gray-400 group">
-                  <MapPin
-                    size={18}
-                    className="text-yellow-400 group-hover:scale-125 transition-transform duration-300"
-                  />
+                <li className="flex items-start gap-2 text-gray-400 text-sm">
+                  <MapPin size={16} className="text-yellow-400 flex-shrink-0 mt-0.5" />
                   <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-black text-white mb-4">Follow Us</h4>
-              <div className="flex gap-4">
+              <h4 className="font-bold text-white mb-4">Follow Us</h4>
+              <div className="flex gap-3">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-125 hover:shadow-lg"
+                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all"
                 >
-                  <Linkedin size={20} />
+                  <Linkedin size={18} />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all duration-300 hover:scale-125 hover:shadow-lg"
+                  className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-all"
                 >
-                  <Twitter size={20} />
+                  <Twitter size={18} />
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-8">
+          <div className="border-t border-gray-800 pt-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
               <div className="flex gap-6">
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-yellow-400 transition-all duration-300 text-sm font-medium hover:translate-y-[-2px]"
-                >
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">
                   Privacy Policy
                 </a>
-                <a
-                  href="#"
-                  className="text-gray-400 hover:text-yellow-400 transition-all duration-300 text-sm font-medium hover:translate-y-[-2px]"
-                >
+                <a href="#" className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">
                   Terms of Service
                 </a>
               </div>
@@ -814,13 +742,14 @@ export default function ApplyPage() {
           </div>
         </div>
       </footer>
+
       {/* Toast container */}
       <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-200 ${
-              t.type === "success" ? "bg-emerald-600" : "bg-rose-600"
+            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-semibold text-white transform transition-all duration-300 ${
+              t.type === "success" ? "bg-green-500" : "bg-red-500"
             }`}
           >
             {t.text}
