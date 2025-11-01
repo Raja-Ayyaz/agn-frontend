@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Upload, Trash2 } from "lucide-react"
+import { Search, Upload, Trash2, Download } from "lucide-react"
 import { deleteEmployee } from "../../../Api/Service/apiService"
 import CONFIG from "../../../Api/Config/config"
 
@@ -126,6 +126,65 @@ export default function ManageEmployees() {
     }
   }
 
+  function exportToCSV() {
+    try {
+      // Use filteredResults to export either all data or filtered data
+      const dataToExport = filteredResults
+      
+      if (dataToExport.length === 0) {
+        showToast("error", "No data to export")
+        return
+      }
+
+      // Define CSV headers based on columns
+      const headers = columns.map(col => col.label)
+      
+      // Convert data to CSV format
+      const csvRows = []
+      
+      // Add header row
+      csvRows.push(headers.join(','))
+      
+      // Add data rows
+      dataToExport.forEach(row => {
+        const values = columns.map(col => {
+          const value = row[col.key] ?? ''
+          // Escape quotes and wrap in quotes if contains comma, quote, or newline
+          const stringValue = String(value)
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`
+          }
+          return stringValue
+        })
+        csvRows.push(values.join(','))
+      })
+      
+      // Create CSV string
+      const csvString = csvRows.join('\n')
+      
+      // Create blob and download
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5)
+      const filterStatus = searchQuery.trim() ? 'filtered' : 'all'
+      const filename = `employees_${filterStatus}_${timestamp}.csv`
+      
+      link.setAttribute('href', url)
+      link.setAttribute('download', filename)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      showToast("success", `Exported ${dataToExport.length} employee(s) to ${filename}`)
+    } catch (err) {
+      showToast("error", `Export error: ${err.message}`)
+    }
+  }
+
   const columns = [
     { key: "employee_id", label: "ID" },
     { key: "name", label: "Name" },
@@ -179,8 +238,14 @@ export default function ManageEmployees() {
       {/* Results Table */}
       <div className="w-full">
         <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-6">
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-6 flex items-center justify-between">
             <h3 className="text-2xl font-black text-white">Employees ({filteredResults.length})</h3>
+            <button
+              onClick={exportToCSV}
+              className="bg-amber-400 text-black px-6 py-3 rounded-xl font-black hover:bg-amber-500 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-md hover:shadow-lg"
+            >
+              <Download size={18} /> Export to CSV
+            </button>
           </div>
 
           {filteredResults.length === 0 ? (

@@ -30,6 +30,7 @@ import CONFIG from "../../Api/Config/config"
 
 export default function ApplyPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showTermsModal, setShowTermsModal] = useState(true)
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -170,44 +171,61 @@ export default function ApplyPage() {
       {/* Shared Navigation */}
       <NavBar />
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-500 pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-20 right-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="max-w-5xl mx-auto relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4">
-            Apply for Your Next Finance Role
-          </h1>
-          <p className="text-lg md:text-xl text-black/90 max-w-3xl mx-auto leading-relaxed">
-            Join our network of finance professionals. Fill out the form below and let's find your perfect opportunity.
-          </p>
-        </div>
-      </section>
-
-      {/* Quick Stats Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: Zap, label: "Fast Process", value: "3-5 Days" },
-              { icon: Target, label: "Success Rate", value: "92%" },
-              { icon: Clock, label: "Avg Response", value: "24 Hours" },
-            ].map((stat, idx) => (
-              <div
-                key={idx}
-                className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-6 text-center border border-yellow-200 hover:border-yellow-400 hover:shadow-md transition-all duration-300"
+      {/* Terms and Conditions Modal */}
+      {showTermsModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 h-screen">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden animate-fadeIn">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-yellow-400 to-amber-500 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-black">Terms & Conditions</h2>
+              <button
+                onClick={() => setShowTermsModal(false)}
+                className="w-8 h-8 bg-black/10 hover:bg-black/20 rounded-lg flex items-center justify-center transition-colors"
+                aria-label="Close modal"
               >
-                <stat.icon size={28} className="text-yellow-600 mx-auto mb-3" />
-                <p className="text-gray-700 font-semibold text-sm mb-1">{stat.label}</p>
-                <p className="text-black font-bold text-2xl">{stat.value}</p>
+                <X size={20} className="text-black" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="prose prose-sm max-w-none">
+                <p className="text-gray-700 mb-4">
+                  Please read these terms and conditions carefully before submitting your application to AGN Job Bank.
+                </p>
+
+                <h3 className="text-lg font-bold text-black mt-6 mb-3">1. Application Agreement</h3>
+                <p className="text-gray-700 mb-4">
+                 I promise that AGN job bank which will give me a job after receiving first salary after 30 days including all kinds of bonus I will pay <span className="font-bold"> 50% </span> to them ( If I left the job after one month or within the month rules will be applicable as per first half )
+                </p>
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-6 rounded">
+                  <p className="text-sm text-gray-700">
+                    <strong className="text-black">Note:</strong> For questions about these terms or our data practices, 
+                    please contact us at <a href="mailto:agnjobbank123@gmail.com" className="text-yellow-600 hover:text-yellow-700 underline">agnjobbank123@gmail.com</a>
+                  </p>
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+              <button
+                onClick={() => setShowTermsModal(false)}
+                className="flex-1 bg-black text-white hover:bg-gray-800 font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg"
+              >
+                I Accept
+              </button>
+              <button
+                onClick={() => window.history.back()}
+                className="flex-1 border-2 border-gray-300 text-gray-700 hover:border-red-500 hover:text-red-500 font-semibold px-6 py-3 rounded-lg bg-white transition-all duration-300"
+              >
+                Decline
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
+
 
       {/* Why Apply Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
@@ -554,6 +572,45 @@ export default function ApplyPage() {
         </div>
       </section>
 
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-500 pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10">
+          <div className="absolute top-20 right-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10 text-center">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4">
+            Apply for Your Next Finance Role
+          </h1>
+          <p className="text-lg md:text-xl text-black/90 max-w-3xl mx-auto leading-relaxed">
+            Join our network of finance professionals. Fill out the form below and let's find your perfect opportunity.
+          </p>
+        </div>
+      </section>
+
+      {/* Quick Stats Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white border-b border-gray-200">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { icon: Zap, label: "Fast Process", value: "3-5 Days" },
+              { icon: Target, label: "Success Rate", value: "92%" },
+              { icon: Clock, label: "Avg Response", value: "24 Hours" },
+            ].map((stat, idx) => (
+              <div
+                key={idx}
+                className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl p-6 text-center border border-yellow-200 hover:border-yellow-400 hover:shadow-md transition-all duration-300"
+              >
+                <stat.icon size={28} className="text-yellow-600 mx-auto mb-3" />
+                <p className="text-gray-700 font-semibold text-sm mb-1">{stat.label}</p>
+                <p className="text-black font-bold text-2xl">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Success Stories Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-5xl mx-auto">
@@ -751,9 +808,8 @@ export default function ApplyPage() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-semibold text-white transform transition-all duration-300 ${
-              t.type === "success" ? "bg-green-500" : "bg-red-500"
-            }`}
+            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-semibold text-white transform transition-all duration-300 ${t.type === "success" ? "bg-green-500" : "bg-red-500"
+              }`}
           >
             {t.text}
           </div>
