@@ -20,12 +20,16 @@ import {
   Clock,
   AlertCircle,
   XCircle,
+  Home,
+  LogOut,
 } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
 import NavBar from "../shared/NavBar"
 import { listEmployees, createHireRequest, getEmployerHireRequests } from '../../Api/Service/apiService'
 
 export default function EmployerDashboard() {
+  const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [jobTitle, setJobTitle] = useState("")
   const [experience, setExperience] = useState("")
@@ -41,6 +45,19 @@ export default function EmployerDashboard() {
   const [requestsModalOpen, setRequestsModalOpen] = useState(false)
   const [hireRequests, setHireRequests] = useState([])
   const [loadingRequests, setLoadingRequests] = useState(false)
+
+  const handleLogout = () => {
+    // Clear any stored user data
+    localStorage.removeItem('employerData')
+    localStorage.removeItem('employerId')
+    sessionStorage.clear()
+    // Redirect to home page
+    navigate('/')
+  }
+
+  const handleGoHome = () => {
+    navigate('/')
+  }
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -266,17 +283,31 @@ export default function EmployerDashboard() {
               <p className="text-gray-600 text-xs">Find candidates instantly</p>
             </div>
             <button
+              onClick={handleGoHome}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm flex items-center gap-2"
+            >
+              <Home size={18} />
+              Home
+            </button>
+            <button
               onClick={openRequestsModal}
               className="bg-blue-600 hover:bg-blue-700 text-white font-black px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm flex items-center gap-2"
             >
               <FileText size={18} />
-              My Hire Requests
+              My Requests
             </button>
             <button
               onClick={() => document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth" })}
               className="bg-yellow-500 hover:bg-yellow-600 text-black font-black px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm"
             >
               Search Now
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 text-sm flex items-center gap-2"
+            >
+              <LogOut size={18} />
+              Logout
             </button>
           </div>
         </div>

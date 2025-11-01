@@ -1,10 +1,29 @@
 "use client"
 
-import { Menu, X, FilePlus, UserPlus, LogIn, HomeIcon, Mail } from "lucide-react"
-import { useState } from "react"
+import { Menu, X, FilePlus, UserPlus, LogIn, HomeIcon, Mail, Info } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Check if user is logged in (admin or employer)
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const adminAuth = localStorage.getItem("agn_admin_authenticated")
+      const employerData = localStorage.getItem("employerData")
+      const employerId = localStorage.getItem("employerId")
+      
+      setIsLoggedIn(!!(adminAuth || employerData || employerId))
+    }
+    
+    checkLoginStatus()
+    
+    // Listen for storage changes (in case user logs in/out in another tab)
+    window.addEventListener('storage', checkLoginStatus)
+    
+    return () => window.removeEventListener('storage', checkLoginStatus)
+  }, [])
 
   const openApply = (e) => {
     if (e && e.preventDefault) e.preventDefault()
@@ -17,6 +36,14 @@ export default function NavBar() {
   const openHire = (e) => {
     if (e && e.preventDefault) e.preventDefault()
     window.location.href = "/hire"
+    try {
+      window.scrollTo(0, 0)
+    } catch (err) {}
+  }
+
+  const openHome = (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    window.location.href = "/"
     try {
       window.scrollTo(0, 0)
     } catch (err) {}
@@ -57,6 +84,13 @@ export default function NavBar() {
         </div>
         <div className="hidden md:flex items-center gap-8">
           <a
+            href="/"
+            onClick={openHome}
+            className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
+          >
+            <HomeIcon size={16} /> HOME
+          </a>
+          <a
             href="/apply"
             onClick={openApply}
             className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
@@ -70,17 +104,19 @@ export default function NavBar() {
           >
             <UserPlus size={16} /> HIRE
           </a>
-          <a
-            href="/admin/login"
-            className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
-          >
-            <LogIn size={16} /> LOGIN
-          </a>
+          {!isLoggedIn && (
+            <a
+              href="/admin/login"
+              className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
+            >
+              <LogIn size={16} /> LOGIN
+            </a>
+          )}
           <a
             href="#about"
             className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
           >
-            <HomeIcon size={16} /> ABOUT
+            <Info size={16} /> ABOUT
           </a>
           <a
             href="#contact"
@@ -102,6 +138,13 @@ export default function NavBar() {
         <div className="md:hidden bg-yellow-400 border-t-2 border-black animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="px-4 py-4 space-y-3">
             <a
+              href="/"
+              onClick={openHome}
+              className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
+            >
+              <HomeIcon size={16} /> HOME
+            </a>
+            <a
               href="/apply"
               onClick={openApply}
               className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
@@ -115,17 +158,19 @@ export default function NavBar() {
             >
               <UserPlus size={16} /> HIRE
             </a>
-            <a
-              href="/login"
-              className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
-            >
-              <LogIn size={16} /> LOGIN
-            </a>
+            {!isLoggedIn && (
+              <a
+                href="/login"
+                className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
+              >
+                <LogIn size={16} /> LOGIN
+              </a>
+            )}
             <a
               href="#about"
               className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
             >
-              <HomeIcon size={16} /> ABOUT
+              <Info size={16} /> ABOUT
             </a>
             <a
               href="#contact"

@@ -39,4 +39,7 @@ const CONFIG = {
   BASE_URL: getBaseUrl(),
 };
 
+// Debug: Log the BASE_URL on initialization
+console.log('🔧 API Configuration:', CONFIG.BASE_URL);
+
 export default CONFIG;
