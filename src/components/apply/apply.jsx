@@ -31,6 +31,9 @@ import CONFIG from "../../Api/Config/config"
 export default function ApplyPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showTermsModal, setShowTermsModal] = useState(true)
+  const [showResultModal, setShowResultModal] = useState(false)
+  const [resultType, setResultType] = useState(null) // 'success' or 'error'
+  const [resultMessage, setResultMessage] = useState("")
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -46,8 +49,6 @@ export default function ApplyPage() {
     experience_detail: "",
   })
   const [cvFile, setCvFile] = useState(null)
-  const [submitted, setSubmitted] = useState(false)
-  const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e) => {
@@ -68,40 +69,33 @@ export default function ApplyPage() {
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     ]
     if (!allowed.includes(file.type) && !/\.pdf$|\.docx?$/.test(file.name.toLowerCase())) {
-      setError("Only PDF or Word files are allowed (PDF, DOC, DOCX).")
+      setResultType('error')
+      setResultMessage('Only PDF or Word files are allowed (PDF, DOC, DOCX).')
+      setShowResultModal(true)
       setCvFile(null)
-      showToast("error", "Please upload a PDF or Word document (DOC/DOCX)")
+      e.target.value = ''
       return
     }
     const maxBytes = 5 * 1024 * 1024
     if (file.size > maxBytes) {
-      setError("File too large. Maximum allowed size is 5MB.")
+      setResultType('error')
+      setResultMessage('File too large. Maximum allowed size is 5MB.')
+      setShowResultModal(true)
       setCvFile(null)
-      showToast("error", "File too large — maximum 5MB")
+      e.target.value = ''
       return
     }
-    setError(null)
     setCvFile(file)
-  }
-
-  // Simple toast system
-  const [toasts, setToasts] = useState([])
-  const showToast = (type, text, duration = 4500) => {
-    const id = Date.now() + Math.random()
-    setToasts((t) => [...t, { id, type, text }])
-    setTimeout(() => {
-      setToasts((t) => t.filter((x) => x.id !== id))
-    }, duration)
   }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
 
     if (!formData.name || !formData.email || !formData.mobile_no) {
-      setError("Please fill in all required fields (Name, Email, Mobile Number)")
-      showToast("error", "Please fill in required fields: Name, Email, Mobile Number")
+      setResultType('error')
+      setResultMessage('Please fill in all required fields (Name, Email, Mobile Number)')
+      setShowResultModal(true)
       setIsLoading(false)
       return
     }
@@ -122,17 +116,23 @@ export default function ApplyPage() {
       body: data,
       signal: controller.signal,
     })
-      .then((response) => {
+      .then(async (response) => {
         clearTimeout(timeoutId)
+        const result = await response.json()
+        
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`)
+          // Backend returned an error (400, 500, etc.)
+          // Extract the error message from the JSON response
+          const errorMsg = result.error || `Server error: ${response.status}`
+          throw new Error(errorMsg)
         }
-        return response.json()
+        return result
       })
       .then((result) => {
         setIsLoading(false)
-        setSubmitted(true)
-        showToast("success", "Application submitted successfully")
+        setResultType('success')
+        setResultMessage('Application submitted successfully! We\'ll review your application and get in touch soon with next steps.')
+        setShowResultModal(true)
         setFormData({
           name: "",
           age: "",
@@ -148,20 +148,24 @@ export default function ApplyPage() {
           experience_detail: "",
         })
         setCvFile(null)
-        setTimeout(() => setSubmitted(false), 6000)
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]')
+        if (fileInput) fileInput.value = ''
       })
       .catch((error) => {
         setIsLoading(false)
+        let errorMsg = "Failed to submit application. Please try again or contact support."
         if (error.name === "AbortError") {
-          setError("Request timeout. Please check your connection and try again.")
-          showToast("error", "Request timeout — please try again")
+          errorMsg = "Request timeout. Please check your connection and try again."
         } else if (error.message.includes("Failed to fetch")) {
-          setError("Unable to connect to server. Please ensure the backend is running and try again.")
-          showToast("error", "Unable to connect to server")
-        } else {
-          setError("Failed to submit application. Please try again or contact support.")
-          showToast("error", "Failed to submit application")
+          errorMsg = "Unable to connect to server. Please ensure the backend is running and try again."
+        } else if (error.message) {
+          // Use the backend's error message
+          errorMsg = error.message
         }
+        setResultType('error')
+        setResultMessage(errorMsg)
+        setShowResultModal(true)
         console.error("Error:", error)
       })
   }
@@ -226,92 +230,79 @@ export default function ApplyPage() {
         </div>
       )}
 
-
-      {/* Why Apply Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-4">
-            Why Apply with AGN Job Bank?
-          </h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            We're committed to helping finance professionals find their ideal career opportunities
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Briefcase,
-                title: "Exclusive Opportunities",
-                desc: "Access premium finance roles not listed elsewhere",
-              },
-              {
-                icon: TrendingUp,
-                title: "Career Growth",
-                desc: "Work with industry leaders and advance your career",
-              },
-              {
-                icon: Award,
-                title: "Competitive Packages",
-                desc: "Attractive salaries and comprehensive benefits",
-              },
-            ].map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300"
-              >
-                <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mb-4">
-                  <item.icon size={24} className="text-black" />
-                </div>
-                <h3 className="text-lg font-bold text-black mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+      {/* Result Modal (Success/Error) */}
+      {showResultModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 h-screen">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
+            {/* Modal Header */}
+            <div className={`px-6 py-4 flex items-center justify-between ${
+              resultType === 'success' 
+                ? 'bg-gradient-to-r from-green-400 to-emerald-500' 
+                : 'bg-gradient-to-r from-red-400 to-rose-500'
+            }`}>
+              <div className="flex items-center gap-3">
+                {resultType === 'success' ? (
+                  <CheckCircle size={24} className="text-white" />
+                ) : (
+                  <AlertCircle size={24} className="text-white" />
+                )}
+                <h2 className="text-2xl font-bold text-white">
+                  {resultType === 'success' ? 'Success!' : 'Error'}
+                </h2>
               </div>
-            ))}
+              <button
+                onClick={() => setShowResultModal(false)}
+                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors"
+                aria-label="Close modal"
+              >
+                <X size={20} className="text-white" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <p className="text-gray-700 text-center leading-relaxed mb-4">
+                {resultMessage}
+              </p>
+              {resultType === 'success' && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-green-800 text-center">
+                    <strong>Expected response time:</strong> 3-5 business days
+                  </p>
+                </div>
+              )}
+              {resultType === 'error' && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-red-800 text-center">
+                    Please ensure all required fields are filled and your internet connection is stable.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={() => setShowResultModal(false)}
+                className={`w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg ${
+                  resultType === 'success'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-red-600 text-white hover:bg-red-700'
+                }`}
+              >
+                {resultType === 'success' ? 'Great!' : 'Try Again'}
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
+
+
+     
 
       {/* Form Section */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
-          {/* Success Message */}
-          {submitted && (
-            <div className="mb-8 bg-green-50 border-l-4 border-green-500 rounded-lg p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <CheckCircle size={24} className="text-green-500" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-green-900 text-lg mb-1">
-                    Application Submitted Successfully!
-                  </h3>
-                  <p className="text-green-800 mb-2">
-                    Thank you for applying. We'll review your application and get in touch soon with next steps.
-                  </p>
-                  <p className="text-sm text-green-700">
-                    Expected response time: 3-5 business days
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-8 bg-red-50 border-l-4 border-red-500 rounded-lg p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <AlertCircle size={24} className="text-red-500" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-red-900 text-lg mb-1">Submission Error</h3>
-                  <p className="text-red-800 mb-2">{error}</p>
-                  <p className="text-sm text-red-700">
-                    Please ensure all required fields are filled and your internet connection is stable.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Personal Information Section */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
@@ -522,6 +513,16 @@ export default function ApplyPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-black">Upload CV</h2>
               </div>
+              
+              {/* Important Notice */}
+              <div className="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                <p className="text-sm text-blue-800">
+                  <strong className="font-bold">📝 Important:</strong> Please upload a <strong>text-based PDF</strong> (not an image/Canva PDF). 
+                  Image-based CVs cannot be properly processed for privacy protection. 
+                  To create a text-based PDF, export directly from Word or Google Docs.
+                </p>
+              </div>
+              
               <div className="relative">
                 <input
                   type="file"
@@ -537,6 +538,7 @@ export default function ApplyPage() {
                     {cvFile ? cvFile.name : "Drop your CV here or click to browse"}
                   </p>
                   <p className="text-sm text-gray-600">PDF, DOC, or DOCX (Max 5MB)</p>
+                  <p className="text-xs text-gray-500 mt-2">✅ Text-based PDFs only • ❌ No Canva or image PDFs</p>
                 </div>
               </div>
             </div>
@@ -572,20 +574,45 @@ export default function ApplyPage() {
         </div>
       </section>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-yellow-400 via-yellow-500 to-amber-500 pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10">
-          <div className="absolute top-20 right-10 w-64 h-64 bg-white rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 left-20 w-96 h-96 bg-white rounded-full blur-3xl"></div>
-        </div>
-
-        <div className="max-w-5xl mx-auto relative z-10 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black leading-tight mb-4">
-            Apply for Your Next Finance Role
-          </h1>
-          <p className="text-lg md:text-xl text-black/90 max-w-3xl mx-auto leading-relaxed">
-            Join our network of finance professionals. Fill out the form below and let's find your perfect opportunity.
+     {/* Why Apply Section */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-4">
+            Why Apply with AGN Job Bank?
+          </h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            We're committed to helping finance professionals find their ideal career opportunities
           </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Briefcase,
+                title: "Exclusive Opportunities",
+                desc: "Access premium finance roles not listed elsewhere",
+              },
+              {
+                icon: TrendingUp,
+                title: "Career Growth",
+                desc: "Work with industry leaders and advance your career",
+              },
+              {
+                icon: Award,
+                title: "Competitive Packages",
+                desc: "Attractive salaries and comprehensive benefits",
+              },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-xl p-6 border border-gray-200 hover:border-yellow-400 hover:shadow-lg transition-all duration-300"
+              >
+                <div className="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center mb-4">
+                  <item.icon size={24} className="text-black" />
+                </div>
+                <h3 className="text-lg font-bold text-black mb-2">{item.title}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -802,19 +829,6 @@ export default function ApplyPage() {
           </div>
         </div>
       </footer>
-
-      {/* Toast container */}
-      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2">
-        {toasts.map((t) => (
-          <div
-            key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-semibold text-white transform transition-all duration-300 ${t.type === "success" ? "bg-green-500" : "bg-red-500"
-              }`}
-          >
-            {t.text}
-          </div>
-        ))}
-      </div>
     </div>
   )
 }
