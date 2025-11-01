@@ -11,10 +11,10 @@ export default function NavBar() {
   useEffect(() => {
     const checkLoginStatus = () => {
       const adminAuth = localStorage.getItem("agn_admin_authenticated")
-      const employerData = localStorage.getItem("employerData")
-      const employerId = localStorage.getItem("employerId")
+      const employerAuth = localStorage.getItem("agn_employer_authenticated")
+      const employerId = localStorage.getItem("agn_employer_id")
       
-      setIsLoggedIn(!!(adminAuth || employerData || employerId))
+      setIsLoggedIn(!!(adminAuth || employerAuth || employerId))
     }
     
     checkLoginStatus()

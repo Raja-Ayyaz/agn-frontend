@@ -1,8 +1,10 @@
-import React, { useState } from "react"
-import { Eye, EyeOff, ArrowRight, Menu, X, Phone, Mail, MapPin, Linkedin, Twitter } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+"use client"
+
+import { useState } from "react"
+import { Eye, EyeOff, ArrowRight, Phone, Mail, MapPin, Linkedin, Twitter } from "lucide-react"
+import { Link, useNavigate } from "react-router-dom"
 import NavBar from "../shared/NavBar"
-import { employerLogin, adminLogin } from '../../Api/Service/apiService'
+import { employerLogin, adminLogin } from "../../Api/Service/apiService"
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("")
@@ -29,11 +31,11 @@ export default function AdminLogin() {
         // employerLogin now returns { ok: true, employer_id, role }
         if (res && res.ok) {
           const role = (res.role || "").toLowerCase()
-          if (role === 'admin') {
+          if (role === "admin") {
             localStorage.setItem("agn_admin_user", username)
             localStorage.setItem("agn_admin_authenticated", "1")
             setSuccess(true)
-            setTimeout(() => navigate('/admin/panel'), 300)
+            setTimeout(() => navigate("/admin/panel"), 300)
             return
           }
 
@@ -42,7 +44,7 @@ export default function AdminLogin() {
           localStorage.setItem("agn_employer_authenticated", "1")
           localStorage.setItem("agn_employer_id", String(res.employer_id || ""))
           setSuccess(true)
-          setTimeout(() => navigate('/employer-dashboard'), 300)
+          setTimeout(() => navigate("/employer-dashboard"), 300)
           return
         }
       } catch (e) {
@@ -56,7 +58,7 @@ export default function AdminLogin() {
           localStorage.setItem("agn_admin_user", username)
           localStorage.setItem("agn_admin_authenticated", "1")
           setSuccess(true)
-          setTimeout(() => navigate('/admin/panel'), 300)
+          setTimeout(() => navigate("/admin/panel"), 300)
           return
         }
       } catch (e) {
@@ -174,16 +176,16 @@ export default function AdminLogin() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                          className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
+                        className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
                       />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                          className="absolute inset-y-0 right-4 flex items-center text-gray-600 hover:text-black transition"
-                        >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        className="absolute inset-y-0 right-4 flex items-center text-gray-600 hover:text-black transition"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
                     </div>
                   </div>
 
@@ -226,9 +228,9 @@ export default function AdminLogin() {
 
                 <div className="mt-6 text-center">
                   <p className="text-sm text-gray-600 mb-2">
-                    Don't have an account?{' '}
-                    <Link 
-                      to="/employer-signup" 
+                    Don't have an account?{" "}
+                    <Link
+                      to="/employer-signup"
                       className="text-yellow-600 hover:text-yellow-700 font-black underline transition"
                     >
                       Sign Up Here
