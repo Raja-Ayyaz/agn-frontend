@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import NavBar from "../shared/NavBar"
+import CONFIG from "../../Api/Config/config"
 
 export default function ApplyPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -113,13 +114,15 @@ export default function ApplyPage() {
     }
 
     const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
 
-    fetch("http://localhost:8000/insert_employee", {
+    fetch(`${CONFIG.BASE_URL}/insert_employee`, {
       method: "POST",
       body: data,
       signal: controller.signal,
     })
       .then((response) => {
+        clearTimeout(timeoutId)
         if (!response.ok) {
           throw new Error(`Server error: ${response.status}`)
         }

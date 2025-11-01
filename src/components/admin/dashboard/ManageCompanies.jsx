@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Search, Trash2 } from "lucide-react"
 import { deleteEmployer } from "../../../Api/Service/apiService"
+import CONFIG from "../../../Api/Config/config"
 
 export default function ManageCompanies() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -51,8 +52,17 @@ export default function ManageCompanies() {
 
   async function fetchCompaniesFromApi() {
     try {
-      const url = `http://localhost:8000/api/employers`
-      const r = await fetch(url)
+      const url = `${CONFIG.BASE_URL}/api/employers`
+      
+      // Create AbortController for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 second timeout
+      
+      const r = await fetch(url, {
+        signal: controller.signal
+      })
+      clearTimeout(timeoutId)
+      
       const j = await r.json()
       if (j.ok) {
         // Filter out admin users - only show users with role "user"
@@ -62,7 +72,11 @@ export default function ManageCompanies() {
         showToast("error", `API error: ${j.error}`)
       }
     } catch (err) {
-      showToast("error", `Fetch error: ${err.message}`)
+      if (err.name === 'AbortError') {
+        showToast("error", "Request timed out. The server is taking too long to respond.")
+      } else {
+        showToast("error", `Fetch error: ${err.message}`)
+      }
     }
   }
 
