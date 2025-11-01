@@ -1,0 +1,78 @@
+# .dockerignore - Files to exclude from Docker build
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation (already in image)
+*.md
+!README_HUGGINGFACE.md
+
+# Test files
+test_*.py
+*_test.py
+benchmark_*.py
+example_*.py
+
+# Database
+*.db
+*.sqlite
+
+# Sensitive files (use environment variables instead)
+.env
+password/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+temp/
+tmp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Development scripts
+start_server.ps1
+*.ps1
+
+# Sample/test data
+cv_samples/
+pdf_samples/
+outputs/
+
+# Exports
+exports/
+
+# JSON keys (use env vars)
+*.json
+!cv-storage-api-2f7734b5aa02.json
+
+# Old requirements (keep requirements.txt for Docker build!)
+# requirements.txt
+requirements-installed.txt
