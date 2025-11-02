@@ -22,6 +22,7 @@ import SettingsPanel from "./dashboard/SettingsPanel"
 export default function AdminPanel() {
   const navigate = useNavigate()
   const [sidebarExpanded, setSidebarExpanded] = useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState("dashboard")
   const [toasts, setToasts] = useState([])
   const [dashboardStats, setDashboardStats] = useState({
@@ -155,11 +156,20 @@ export default function AdminPanel() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
       <aside
         className={`${
           sidebarExpanded ? "w-64" : "w-20"
-        } bg-gradient-to-b from-black to-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col fixed h-screen z-50 shadow-2xl`}
+        } bg-gradient-to-b from-black to-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col fixed h-screen z-50 shadow-2xl
+        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* Sidebar Header */}
         <div className="p-6 border-b border-slate-700 flex items-center justify-between">
@@ -199,7 +209,10 @@ export default function AdminPanel() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => {
+                  setActiveSection(item.id)
+                  setMobileMenuOpen(false)
+                }}
                 className={`w-full flex items-center gap-4 px-6 py-4 transition-all ${
                   activeSection === item.id
                     ? "bg-yellow-400 text-black border-l-4 border-yellow-600"
@@ -229,27 +242,47 @@ export default function AdminPanel() {
 
       {/* Main Content Area */}
       <div
-        className={`flex-1 ${sidebarExpanded ? "ml-64" : "ml-20"} transition-all duration-300 min-h-screen flex flex-col max-w-full overflow-hidden`}
+        className={`flex-1 ${sidebarExpanded ? "lg:ml-64" : "lg:ml-20"} transition-all duration-300 min-h-screen flex flex-col max-w-full overflow-hidden`}
       >
         {/* Top Navigation Bar */}
         <header className="bg-white shadow-md border-b-2 border-amber-400 sticky top-0 z-40">
-          <div className="px-8 py-4 flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-black text-black">
+          <div className="px-4 sm:px-8 py-4 flex items-center justify-between">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center hover:bg-yellow-500 transition-colors mr-3"
+            >
+              <svg
+                className="w-6 h-6 text-black"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-2xl font-black text-black truncate">
                 {menuItems.find((item) => item.id === activeSection)?.label || "Admin Panel"}
               </h1>
-              <p className="text-sm text-gray-500">Welcome back, Administrator</p>
+              <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Welcome back, Administrator</p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-black font-black">AD</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-black font-black text-sm sm:text-base">AD</span>
               </div>
             </div>
           </div>
         </header>
 
         {/* Content Area */}
-        <main className="p-8 flex-1 overflow-auto max-w-full">
+        <main className="p-4 sm:p-6 lg:p-8 flex-1 overflow-auto max-w-full">
           {activeSection === "dashboard" && (
             <div>
               {/* Dashboard Overview */}
@@ -348,37 +381,49 @@ export default function AdminPanel() {
                     <div className="w-1 h-6 bg-amber-400 rounded-full"></div>
                     Quick Actions
                   </h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <button
-                      onClick={() => setActiveSection("employees")}
-                      className="p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
+                      onClick={() => {
+                        setActiveSection("employees")
+                        setMobileMenuOpen(false)
+                      }}
+                      className="p-3 sm:p-4 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
                     >
-                      <Users size={24} className="text-blue-600 mb-2 group-hover:scale-110 transition-transform" />
-                      <p className="font-black text-sm text-black">Add Employee</p>
+                      <Users size={20} className="text-blue-600 mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+                      <p className="font-black text-xs sm:text-sm text-black">Add Employee</p>
                     </button>
                     <button
-                      onClick={() => setActiveSection("companies")}
-                      className="p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
+                      onClick={() => {
+                        setActiveSection("companies")
+                        setMobileMenuOpen(false)
+                      }}
+                      className="p-3 sm:p-4 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
                     >
                       <Building2
-                        size={24}
-                        className="text-emerald-600 mb-2 group-hover:scale-110 transition-transform"
+                        size={20}
+                        className="text-emerald-600 mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6"
                       />
-                      <p className="font-black text-sm text-black">Add Company</p>
+                      <p className="font-black text-xs sm:text-sm text-black">Add Company</p>
                     </button>
                     <button
-                      onClick={() => setActiveSection("hire-requests")}
-                      className="p-4 bg-amber-50 hover:bg-amber-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
+                      onClick={() => {
+                        setActiveSection("hire-requests")
+                        setMobileMenuOpen(false)
+                      }}
+                      className="p-3 sm:p-4 bg-amber-50 hover:bg-amber-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
                     >
-                      <FileText size={24} className="text-amber-600 mb-2 group-hover:scale-110 transition-transform" />
-                      <p className="font-black text-sm text-black">View Requests</p>
+                      <FileText size={20} className="text-amber-600 mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+                      <p className="font-black text-xs sm:text-sm text-black">View Requests</p>
                     </button>
                     <button
-                      onClick={() => setActiveSection("settings")}
-                      className="p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
+                      onClick={() => {
+                        setActiveSection("settings")
+                        setMobileMenuOpen(false)
+                      }}
+                      className="p-3 sm:p-4 bg-purple-50 hover:bg-purple-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
                     >
-                      <Settings size={24} className="text-purple-600 mb-2 group-hover:scale-110 transition-transform" />
-                      <p className="font-black text-sm text-black">Settings</p>
+                      <Settings size={20} className="text-purple-600 mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+                      <p className="font-black text-xs sm:text-sm text-black">Settings</p>
                     </button>
                   </div>
                 </div>
@@ -397,11 +442,11 @@ export default function AdminPanel() {
       </div>
 
       {/* Toast container */}
-      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+      <div aria-live="polite" className="fixed top-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-[calc(100vw-2rem)] sm:max-w-sm">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-200 pointer-events-auto ${
+            className={`w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-200 pointer-events-auto ${
               t.type === "success" ? "bg-emerald-600" : t.type === "info" ? "bg-sky-600" : "bg-rose-600"
             }`}
           >

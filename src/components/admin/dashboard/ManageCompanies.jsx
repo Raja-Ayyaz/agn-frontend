@@ -105,27 +105,27 @@ export default function ManageCompanies() {
   return (
     <div>
       {/* Search Section */}
-      <div className="mb-8">
-        <div className="bg-white rounded-2xl p-8 border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-md">
-              <Search size={20} className="text-black font-bold" />
+      <div className="mb-6 sm:mb-8">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 lg:p-8 border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
+          <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-md">
+              <Search size={16} className="text-black font-bold sm:w-5 sm:h-5" />
             </div>
-            <h2 className="text-2xl font-black text-black">Search & Filter Companies</h2>
+            <h2 className="text-lg sm:text-2xl font-black text-black">Search & Filter Companies</h2>
           </div>
 
           <form onSubmit={onSearch} className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <input
                 type="text"
-                className="flex-1 border-2 border-slate-300 p-3 rounded-xl focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 transition bg-white hover:border-amber-300 font-medium"
-                placeholder="Search by username, company name, email, phone... (use spaces for multiple filters)"
+                className="flex-1 border-2 border-slate-300 p-3 rounded-xl focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 transition bg-white hover:border-amber-300 font-medium text-sm sm:text-base"
+                placeholder="Search by company name, email, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-black text-amber-400 px-6 py-3 rounded-xl font-black hover:bg-slate-900 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-md hover:shadow-lg"
+                className="bg-black text-amber-400 px-4 sm:px-6 py-3 rounded-xl font-black hover:bg-slate-900 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm sm:text-base"
               >
                 <Search size={18} /> Search
               </button>
@@ -137,8 +137,8 @@ export default function ManageCompanies() {
       {/* Results Table */}
       <div className="w-full">
         <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-8 py-6">
-            <h3 className="text-2xl font-black text-white">Companies ({filteredResults.length})</h3>
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 px-4 sm:px-8 py-4 sm:py-6">
+            <h3 className="text-xl sm:text-2xl font-black text-white">Companies ({filteredResults.length})</h3>
           </div>
 
           {filteredResults.length === 0 ? (
@@ -220,11 +220,11 @@ export default function ManageCompanies() {
       </div>
 
       {/* Toast container */}
-      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+      <div aria-live="polite" className="fixed top-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-[calc(100vw-2rem)] sm:max-w-sm">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-300 pointer-events-auto ${
+            className={`w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-300 pointer-events-auto ${
               t.type === "success" ? "bg-emerald-600" : t.type === "info" ? "bg-blue-600" : "bg-red-600"
             }`}
           >

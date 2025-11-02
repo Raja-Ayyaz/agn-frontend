@@ -154,15 +154,15 @@ export default function HireRequests() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-black text-black mb-2">Hire Requests Management</h2>
-            <p className="text-slate-600">Review and respond to employer hire requests</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-black mb-2">Hire Requests Management</h2>
+            <p className="text-sm sm:text-base text-slate-600">Review and respond to employer hire requests</p>
           </div>
           <button
             onClick={fetchAllRequests}
-            className="bg-amber-400 hover:bg-amber-500 text-black font-black px-6 py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="bg-amber-400 hover:bg-amber-500 text-black font-black px-4 sm:px-6 py-2 sm:py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base w-full sm:w-auto"
           >
             Refresh
           </button>
@@ -170,64 +170,64 @@ export default function HireRequests() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-xl p-6 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300">
-          <div className="flex items-center gap-3 mb-2">
-            <FileText className="text-blue-600" size={24} />
-            <span className="text-sm text-slate-600 font-semibold">Total Requests</span>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="bg-white rounded-xl p-4 sm:p-6 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <FileText className="text-blue-600" size={20} />
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Total Requests</span>
           </div>
-          <p className="text-3xl font-black text-black">{allRequests.length}</p>
+          <p className="text-2xl sm:text-3xl font-black text-black">{allRequests.length}</p>
         </div>
 
         <div
-          className="bg-amber-50 rounded-xl p-6 border-2 border-amber-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="bg-amber-50 rounded-xl p-4 sm:p-6 border-2 border-amber-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
           onClick={() => setFilterStatus("pending")}
         >
-          <div className="flex items-center gap-3 mb-2">
-            <Clock className="text-amber-600" size={24} />
-            <span className="text-sm text-slate-600 font-semibold">Pending</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <Clock className="text-amber-600" size={20} />
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Pending</span>
           </div>
-          <p className="text-3xl font-black text-amber-700">{pendingCount}</p>
+          <p className="text-2xl sm:text-3xl font-black text-amber-700">{pendingCount}</p>
         </div>
 
         <div
-          className="bg-emerald-50 rounded-xl p-6 border-2 border-emerald-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="bg-emerald-50 rounded-xl p-4 sm:p-6 border-2 border-emerald-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
           onClick={() => setFilterStatus("accepted")}
         >
-          <div className="flex items-center gap-3 mb-2">
-            <CheckCircle className="text-emerald-600" size={24} />
-            <span className="text-sm text-slate-600 font-semibold">Accepted</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <CheckCircle className="text-emerald-600" size={20} />
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Accepted</span>
           </div>
-          <p className="text-3xl font-black text-emerald-700">{acceptedCount}</p>
+          <p className="text-2xl sm:text-3xl font-black text-emerald-700">{acceptedCount}</p>
         </div>
 
         <div
-          className="bg-red-50 rounded-xl p-6 border-2 border-red-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="bg-red-50 rounded-xl p-4 sm:p-6 border-2 border-red-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
           onClick={() => setFilterStatus("rejected")}
         >
-          <div className="flex items-center gap-3 mb-2">
-            <XCircle className="text-red-600" size={24} />
-            <span className="text-sm text-slate-600 font-semibold">Rejected</span>
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
+            <XCircle className="text-red-600" size={20} />
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Rejected</span>
           </div>
-          <p className="text-3xl font-black text-red-700">{rejectedCount}</p>
+          <p className="text-2xl sm:text-3xl font-black text-red-700">{rejectedCount}</p>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="bg-white rounded-xl p-2 mb-6 border-2 border-slate-200 shadow-md inline-flex gap-2">
+      <div className="bg-white rounded-xl p-2 mb-6 border-2 border-slate-200 shadow-md flex flex-wrap gap-2 w-full sm:w-auto sm:inline-flex">
         <button
           onClick={() => setFilterStatus("all")}
-          className={`px-6 py-3 rounded-lg font-black transition-all duration-300 ${
+          className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "all"
               ? "bg-black text-amber-400 shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
-          All Requests
+          All
         </button>
         <button
           onClick={() => setFilterStatus("pending")}
-          className={`px-6 py-3 rounded-lg font-black transition-all duration-300 ${
+          className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "pending"
               ? "bg-amber-500 text-black shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -237,7 +237,7 @@ export default function HireRequests() {
         </button>
         <button
           onClick={() => setFilterStatus("accepted")}
-          className={`px-6 py-3 rounded-lg font-black transition-all duration-300 ${
+          className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "accepted"
               ? "bg-emerald-600 text-white shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -247,7 +247,7 @@ export default function HireRequests() {
         </button>
         <button
           onClick={() => setFilterStatus("rejected")}
-          className={`px-6 py-3 rounded-lg font-black transition-all duration-300 ${
+          className={`flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "rejected"
               ? "bg-red-600 text-white shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
@@ -524,11 +524,11 @@ export default function HireRequests() {
       )}
 
       {/* Toast container */}
-      <div aria-live="polite" className="fixed top-6 right-6 z-50 flex flex-col gap-2 pointer-events-none">
+      <div aria-live="polite" className="fixed top-6 right-4 sm:right-6 z-50 flex flex-col gap-2 pointer-events-none max-w-[calc(100vw-2rem)] sm:max-w-sm">
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`max-w-sm w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-300 pointer-events-auto ${
+            className={`w-full px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white transform transition-all duration-300 pointer-events-auto ${
               t.type === "success" ? "bg-emerald-600" : t.type === "info" ? "bg-blue-600" : "bg-red-600"
             }`}
           >
