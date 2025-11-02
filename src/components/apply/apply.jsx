@@ -283,13 +283,6 @@ export default function ApplyPage() {
                   </p>
                 </div>
               )}
-              {resultType === 'error' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-red-800 text-center">
-                    Please ensure all required fields are filled and your internet connection is stable.
-                  </p>
-                </div>
-              )}
             </div>
 
             {/* Modal Footer */}
