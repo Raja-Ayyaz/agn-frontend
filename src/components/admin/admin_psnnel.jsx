@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   LayoutDashboard,
+  Menu,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { getDashboardStats, getRecentActivity } from "../../Api/Service/apiService"
@@ -35,6 +36,22 @@ export default function AdminPanel() {
   const [loadingStats, setLoadingStats] = useState(true)
   const [loadingActivities, setLoadingActivities] = useState(true)
 
+  // Remove body margin/padding on mount
+  useEffect(() => {
+    document.body.style.margin = '0'
+    document.body.style.padding = '0'
+    document.documentElement.style.margin = '0'
+    document.documentElement.style.padding = '0'
+    
+    return () => {
+      // Cleanup if needed
+      document.body.style.margin = ''
+      document.body.style.padding = ''
+      document.documentElement.style.margin = ''
+      document.documentElement.style.padding = ''
+    }
+  }, [])
+
   const showToast = (type, text, duration = 4500) => {
     const id = Date.now() + Math.random()
     setToasts((t) => [...t, { id, type, text }])
@@ -47,6 +64,18 @@ export default function AdminPanel() {
       fetchDashboardData()
     }
   }, [activeSection])
+
+  // Handle window resize and close mobile menu on larger screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const fetchDashboardData = async () => {
     // Fetch stats
@@ -148,192 +177,133 @@ export default function AdminPanel() {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "employees", label: "Manage Employees", icon: Users },
-    { id: "companies", label: "Manage Companies", icon: Building2 },
+    { id: "employees", label: "Employees", icon: Users },
+    { id: "companies", label: "Companies", icon: Building2 },
     { id: "hire-requests", label: "Hire Requests", icon: FileText },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 flex overflow-hidden">
+    <div className="fixed inset-0 bg-gray-50 overflow-auto">
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={() => setMobileMenuOpen(false)}
         ></div>
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarExpanded ? "w-64" : "w-20"
-        } bg-gradient-to-b from-black to-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col fixed h-screen z-50 shadow-2xl
-        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
-      >
-        {/* Sidebar Header */}
-        <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-          {sidebarExpanded ? (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-black font-black text-lg">A</span>
-              </div>
-              <div>
-                <h2 className="font-black text-white text-lg">Admin</h2>
-                <p className="text-xs text-gray-400">Control Panel</p>
-              </div>
-            </div>
-          ) : (
-            <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-black font-black text-lg">A</span>
-            </div>
-          )}
-        </div>
-
-        {/* Toggle Button */}
-        <button
-          onClick={() => setSidebarExpanded(!sidebarExpanded)}
-          className="absolute -right-3 top-24 w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center hover:bg-yellow-500 transition shadow-lg"
-        >
-          {sidebarExpanded ? (
-            <ChevronLeft size={16} className="text-black" />
-          ) : (
-            <ChevronRight size={16} className="text-black" />
-          )}
-        </button>
-
-        {/* Menu Items */}
-        <nav className="flex-1 py-6">
-          {menuItems.map((item) => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveSection(item.id)
-                  setMobileMenuOpen(false)
-                }}
-                className={`w-full flex items-center gap-4 px-6 py-4 transition-all ${
-                  activeSection === item.id
-                    ? "bg-yellow-400 text-black border-l-4 border-yellow-600"
-                    : "text-gray-300 hover:bg-slate-700 hover:text-white"
-                } ${!sidebarExpanded && "justify-center px-0"}`}
-              >
-                <Icon size={22} className={sidebarExpanded ? "" : "mx-auto"} />
-                {sidebarExpanded && <span className="font-bold text-sm">{item.label}</span>}
-              </button>
-            )
-          })}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="p-4 border-t border-slate-700">
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-4 px-6 py-4 text-red-400 hover:bg-red-900/20 hover:text-red-300 transition rounded-lg ${
-              !sidebarExpanded && "justify-center px-0"
-            }`}
-          >
-            <LogOut size={22} className={sidebarExpanded ? "" : "mx-auto"} />
-            {sidebarExpanded && <span className="font-bold text-sm">Logout</span>}
-          </button>
-        </div>
-      </aside>
-
       {/* Main Content Area */}
-      <div
-        className={`flex-1 ${sidebarExpanded ? "lg:ml-64" : "lg:ml-20"} transition-all duration-300 min-h-screen flex flex-col max-w-full overflow-hidden`}
-      >
+      <div className="h-full flex flex-col w-full">
         {/* Top Navigation Bar */}
-        <header className="bg-white shadow-md border-b-2 border-amber-400 sticky top-0 z-40">
-          <div className="px-4 sm:px-8 py-4 flex items-center justify-between">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center hover:bg-yellow-500 transition-colors mr-3"
-            >
-              <svg
-                className="w-6 h-6 text-black"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-2xl font-black text-black truncate">
-                {menuItems.find((item) => item.id === activeSection)?.label || "Admin Panel"}
-              </h1>
-              <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Welcome back, Administrator</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center">
-                <span className="text-black font-black text-sm sm:text-base">AD</span>
+        <header className="bg-white shadow-md border-b-2 border-amber-400 z-[70] w-full flex-shrink-0 fixed top-0 left-0 right-0">
+          <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3">
+            {/* Main Header with Dashboard title and Admin badge */}
+            <div className="flex items-center justify-between gap-2 w-full mb-2 sm:mb-3">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-black font-black text-sm sm:text-lg">A</span>
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-sm sm:text-base md:text-xl lg:text-2xl font-black text-black truncate">
+                    {menuItems.find((item) => item.id === activeSection)?.label || "Admin Panel"}
+                  </h1>
+                  <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">Welcome back, Administrator</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                  <span className="text-black font-black text-xs sm:text-sm">AD</span>
+                </div>
               </div>
             </div>
+
+            {/* Navigation Menu - Horizontal scrollable */}
+            <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto pb-1 sm:pb-2 -mx-2 px-2 scrollbar-hide">
+              {menuItems.map((item) => {
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex-shrink-0 ${
+                      activeSection === item.id
+                        ? "bg-yellow-400 text-black shadow-md"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <Icon size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                    <span className="hidden sm:inline">{item.label}</span>
+                    <span className="sm:hidden">{item.label.split(' ')[0]}</span>
+                  </button>
+                )
+              })}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap bg-red-500 text-white hover:bg-red-600 transition-all ml-auto flex-shrink-0"
+              >
+                <LogOut size={14} className="sm:w-4 sm:h-4 md:w-5 md:h-5" />
+                <span className="hidden sm:inline">Logout</span>
+                <span className="sm:hidden">Exit</span>
+              </button>
+            </nav>
           </div>
         </header>
 
         {/* Content Area */}
-        <main className="p-4 sm:p-6 lg:p-8 flex-1 overflow-auto max-w-full">
+        <main className="flex-1 overflow-auto w-full pt-[65px] sm:pt-[75px] md:pt-[85px]">
+          <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-0">
           {activeSection === "dashboard" && (
             <div>
               {/* Dashboard Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-1.5 sm:gap-3 md:gap-4 lg:gap-6 mb-3 sm:mb-6 lg:mb-8 mt-0">
                 {/* Stats Cards */}
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-4">
-                    <Users size={32} className="opacity-90" />
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <Users size={14} className="opacity-90 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
                     {loadingStats ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 md:h-7 md:w-7 border-b-2 border-white"></div>
                     ) : (
-                      <span className="text-3xl font-black">{dashboardStats.total_employees}</span>
+                      <span className="text-base sm:text-2xl md:text-3xl font-black">{dashboardStats.total_employees}</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-medium opacity-90">Total Employees</h3>
+                  <h3 className="text-[9px] leading-tight sm:text-sm font-medium opacity-90 mt-1">Total Employees</h3>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-4">
-                    <Building2 size={32} className="opacity-90" />
+                <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <Building2 size={14} className="opacity-90 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
                     {loadingStats ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 md:h-7 md:w-7 border-b-2 border-white"></div>
                     ) : (
-                      <span className="text-3xl font-black">{dashboardStats.active_companies}</span>
+                      <span className="text-base sm:text-2xl md:text-3xl font-black">{dashboardStats.active_companies}</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-medium opacity-90">Active Companies</h3>
+                  <h3 className="text-[9px] leading-tight sm:text-sm font-medium opacity-90 mt-1">Active Companies</h3>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-2xl p-6 text-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-4">
-                    <FileText size={32} className="opacity-90" />
+                <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <FileText size={14} className="opacity-90 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
                     {loadingStats ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 md:h-7 md:w-7 border-b-2 border-black"></div>
                     ) : (
-                      <span className="text-3xl font-black">{dashboardStats.pending_requests}</span>
+                      <span className="text-base sm:text-2xl md:text-3xl font-black">{dashboardStats.pending_requests}</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-medium opacity-90">Pending Requests</h3>
+                  <h3 className="text-[9px] leading-tight sm:text-sm font-medium opacity-90 mt-1">Pending Requests</h3>
                 </div>
 
-                <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
-                  <div className="flex items-center justify-between mb-4">
-                    <Download size={32} className="opacity-90" />
+                <div className="bg-gradient-to-br from-rose-500 to-rose-600 rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+                  <div className="flex items-center justify-between">
+                    <Download size={14} className="opacity-90 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
                     {loadingStats ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 sm:h-6 sm:w-6 md:h-7 md:w-7 border-b-2 border-white"></div>
                     ) : (
-                      <span className="text-3xl font-black">{dashboardStats.cvs_processed}</span>
+                      <span className="text-base sm:text-2xl md:text-3xl font-black">{dashboardStats.cvs_processed}</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-medium opacity-90">CVs Processed</h3>
+                  <h3 className="text-[9px] leading-tight sm:text-sm font-medium opacity-90 mt-1">CVs Processed</h3>
                 </div>
               </div>
 
@@ -438,6 +408,7 @@ export default function AdminPanel() {
           {activeSection === "hire-requests" && <HireRequests />}
 
           {activeSection === "settings" && <SettingsPanel />}
+          </div>
         </main>
       </div>
 
