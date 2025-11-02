@@ -120,10 +120,13 @@ export default function ApplyPage() {
         clearTimeout(timeoutId)
         const result = await response.json()
         
+        console.log("Response status:", response.status, "Result:", result)
+        
         if (!response.ok) {
           // Backend returned an error (400, 500, etc.)
           // Extract the error message from the JSON response
           const errorMsg = result.error || `Server error: ${response.status}`
+          console.log("Throwing error with message:", errorMsg)
           throw new Error(errorMsg)
         }
         return result
@@ -154,15 +157,24 @@ export default function ApplyPage() {
       })
       .catch((error) => {
         setIsLoading(false)
+        console.log("Caught error:", error)
+        console.log("Error name:", error.name)
+        console.log("Error message:", error.message)
+        
         let errorMsg = "Failed to submit application. Please try again or contact support."
+        
+        // Check specific error types in order of priority
         if (error.name === "AbortError") {
           errorMsg = "Request timeout. Please check your connection and try again."
-        } else if (error.message.includes("Failed to fetch")) {
+        } else if (error.message && error.message.includes("Failed to fetch")) {
           errorMsg = "Unable to connect to server. Please ensure the backend is running and try again."
-        } else if (error.message) {
-          // Use the backend's error message
+        } else if (error.message && !error.message.includes("Server error:")) {
+          // Use the backend's specific error message (like Canva rejection)
+          // Skip generic "Server error: 400" messages
           errorMsg = error.message
         }
+        
+        console.log("Final error message to display:", errorMsg)
         setResultType('error')
         setResultMessage(errorMsg)
         setShowResultModal(true)
