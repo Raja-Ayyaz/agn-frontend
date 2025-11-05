@@ -73,20 +73,21 @@ export default function NavBar() {
         }
       `}</style>
 
-    <nav className="fixed top-0 w-full bg-yellow-400 z-50 shadow-lg">
+    <nav className="fixed top-0 w-full bg-white z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="logo-animated w-12 h-12 bg-black rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <span className="text-yellow-400 font-black text-lg">AGN</span>
+            <div className="logo-animated flex items-center gap-3">
+            <div className="w-10 h-10 rounded-md flex items-center justify-center bg-orange text-white font-black text-lg shadow-sm">
+              AGN
+            </div>
+            <span className="hidden sm:inline font-black text-gray-800 text-sm">AGN job bank</span>
           </div>
-
-          <span className="hidden sm:inline font-black text-black text-sm">AGN job bank</span>
         </div>
         <div className="hidden md:flex items-center gap-8">
           <a
             href="/"
             onClick={openHome}
-            className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
+            className="flex items-center gap-2 text-gray-800 font-bold hover:text-gray-600 transition duration-300 hover:gap-3"
           >
             <HomeIcon size={16} /> HOME
           </a>
@@ -107,7 +108,7 @@ export default function NavBar() {
           {!isLoggedIn && (
             <a
               href="/admin/login"
-              className="flex items-center gap-2 text-black font-bold hover:text-gray-700 transition duration-300 hover:gap-3"
+              className="flex items-center gap-2 text-gray-800 font-bold hover:text-gray-600 transition duration-300 hover:gap-3"
             >
               <LogIn size={16} /> LOGIN
             </a>
@@ -126,7 +127,7 @@ export default function NavBar() {
           </a>
         </div>
         <button
-          className="md:hidden text-black p-2 hover:bg-yellow-300 rounded-lg transition duration-300"
+          className="md:hidden text-gray-800 p-2 hover:bg-light rounded-lg transition duration-300"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -135,12 +136,12 @@ export default function NavBar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-yellow-400 border-t-2 border-black animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="md:hidden bg-white border-t animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="px-4 py-4 space-y-3">
             <a
               href="/"
               onClick={openHome}
-              className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
+              className="block text-gray-800 font-bold hover:text-gray-600 transition flex items-center gap-2 duration-300"
             >
               <HomeIcon size={16} /> HOME
             </a>
@@ -161,7 +162,7 @@ export default function NavBar() {
             {!isLoggedIn && (
               <a
                 href="/login"
-                className="block text-black font-bold hover:text-gray-700 transition flex items-center gap-2 duration-300"
+                className="block text-gray-800 font-bold hover:text-gray-600 transition flex items-center gap-2 duration-300"
               >
                 <LogIn size={16} /> LOGIN
               </a>

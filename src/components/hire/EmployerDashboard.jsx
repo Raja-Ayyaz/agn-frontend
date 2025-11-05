@@ -17,7 +17,7 @@ import {
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import NavBar from "../shared/NavBar"
-import { listEmployees, createHireRequest, getEmployerHireRequests } from "../../Api/Service/apiService"
+import { listEmployees, createHireRequest, getEmployerHireRequests, createJob } from "../../Api/Service/apiService"
 
 export default function EmployerDashboard() {
   const navigate = useNavigate()
@@ -36,6 +36,10 @@ export default function EmployerDashboard() {
   const [requestsModalOpen, setRequestsModalOpen] = useState(false)
   const [hireRequests, setHireRequests] = useState([])
   const [loadingRequests, setLoadingRequests] = useState(false)
+  // Post job when no candidates found
+  const [postModalOpen, setPostModalOpen] = useState(false)
+  const [postingJob, setPostingJob] = useState(false)
+  const [postForm, setPostForm] = useState({ name: "", experience: "", location: "", details: "" })
 
   const handleLogout = () => {
     // Clear any stored user data
@@ -162,6 +166,58 @@ export default function EmployerDashboard() {
     setHireModalOpen(true)
   }
 
+  // Post job modal handlers
+  const openPostModal = (prefill = {}) => {
+    setPostForm({
+      name: prefill.name || prefill.jobTitle || "",
+      experience: prefill.experience || prefill.experience || "",
+      location: prefill.location || "",
+      details: prefill.details || "",
+    })
+    setPostModalOpen(true)
+  }
+
+  const closePostModal = () => {
+    setPostModalOpen(false)
+    setPostForm({ name: "", experience: "", location: "", details: "" })
+  }
+
+  const handlePostJobSubmit = async () => {
+    // Simple validation
+    if (!postForm.name.trim()) {
+      alert("Please enter a job title")
+      return
+    }
+    setPostingJob(true)
+    try {
+      const employerId = localStorage.getItem("agn_employer_id")
+      const employerAuthenticated = localStorage.getItem("agn_employer_authenticated")
+      const payload = {
+        name: postForm.name,
+        experience: postForm.experience,
+        details: postForm.details,
+        location: postForm.location,
+      }
+      if (employerId) {
+        payload.employer_id = Number.parseInt(employerId)
+        payload.employer_authenticated = employerAuthenticated ? String(employerAuthenticated) : "1"
+      }
+
+      const res = await createJob(payload)
+      if (res && res.ok) {
+        alert("Job posted successfully")
+        closePostModal()
+      } else {
+        alert(res?.error || "Failed to post job. Please try again.")
+      }
+    } catch (err) {
+      console.error("Post job error", err)
+      alert(err?.message || "Failed to post job. Please try again.")
+    } finally {
+      setPostingJob(false)
+    }
+  }
+
   const closeHireModal = () => {
     setHireModalOpen(false)
     setSelectedCandidate(null)
@@ -235,7 +291,7 @@ export default function EmployerDashboard() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
-        return <Clock className="text-yellow-600" size={20} />
+        return <Clock className="text-orange" size={20} />
       case "accepted":
         return <CheckCircle className="text-green-600" size={20} />
       case "rejected":
@@ -248,7 +304,7 @@ export default function EmployerDashboard() {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-300"
+        return "bg-light text-dark border-orange"
       case "accepted":
         return "bg-green-100 text-green-800 border-green-300"
       case "rejected":
@@ -275,10 +331,10 @@ export default function EmployerDashboard() {
       {/* Shared Navigation */}
       <NavBar />
 
-      <div className="sticky top-0 z-40 bg-white border-b-2 border-amber-400 shadow-md">
+  <div className="sticky top-0 z-40 bg-white border-b-2 border-orange shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <Briefcase className="text-amber-500 flex-shrink-0" size={24} />
+            <Briefcase className="text-orange flex-shrink-0" size={24} />
             <div className="flex-1">
               <h3 className="font-black text-black text-sm">Quick Search</h3>
               <p className="text-gray-600 text-xs">Find candidates instantly</p>
@@ -299,7 +355,7 @@ export default function EmployerDashboard() {
             </button>
             <button
               onClick={() => document.getElementById("search-form")?.scrollIntoView({ behavior: "smooth" })}
-              className="bg-amber-400 hover:bg-amber-500 text-black font-black px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm shadow-sm hover:shadow-md"
+              className="bg-orange hover:opacity-90 text-black font-black px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 text-sm shadow-sm hover:shadow-md"
             >
               Search Now
             </button>
@@ -315,14 +371,14 @@ export default function EmployerDashboard() {
       </div>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-yellow-400 via-yellow-300 to-orange-300 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl animate-pulse"></div>
+      <section className="bg-gradient-to-br from-orange to-light pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-20 right-10 w-48 h-48 bg-orange rounded-full opacity-50 blur-3xl animate-pulse"></div>
         <div
           className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute -left-32 top-40 w-80 h-80 bg-yellow-200 rounded-full opacity-40 blur-3xl animate-pulse"
+          className="absolute -left-32 top-40 w-80 h-80 bg-orange rounded-full opacity-40 blur-3xl animate-pulse"
           style={{ animationDelay: "2s" }}
         ></div>
 
@@ -353,10 +409,10 @@ export default function EmployerDashboard() {
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl p-8 border-2 border-yellow-400 shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up">
+          <div className="bg-light rounded-2xl p-8 border-2 border-orange shadow-lg hover:shadow-xl transition-all duration-300 animate-slide-up">
             {submitted ? (
               <div className="text-center py-12 animate-fade-in">
-                <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <div className="w-16 h-16 bg-orange rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
                   <CheckCircle className="text-black" size={32} />
                 </div>
                 <h3 className="text-2xl font-black text-black mb-2">Search Submitted!</h3>
@@ -365,7 +421,7 @@ export default function EmployerDashboard() {
                 </p>
                 <button
                   onClick={clearResults}
-                  className="bg-black text-yellow-400 hover:bg-gray-900 font-black px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
+                  className="bg-black text-orange hover:bg-gray-900 font-black px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-105"
                 >
                   New Search
                 </button>
@@ -382,7 +438,7 @@ export default function EmployerDashboard() {
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g., Senior Accountant, Finance Manager"
                       required
-                      className="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-yellow-400"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-orange focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-orange"
                     />
                     <datalist id="field-options">
                       {(fieldOptions || [])
@@ -407,7 +463,7 @@ export default function EmployerDashboard() {
                     <select
                       value={experience}
                       onChange={(e) => setExperience(e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-yellow-400"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-orange focus:border-black focus:outline-none transition-all duration-200 font-medium hover:border-orange"
                     >
                       <option value="">Select experience level</option>
                       {experienceOptions.length > 0 ? (
@@ -431,7 +487,7 @@ export default function EmployerDashboard() {
 
                 <button
                   type="submit"
-                  className="w-full bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 group animate-fade-in"
+                  className="w-full bg-black text-orange hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 group animate-fade-in"
                   style={{ animationDelay: "0.3s" }}
                 >
                   <span>Search Candidates</span>
@@ -530,7 +586,7 @@ export default function EmployerDashboard() {
                                   e.stopPropagation()
                                   openHireModal(r)
                                 }}
-                                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
+                                className="flex-1 bg-orange hover:opacity-90 text-black font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2"
                               >
                                 <CheckCircle size={18} />
                                 Hire {r.name?.split(" ")[0]}
@@ -555,6 +611,22 @@ export default function EmployerDashboard() {
                   )
                 })}
               </div>
+
+              {searchResults.count === 0 && (
+                <div className="text-center p-8 border-t border-blue-100">
+                  <AlertCircle className="text-gray-400 mx-auto mb-4" size={48} />
+                  <h4 className="text-xl font-black text-black mb-2">No candidates found</h4>
+                  <p className="text-gray-600 mb-4">Would you like to post this job to our job board so candidates can apply?</p>
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => openPostModal({ jobTitle: searchResults.jobTitle, experience: searchResults.experience })}
+                      className="bg-orange hover:bg-orange/90 text-dark font-black px-6 py-3 rounded-lg transition-all duration-200"
+                    >
+                      Post this Job
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -600,7 +672,7 @@ export default function EmployerDashboard() {
               <button
                 onClick={handleHireSubmit}
                 disabled={submittingHire}
-                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="flex-1 bg-orange hover:bg-orange/90 text-dark font-black py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {submittingHire ? (
                   <>
@@ -612,6 +684,79 @@ export default function EmployerDashboard() {
                     <CheckCircle size={18} />
                     Send Request
                   </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Post Job Modal (for employers to post when no candidates found) */}
+      {postModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl animate-slide-up">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-black text-black">Post Job</h3>
+              <button onClick={closePostModal} className="text-gray-500 hover:text-black transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block font-black text-black mb-2 text-sm">Job Title</label>
+                <input
+                  value={postForm.name}
+                  onChange={(e) => setPostForm((s) => ({ ...s, name: e.target.value }))}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-black mb-2 text-sm">Experience</label>
+                <input
+                  value={postForm.experience}
+                  onChange={(e) => setPostForm((s) => ({ ...s, experience: e.target.value }))}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-black mb-2 text-sm">Location</label>
+                <input
+                  value={postForm.location}
+                  onChange={(e) => setPostForm((s) => ({ ...s, location: e.target.value }))}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-black text-black mb-2 text-sm">Details / Description</label>
+                <textarea
+                  value={postForm.details}
+                  onChange={(e) => setPostForm((s) => ({ ...s, details: e.target.value }))}
+                  rows={5}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button onClick={closePostModal} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-black py-3 px-4 rounded-lg">
+                Cancel
+              </button>
+              <button
+                onClick={handlePostJobSubmit}
+                disabled={postingJob}
+                className="flex-1 bg-orange hover:bg-orange/90 text-dark font-black py-3 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {postingJob ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin inline-block mr-2"></div>
+                    Posting...
+                  </>
+                ) : (
+                  "Post Job"
                 )}
               </button>
             </div>

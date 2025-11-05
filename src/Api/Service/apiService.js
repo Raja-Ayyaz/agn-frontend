@@ -100,6 +100,27 @@ export async function getRecentActivity() {
   return request('/api/admin/dashboard/recent-activity');
 }
 
+// Jobs API
+export async function getJobs() {
+  return request('/api/jobs');
+}
+
+export async function createJob(payload = {}) {
+  return request('/api/jobs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteJob(jobId, payload = {}) {
+  return request(`/api/jobs/${jobId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function deleteEmployee(employeeId) {
   return request(`/api/employee/${employeeId}`, {
     method: 'DELETE',

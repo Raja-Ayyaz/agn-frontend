@@ -12,6 +12,7 @@ import {
   LogOut,
   LayoutDashboard,
   Menu,
+  Briefcase,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { getDashboardStats, getRecentActivity } from "../../Api/Service/apiService"
@@ -19,6 +20,7 @@ import ManageEmployees from "./dashboard/ManageEmployees"
 import ManageCompanies from "./dashboard/ManageCompanies"
 import HireRequests from "./dashboard/HireRequests"
 import SettingsPanel from "./dashboard/SettingsPanel"
+import ManageJobs from "./dashboard/ManageJobs"
 
 export default function AdminPanel() {
   const navigate = useNavigate()
@@ -123,7 +125,7 @@ export default function AdminPanel() {
       case "company":
         return { icon: Building2, bgColor: "bg-green-100", iconColor: "text-green-600" }
       case "hire_request":
-        return { icon: FileText, bgColor: "bg-yellow-100", iconColor: "text-yellow-600" }
+  return { icon: FileText, bgColor: "bg-light", iconColor: "text-orange" }
       default:
         return { icon: FileText, bgColor: "bg-gray-100", iconColor: "text-gray-600" }
     }
@@ -179,6 +181,7 @@ export default function AdminPanel() {
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "employees", label: "Employees", icon: Users },
     { id: "companies", label: "Companies", icon: Building2 },
+    { id: "jobs", label: "Jobs", icon: Briefcase },
     { id: "hire-requests", label: "Hire Requests", icon: FileText },
     { id: "settings", label: "Settings", icon: Settings },
   ]
@@ -196,12 +199,12 @@ export default function AdminPanel() {
       {/* Main Content Area */}
       <div className="h-full flex flex-col w-full">
         {/* Top Navigation Bar */}
-        <header className="bg-white shadow-md border-b-2 border-amber-400 z-[70] w-full flex-shrink-0 fixed top-0 left-0 right-0">
+  <header className="bg-white shadow-md border-b-2 border-orange z-[70] w-full flex-shrink-0 fixed top-0 left-0 right-0">
           <div className="px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3">
             {/* Main Header with Dashboard title and Admin badge */}
             <div className="flex items-center justify-between gap-2 w-full mb-2 sm:mb-3">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-black font-black text-sm sm:text-lg">A</span>
                 </div>
                 <div className="min-w-0">
@@ -212,7 +215,7 @@ export default function AdminPanel() {
                 </div>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-yellow-400 rounded-full flex items-center justify-center">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-orange rounded-full flex items-center justify-center">
                   <span className="text-black font-black text-xs sm:text-sm">AD</span>
                 </div>
               </div>
@@ -228,7 +231,7 @@ export default function AdminPanel() {
                     onClick={() => setActiveSection(item.id)}
                     className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex-shrink-0 ${
                       activeSection === item.id
-                        ? "bg-yellow-400 text-black shadow-md"
+                        ? "bg-orange text-dark shadow-md"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                   >
@@ -282,7 +285,7 @@ export default function AdminPanel() {
                   <h3 className="text-[9px] leading-tight sm:text-sm font-medium opacity-90 mt-1">Active Companies</h3>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
+                <div className="bg-gradient-to-br from-orange to-light rounded-lg sm:rounded-xl md:rounded-2xl p-2 sm:p-4 md:p-5 lg:p-6 text-black shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 hover:-translate-y-1">
                   <div className="flex items-center justify-between">
                     <FileText size={14} className="opacity-90 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7" />
                     {loadingStats ? (
@@ -311,12 +314,12 @@ export default function AdminPanel() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-lg hover:shadow-xl transition-all duration-300">
                   <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2">
-                    <div className="w-1 h-6 bg-amber-400 rounded-full"></div>
+                    <div className="w-1 h-6 bg-orange rounded-full"></div>
                     Recent Activity
                   </h3>
                   {loadingActivities ? (
                     <div className="flex justify-center items-center py-8">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange"></div>
                     </div>
                   ) : recentActivities.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
@@ -348,7 +351,7 @@ export default function AdminPanel() {
 
                 <div className="bg-white rounded-2xl p-6 border-2 border-gray-300 shadow-lg hover:shadow-xl transition-all duration-300">
                   <h3 className="text-xl font-black text-black mb-4 flex items-center gap-2">
-                    <div className="w-1 h-6 bg-amber-400 rounded-full"></div>
+                    <div className="w-1 h-6 bg-orange rounded-full"></div>
                     Quick Actions
                   </h3>
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -380,9 +383,9 @@ export default function AdminPanel() {
                         setActiveSection("hire-requests")
                         setMobileMenuOpen(false)
                       }}
-                      className="p-3 sm:p-4 bg-amber-50 hover:bg-amber-100 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
+                      className="p-3 sm:p-4 bg-light hover:bg-light/90 rounded-xl transition-all duration-300 text-left group hover:shadow-md transform hover:scale-105"
                     >
-                      <FileText size={20} className="text-amber-600 mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
+                      <FileText size={20} className="text-orange mb-2 group-hover:scale-110 transition-transform sm:w-6 sm:h-6" />
                       <p className="font-black text-xs sm:text-sm text-black">View Requests</p>
                     </button>
                     <button
@@ -404,6 +407,8 @@ export default function AdminPanel() {
           {activeSection === "employees" && <ManageEmployees />}
 
           {activeSection === "companies" && <ManageCompanies />}
+
+          {activeSection === "jobs" && <ManageJobs />}
 
           {activeSection === "hire-requests" && <HireRequests />}
 

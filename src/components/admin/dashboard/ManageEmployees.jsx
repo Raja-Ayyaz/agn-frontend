@@ -209,7 +209,7 @@ export default function ManageEmployees() {
       <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
         <div className="bg-white rounded-2xl p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8 border-2 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3 md:mb-4 lg:mb-6">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange rounded-full flex items-center justify-center shadow-md flex-shrink-0">
               <Search size={16} className="text-black font-bold sm:w-5 sm:h-5" />
             </div>
             <h2 className="text-sm sm:text-base md:text-lg lg:text-2xl font-black text-black">Search & Filter Candidates</h2>
@@ -219,14 +219,14 @@ export default function ManageEmployees() {
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:gap-4">
               <input
                 type="text"
-                className="flex-1 border-2 border-slate-300 p-2 sm:p-2.5 md:p-3 rounded-xl focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200 transition bg-white hover:border-amber-300 font-medium text-sm sm:text-base"
+                className="flex-1 border-2 border-slate-300 p-2 sm:p-2.5 md:p-3 rounded-xl focus:border-orange focus:outline-none focus:ring-2 focus:ring-orange transition bg-white hover:border-orange font-medium text-sm sm:text-base"
                 placeholder="Search by name, email, phone, field..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-black text-amber-400 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-xl font-black hover:bg-slate-900 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base w-full sm:w-auto"
+                className="bg-black text-orange px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-xl font-black hover:bg-slate-900 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base w-full sm:w-auto"
               >
                 <Search size={16} className="sm:w-[18px] sm:h-[18px]" /> Search
               </button>
@@ -242,7 +242,7 @@ export default function ManageEmployees() {
             <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white">Employees ({filteredResults.length})</h3>
             <button
               onClick={exportToCSV}
-              className="bg-amber-400 text-black px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-xl font-black hover:bg-amber-500 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base w-full sm:w-auto justify-center"
+              className="bg-orange text-dark px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-xl font-black hover:opacity-90 transition-all duration-300 transform hover:scale-105 flex items-center gap-2 shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base w-full sm:w-auto justify-center"
             >
               <Download size={14} className="sm:w-4 sm:h-4 md:w-[18px] md:h-[18px]" /> Export to CSV
             </button>
@@ -307,7 +307,7 @@ export default function ManageEmployees() {
 
                       {/* Expandable Details */}
                       <details className="mb-3">
-                        <summary className="text-xs font-bold text-amber-600 cursor-pointer hover:text-amber-700 select-none">
+                        <summary className="text-xs font-bold text-orange cursor-pointer hover:text-orange select-none">
                           View More Details
                         </summary>
                         <div className="mt-2 pt-2 border-t border-slate-200 space-y-1.5">
@@ -378,7 +378,7 @@ export default function ManageEmployees() {
               {/* Desktop Table View */}
               <div className="hidden lg:block overflow-x-auto" style={{ width: "100%", maxWidth: "100%" }}>
                 <table className="text-left text-sm" style={{ width: "max-content", minWidth: "100%" }}>
-                  <thead className="bg-amber-400 border-b-2 border-amber-300">
+                  <thead className="bg-orange border-b-2 border-orange">
                     <tr>
                       {columns.map((col) => (
                         <th key={col.key} className="px-6 py-4 font-black text-black whitespace-nowrap">
@@ -392,7 +392,7 @@ export default function ManageEmployees() {
                     {filteredResults.map((row, i) => (
                       <tr
                         key={row.employee_id || i}
-                        className={`border-b-2 transition-all duration-300 hover:bg-amber-50 border-b-slate-200 ${
+                        className={`border-b-2 transition-all duration-300 hover:bg-light border-b-slate-200 ${
                           i % 2 === 0 ? "bg-white" : "bg-slate-50"
                         }`}
                       >

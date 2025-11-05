@@ -112,7 +112,7 @@ export default function HireRequests() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "pending":
-        return <Clock className="text-amber-600" size={20} />
+        return <Clock className="text-orange" size={20} />
       case "accepted":
         return <CheckCircle className="text-emerald-600" size={20} />
       case "rejected":
@@ -125,7 +125,7 @@ export default function HireRequests() {
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
-        return "bg-amber-100 text-amber-900 border-amber-300"
+        return "bg-light text-orange border-orange"
       case "accepted":
         return "bg-emerald-100 text-emerald-900 border-emerald-300"
       case "rejected":
@@ -162,7 +162,7 @@ export default function HireRequests() {
           </div>
           <button
             onClick={fetchAllRequests}
-            className="bg-amber-400 hover:bg-amber-500 text-black font-black px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base w-full sm:w-auto"
+            className="bg-orange hover:opacity-90 text-dark font-black px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base w-full sm:w-auto"
           >
             Refresh
           </button>
@@ -180,14 +180,14 @@ export default function HireRequests() {
         </div>
 
         <div
-          className="bg-amber-50 rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 border-2 border-amber-300 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
+          className="bg-light rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 border-2 border-orange shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
           onClick={() => setFilterStatus("pending")}
         >
-          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-1 sm:mb-2">
-            <Clock className="text-amber-600" size={16} />
-            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Pending</span>
-          </div>
-          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-amber-700">{pendingCount}</p>
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-1 sm:mb-2">
+              <Clock className="text-orange" size={16} />
+              <span className="text-xs sm:text-sm text-slate-600 font-semibold">Pending</span>
+            </div>
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-orange">{pendingCount}</p>
         </div>
 
         <div
@@ -219,7 +219,7 @@ export default function HireRequests() {
           onClick={() => setFilterStatus("all")}
           className={`flex-1 sm:flex-none px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "all"
-              ? "bg-black text-amber-400 shadow-lg"
+              ? "bg-black text-orange shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
@@ -229,7 +229,7 @@ export default function HireRequests() {
           onClick={() => setFilterStatus("pending")}
           className={`flex-1 sm:flex-none px-2 sm:px-3 md:px-4 lg:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-lg font-black transition-all duration-300 text-xs sm:text-sm ${
             filterStatus === "pending"
-              ? "bg-amber-500 text-black shadow-lg"
+              ? "bg-orange text-dark shadow-lg"
               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
           }`}
         >
@@ -261,7 +261,7 @@ export default function HireRequests() {
       <div className="bg-white rounded-2xl border-2 border-slate-200 shadow-lg overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-12 sm:py-16 md:py-20">
-            <div className="w-10 sm:w-12 h-10 sm:h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 sm:w-12 h-10 sm:h-12 border-4 border-orange border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : filteredRequests.length === 0 ? (
           <div className="text-center py-12 sm:py-16 md:py-20 px-2 sm:px-4">
@@ -278,9 +278,9 @@ export default function HireRequests() {
         ) : (
           <div className="divide-y divide-slate-200">
             {filteredRequests.map((request, index) => (
-              <div
+                <div
                 key={request.request_id || index}
-                className="p-2 sm:p-3 md:p-4 lg:p-6 hover:bg-slate-50 transition-all duration-300 border-l-4 border-transparent hover:border-amber-400"
+                className="p-2 sm:p-3 md:p-4 lg:p-6 hover:bg-slate-50 transition-all duration-300 border-l-4 border-transparent hover:border-orange"
               >
                 <div className="flex items-start justify-between mb-2 sm:mb-3 md:mb-4">
                   <div className="flex-1">
@@ -478,7 +478,7 @@ export default function HireRequests() {
                   onChange={(e) => setResponseMessage(e.target.value)}
                   placeholder={`Enter your ${responseAction === "accept" ? "acceptance" : "rejection"} message to the employer...`}
                   rows={5}
-                  className="w-full px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg border-2 border-slate-300 focus:border-amber-400 focus:outline-none transition-all duration-200 font-medium resize-none text-xs sm:text-sm"
+                  className="w-full px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg border-2 border-slate-300 focus:border-orange focus:outline-none transition-all duration-200 font-medium resize-none text-xs sm:text-sm"
                   disabled={submitting}
                   required
                 />

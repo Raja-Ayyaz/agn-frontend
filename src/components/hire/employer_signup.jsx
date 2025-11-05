@@ -84,14 +84,14 @@ export default function HirePage() {
       <NavBar />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-yellow-400 via-yellow-300 to-amber-300 pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-40 blur-3xl animate-float"></div>
+  <section className="bg-gradient-to-br from-orange via-orange to-light pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+          <div className="absolute top-20 right-10 w-48 h-48 bg-orange/30 rounded-full opacity-40 blur-3xl animate-float"></div>
         <div
           className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl animate-float"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-40 left-20 w-40 h-40 bg-amber-200 rounded-full opacity-30 blur-3xl animate-float"
+          className="absolute top-40 left-20 w-40 h-40 bg-light rounded-full opacity-30 blur-3xl animate-float"
           style={{ animationDelay: "2s" }}
         ></div>
 
@@ -170,7 +170,7 @@ export default function HirePage() {
                         value={formData.username}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
                     <div className="stagger-item">
@@ -180,7 +180,7 @@ export default function HirePage() {
                         name="company_name"
                         value={formData.company_name}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
                     <div className="stagger-item">
@@ -191,7 +191,7 @@ export default function HirePage() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
                     <div className="stagger-item">
@@ -203,7 +203,7 @@ export default function HirePage() {
                         onChange={handleChange}
                         required
                         maxLength={15}
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-400 focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-yellow-200"
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
                   </div>
@@ -212,13 +212,13 @@ export default function HirePage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    className="flex-1 bg-black text-orange hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   >
                     Create Employer Account <ArrowRight className="ml-2 inline" size={20} />
                   </button>
                   <a
                     href="/"
-                    className="flex-1 border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 rounded-xl bg-white transition-smooth text-center shadow-md hover:shadow-lg"
+                    className="flex-1 border-2 border-black text-black hover:bg-black hover:text-orange font-black text-lg px-8 py-4 rounded-xl bg-white transition-smooth text-center shadow-md hover:shadow-lg"
                   >
                     Back Home
                   </a>
@@ -259,10 +259,10 @@ export default function HirePage() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105 group"
+                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-orange hover:shadow-xl transition-smooth-lg hover:scale-105 group"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-2xl flex items-center justify-center mb-6 group-hover:from-yellow-200 group-hover:to-amber-200 transition-smooth-lg group-hover:scale-110 group-hover:shadow-lg">
-                  <div className="text-yellow-600 group-hover:text-yellow-700 transition-smooth">{item.icon}</div>
+                  <div className="w-16 h-16 bg-gradient-to-br from-light to-light rounded-2xl flex items-center justify-center mb-6 transition-smooth-lg group-hover:scale-110 group-hover:shadow-lg">
+                  <div className="text-orange transition-smooth">{item.icon}</div>
                 </div>
                 <h3 className="text-xl font-black text-black mb-3">{item.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{item.description}</p>
@@ -274,14 +274,14 @@ export default function HirePage() {
 
       {/* About Agency Section */}
       <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute top-20 right-10 w-96 h-96 bg-yellow-400 rounded-full opacity-5 blur-3xl"></div>
+  <div className="absolute top-20 right-10 w-96 h-96 bg-orange rounded-full opacity-5 blur-3xl"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="animate-slide-in-left">
               <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight text-balance">
                 About Mitchell <br />
-                Adam<span className="text-yellow-400">.</span>
+                Adam<span className="text-orange">.</span>
               </h2>
               <p className="text-gray-300 text-lg mb-8 leading-relaxed">
                 With over a decade of experience in financial recruitment, AGN job bank has built a reputation for
@@ -296,10 +296,10 @@ export default function HirePage() {
                   "24/7 dedicated support",
                 ].map((item, idx) => (
                   <li key={idx} className="stagger-item flex items-center gap-3 group">
-                    <div className="w-6 h-6 bg-yellow-400/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-yellow-400/40 transition-smooth">
+                    <div className="w-6 h-6 bg-orange/20 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-orange/40 transition-smooth">
                       <CheckCircle
                         size={18}
-                        className="text-yellow-400 flex-shrink-0 group-hover:scale-110 transition-smooth"
+                        className="text-orange flex-shrink-0 group-hover:scale-110 transition-smooth"
                       />
                     </div>
                     <span className="text-gray-300 group-hover:text-white transition-smooth">{item}</span>
@@ -308,10 +308,10 @@ export default function HirePage() {
               </ul>
             </div>
             <div className="animate-slide-in-right">
-              <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-3xl h-96 flex items-center justify-center overflow-hidden relative shadow-2xl group hover:shadow-yellow-400/20 transition-smooth-lg">
+              <div className="bg-gradient-to-br from-gray-700 to-gray-900 rounded-3xl h-96 flex items-center justify-center overflow-hidden relative shadow-2xl group hover:shadow-orange/20 transition-smooth-lg">
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                <div className="w-24 h-24 bg-gradient-to-br from-yellow-400/30 to-amber-400/20 rounded-3xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-smooth group-hover:from-yellow-400/50 group-hover:to-amber-400/40">
-                  <Building2 size={56} className="text-yellow-300" />
+                <div className="w-24 h-24 bg-gradient-to-br from-orange/30 to-light/20 rounded-3xl flex items-center justify-center relative z-10 group-hover:scale-110 transition-smooth group-hover:from-orange/50 group-hover:to-light/40">
+                  <Building2 size={56} className="text-orange" />
                 </div>
               </div>
             </div>
@@ -350,7 +350,7 @@ export default function HirePage() {
             ].map((client, idx) => (
               <div
                 key={idx}
-                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105"
+                className="stagger-item bg-white rounded-3xl p-8 border-2 border-gray-200 hover:border-orange hover:shadow-xl transition-smooth-lg hover:scale-105"
               >
                 <h3 className="text-2xl font-black text-black mb-3">{client.industry}</h3>
                 <p className="text-gray-600 leading-relaxed">{client.description}</p>
@@ -388,13 +388,13 @@ export default function HirePage() {
                 title: "Senior & Executive",
                 roles: ["Finance Directors", "CFOs", "Finance Controllers"],
                 icon: <Crown size={32} />,
-                bgColor: "from-amber-100 to-orange-100",
-                iconColor: "text-amber-600",
+                bgColor: "from-light to-orange/30",
+                iconColor: "text-orange",
               },
             ].map((level, idx) => (
               <div
                 key={idx}
-                className="stagger-item bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-xl transition-smooth-lg hover:scale-105 group"
+                className="stagger-item bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 border-2 border-gray-200 hover:border-orange hover:shadow-xl transition-smooth-lg hover:scale-105 group"
               >
                 <div
                   className={`w-16 h-16 bg-gradient-to-br ${level.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:shadow-lg transition-smooth-lg group-hover:scale-110`}
@@ -408,7 +408,7 @@ export default function HirePage() {
                       key={i}
                       className="text-gray-600 flex items-center gap-3 group/item hover:text-black transition-smooth"
                     >
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full group-hover/item:scale-150 transition-smooth"></span>
+                      <span className="w-2 h-2 bg-orange rounded-full group-hover/item:scale-150 transition-smooth"></span>
                       {role}
                     </li>
                   ))}
@@ -420,9 +420,9 @@ export default function HirePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="bg-gradient-to-r from-yellow-400 via-yellow-300 to-amber-300 py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+  <section className="bg-gradient-to-r from-orange via-orange to-light py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-40 h-40 bg-yellow-500 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute top-10 left-10 w-40 h-40 bg-orange/60 rounded-full blur-3xl animate-float"></div>
           <div
             className="absolute bottom-10 right-10 w-40 h-40 bg-orange-400 rounded-full blur-3xl animate-float"
             style={{ animationDelay: "1.5s" }}
@@ -436,13 +436,13 @@ export default function HirePage() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-delay">
             <button
               type="button"
-              className="bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
+              className="bg-black text-orange hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth inline-flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95"
             >
               Post a Job <ArrowRight className="ml-2" size={20} />
             </button>
             <button
               type="button"
-              className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 bg-transparent rounded-xl transition-smooth inline-flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
+              className="border-2 border-black text-black hover:bg-black hover:text-orange font-black text-lg px-8 py-4 bg-transparent rounded-xl transition-smooth inline-flex items-center justify-center shadow-md hover:shadow-lg hover:scale-105 active:scale-95"
             >
               Browse Candidates <ArrowRight className="ml-2" size={20} />
             </button>
@@ -455,7 +455,7 @@ export default function HirePage() {
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="animate-fade-in-up">
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4 hover:scale-110 transition-smooth">
+              <div className="w-12 h-12 bg-orange rounded-full flex items-center justify-center mb-4 hover:scale-110 transition-smooth">
                 <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
@@ -468,17 +468,17 @@ export default function HirePage() {
               <h4 className="font-black text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="/" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
+                  <a href="/" className="text-gray-400 hover:text-orange transition-smooth font-medium">
                     Home
                   </a>
                 </li>
                 <li>
-                  <a href="/apply" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
+                  <a href="/apply" className="text-gray-400 hover:text-orange transition-smooth font-medium">
                     Apply
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-400 hover:text-yellow-400 transition-smooth font-medium">
+                  <a href="#" className="text-gray-400 hover:text-orange transition-smooth font-medium">
                     Services
                   </a>
                 </li>
@@ -488,15 +488,15 @@ export default function HirePage() {
             <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
               <h4 className="font-black text-white mb-4">Contact</h4>
               <ul className="space-y-3">
-                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-smooth group">
-                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-smooth">
-                    <Phone size={16} className="text-yellow-400 group-hover:text-black transition-smooth" />
+                <li className="flex items-center gap-2 text-gray-400 hover:text-orange transition-smooth group">
+                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-orange transition-smooth">
+                    <Phone size={16} className="text-orange group-hover:text-black transition-smooth" />
                   </div>
                   <a href="tel:01216511235">+92 3037774400</a>
                 </li>
-                <li className="flex items-center gap-2 text-gray-400 hover:text-yellow-400 transition-smooth group">
-                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-yellow-400 transition-smooth">
-                    <Mail size={16} className="text-yellow-400 group-hover:text-black transition-smooth" />
+                <li className="flex items-center gap-2 text-gray-400 hover:text-orange transition-smooth group">
+                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center group-hover:bg-orange transition-smooth">
+                    <Mail size={16} className="text-orange group-hover:text-black transition-smooth" />
                   </div>
                   <a href="mailto:agnjobbank123@gmail.com">agnjobbank123@gmail.com</a>
                 </li>
@@ -508,13 +508,13 @@ export default function HirePage() {
               <div className="flex gap-4">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
                 >
                   <Linkedin size={20} className="group-hover:scale-110 transition-smooth" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition-smooth hover:scale-110 active:scale-95 group"
                 >
                   <Twitter size={20} className="group-hover:scale-110 transition-smooth" />
                 </a>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Eye, EyeOff, ArrowRight, Phone, Mail, MapPin, Linkedin, Twitter } from "lucide-react"
+import { Eye, EyeOff, ArrowRight, Phone, Mail, MapPin, Linkedin, Twitter, Check, BarChart2, Users, Briefcase, FileText, TrendingUp } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from "../shared/NavBar"
 import { employerLogin, adminLogin } from "../../Api/Service/apiService"
@@ -12,15 +12,18 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+    setLoading(true)
 
     if (!username || !password) {
       setError("Please provide username and password")
+      setLoading(false)
       return
     }
 
@@ -66,9 +69,11 @@ export default function AdminLogin() {
       }
 
       setError("Invalid credentials or account role not recognized")
+      setLoading(false)
     } catch (err) {
       console.error(err)
       setError("An error occurred. Please try again.")
+      setLoading(false)
     }
   }
 
@@ -77,22 +82,22 @@ export default function AdminLogin() {
       {/* Shared Navigation */}
       <NavBar />
 
-      {/* Hero Section */}
-      <section className="bg-yellow-400 pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute top-20 right-10 w-48 h-48 bg-yellow-300 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-64 h-64 bg-orange-300 rounded-full opacity-30 blur-3xl"></div>
-        <div className="absolute -left-32 top-40 w-80 h-80 bg-yellow-200 rounded-full opacity-40 blur-3xl"></div>
+      {/* Hero Section
+      <section className="bg-orange pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        
+        <div className="absolute top-20 right-10 w-48 h-48 bg-orange rounded-full opacity-50 blur-3xl"></div>
+        <div className="absolute bottom-0 right-32 w-64 h-64 bg-orange rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -left-32 top-40 w-80 h-80 bg-orange rounded-full opacity-40 blur-3xl"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-4 text-balance">Admin Access</h1>
+            <h1 className="text-5xl md:text-6xl font-black text-black leading-tight mb-4 text-balance">login Access</h1>
             <p className="text-lg text-black max-w-2xl mx-auto leading-relaxed font-medium">
               Secure login for AGN administrators to manage recruitment operations
             </p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Login Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
@@ -100,9 +105,9 @@ export default function AdminLogin() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left Content */}
             <div className="animate-fade-in-delay">
-              <h2 className="text-4xl md:text-5xl font-black text-black mb-6 leading-tight text-balance">
+                <h2 className="text-4xl md:text-5xl font-black text-black mb-6 leading-tight text-balance">
                 Manage Your <br />
-                <span className="text-yellow-400">Recruitment</span> <br />
+                <span className="text-orange">Recruitment</span> <br />
                 Operations
               </h2>
               <p className="text-gray-600 text-lg mb-8 leading-relaxed">
@@ -111,9 +116,9 @@ export default function AdminLogin() {
               </p>
 
               <div className="space-y-4">
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 transition">
-                  <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
-                    ✓
+                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-light transition">
+                  <div className="w-10 h-10 bg-orange rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
+                    <Check size={18} className="text-black" />
                   </div>
                   <div>
                     <h3 className="font-black text-black mb-1">Candidate Management</h3>
@@ -123,9 +128,9 @@ export default function AdminLogin() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 transition">
-                  <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
-                    ✓
+                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-light transition">
+                  <div className="w-10 h-10 bg-orange rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
+                    <Briefcase size={18} className="text-black" />
                   </div>
                   <div>
                     <h3 className="font-black text-black mb-1">Job Postings</h3>
@@ -135,9 +140,9 @@ export default function AdminLogin() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-yellow-50 transition">
-                  <div className="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
-                    ✓
+                <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg hover:bg-light transition">
+                  <div className="w-10 h-10 bg-orange rounded-full flex items-center justify-center flex-shrink-0 font-black text-black">
+                    <BarChart2 size={18} className="text-black" />
                   </div>
                   <div>
                     <h3 className="font-black text-black mb-1">Analytics & Reports</h3>
@@ -151,7 +156,7 @@ export default function AdminLogin() {
 
             {/* Login Form */}
             <div className="animate-fade-in-delay-2">
-              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-xl border-2 border-yellow-400 hover:shadow-2xl transition">
+              <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 shadow-xl border-2 border-orange hover:shadow-2xl transition">
                 <h3 className="text-2xl font-black text-black mb-6">Login</h3>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -163,7 +168,7 @@ export default function AdminLogin() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your username"
-                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
+                      className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-orange focus:outline-none transition bg-white font-medium"
                     />
                   </div>
 
@@ -176,7 +181,7 @@ export default function AdminLogin() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-300 focus:border-yellow-400 focus:outline-none transition bg-white font-medium"
+                        className="w-full px-4 py-3 pr-10 rounded-lg border-2 border-gray-300 focus:border-orange focus:outline-none transition bg-white font-medium"
                       />
                       <button
                         type="button"
@@ -206,10 +211,16 @@ export default function AdminLogin() {
                   {/* Submit Button */}
                   <button
                     type="submit"
-                    className="w-full bg-black text-yellow-400 font-black py-3 rounded-lg hover:bg-gray-900 transition flex items-center justify-center gap-2 group"
+                    disabled={loading}
+                    aria-busy={loading}
+                    className={`w-full bg-black text-orange font-black py-3 rounded-lg transition flex items-center justify-center gap-2 group ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-gray-900 hover:shadow-lg'}`}
                   >
-                    Login to Dashboard
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
+                    <span>Login to Dashboard</span>
+                    {loading ? (
+                      <span className="w-4 h-4 rounded-full border-2 border-t-orange border-gray-200 animate-spin" aria-hidden="true"></span>
+                    ) : (
+                      <ArrowRight size={20} className="group-hover:translate-x-1 transition" />
+                    )}
                   </button>
 
                   {/* Clear Button */}
@@ -231,7 +242,7 @@ export default function AdminLogin() {
                     Don't have an account?{" "}
                     <Link
                       to="/employer-signup"
-                      className="text-yellow-600 hover:text-yellow-700 font-black underline transition"
+                      className="text-orange hover:text-dark font-black underline transition"
                     >
                       Sign Up Here
                     </Link>
@@ -258,37 +269,37 @@ export default function AdminLogin() {
               {
                 title: "Real-time Analytics",
                 description: "Monitor recruitment metrics, conversion rates, and performance indicators",
-                icon: "📊",
+                icon: <BarChart2 size={36} className="text-orange" />,
               },
               {
                 title: "Candidate Database",
                 description: "Search, filter, and manage thousands of candidate profiles efficiently",
-                icon: "👥",
+                icon: <Users size={36} className="text-orange" />,
               },
               {
                 title: "Job Management",
                 description: "Create, publish, and manage job postings across all career levels",
-                icon: "💼",
+                icon: <Briefcase size={36} className="text-orange" />,
               },
               {
                 title: "Application Tracking",
                 description: "Track applications through each stage of the recruitment pipeline",
-                icon: "📋",
+                icon: <FileText size={36} className="text-orange" />,
               },
               {
                 title: "Team Collaboration",
                 description: "Share notes, feedback, and collaborate with your recruitment team",
-                icon: "🤝",
+                icon: <Users size={36} className="text-orange" />,
               },
               {
                 title: "Export & Reports",
                 description: "Generate detailed reports and export data in multiple formats",
-                icon: "📈",
+                icon: <TrendingUp size={36} className="text-orange" />,
               },
             ].map((feature, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-yellow-400 hover:shadow-lg transition transform hover:-translate-y-1"
+                className="bg-white rounded-xl p-8 border-2 border-gray-200 hover:border-orange hover:shadow-lg transition transform hover:-translate-y-1"
               >
                 <div className="text-5xl mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-black text-black mb-3">{feature.title}</h3>
@@ -299,8 +310,8 @@ export default function AdminLogin() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-yellow-400 py-16 px-4 sm:px-6 lg:px-8">
+      {/* CTA Section
+  <section className="bg-orange py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-black text-black mb-8 text-balance">Need Admin Access?</h2>
           <p className="text-black text-lg mb-8 max-w-2xl mx-auto font-medium">
@@ -309,21 +320,21 @@ export default function AdminLogin() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="tel:01216511235"
-              className="bg-black text-yellow-400 hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 group"
+              className="bg-black text-orange hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 group"
             >
               <Phone size={20} />
               Call Us
             </a>
             <a
               href="mailto:agnjobbank123@gmail.com"
-              className="border-2 border-black text-black hover:bg-black hover:text-yellow-400 font-black text-lg px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 group"
+              className="border-2 border-black text-black hover:bg-black hover:text-orange font-black text-lg px-8 py-4 rounded-lg transition flex items-center justify-center gap-2 group"
             >
               <Mail size={20} />
               Email Us
             </a>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <footer className="bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
@@ -331,7 +342,7 @@ export default function AdminLogin() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             {/* Brand */}
             <div>
-              <div className="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-orange rounded-full flex items-center justify-center mb-4">
                 <span className="text-black font-black text-lg">AGN</span>
               </div>
               <h3 className="text-xl font-black text-white mb-2">AGN job bank</h3>
@@ -345,17 +356,17 @@ export default function AdminLogin() {
               <h4 className="font-black text-white mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <Link href="/" className="text-gray-400 hover:text-orange transition font-medium">
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link to="/apply" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <Link to="/apply" className="text-gray-400 hover:text-orange transition font-medium">
                     Apply
                   </Link>
                 </li>
                 <li>
-                  <Link to="/hire" className="text-gray-400 hover:text-yellow-400 transition font-medium">
+                  <Link to="/hire" className="text-gray-400 hover:text-orange transition font-medium">
                     Hire
                   </Link>
                 </li>
@@ -367,19 +378,19 @@ export default function AdminLogin() {
               <h4 className="font-black text-white mb-4">Contact</h4>
               <ul className="space-y-3">
                 <li className="flex items-center gap-2 text-gray-400">
-                  <Phone size={18} className="text-yellow-400" />
-                  <a href="tel:01216511235" className="hover:text-yellow-400 transition">
+                  <Phone size={18} className="text-orange" />
+                  <a href="tel:01216511235" className="hover:text-orange transition">
                     +92 3037774400
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
-                  <Mail size={18} className="text-yellow-400" />
-                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-yellow-400 transition">
+                  <Mail size={18} className="text-orange" />
+                  <a href="mailto:agnjobbank123@gmail.com" className="hover:text-orange transition">
                     agnjobbank123@gmail.com
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-gray-400">
-                  <MapPin size={18} className="text-yellow-400" />
+                  <MapPin size={18} className="text-orange" />
                   <span>Office #6, 2nd Floor, Sitara Plaza, Near Mediacom, Kohinoor Chowk, Faisalabad</span>
                 </li>
               </ul>
@@ -391,13 +402,13 @@ export default function AdminLogin() {
               <div className="flex gap-4">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition"
                 >
                   <Linkedin size={20} />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-yellow-400 hover:text-black transition"
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-orange hover:text-black transition"
                 >
                   <Twitter size={20} />
                 </a>
@@ -410,10 +421,10 @@ export default function AdminLogin() {
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-gray-400 text-sm">© 2025 AGN job bank Recruitment. All rights reserved.</p>
               <div className="flex gap-6">
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
+                <a href="#" className="text-gray-400 hover:text-orange transition text-sm font-medium">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-gray-400 hover:text-yellow-400 transition text-sm font-medium">
+                <a href="#" className="text-gray-400 hover:text-orange transition text-sm font-medium">
                   Terms of Service
                 </a>
               </div>
