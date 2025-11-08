@@ -29,7 +29,7 @@ RUN mkdir -p "cv modifier/outputs" && \
 EXPOSE 7860
 
 # Set environment variables
-ENV FLASK_APP=full_api.py
+ENV FLASK_APP=app.py
 ENV PYTHONUNBUFFERED=1
 
 # Health check
@@ -37,4 +37,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import requests; requests.get('http://localhost:7860/api/health')" || exit 1
 
 # Run with Gunicorn - increased timeout for database operations
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--threads", "4", "--timeout", "300", "--graceful-timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "full_api:app"]
+# Use the root-wrapper `app.py` which imports the real `full_api` inside huggingface_deploy_clean
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--threads", "4", "--timeout", "300", "--graceful-timeout", "300", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
