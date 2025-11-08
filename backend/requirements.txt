@@ -1,10 +1,15 @@
-pymysql==1.4.6
-mysql-connector-python==8.0.28
+# AGN Job Bank Backend - Local Development Requirements
+# For Hugging Face deployment, use: requirements_huggingface.txt
 
-# Notes:
-# - mysql-connector-python 9.x caused a native crash on Windows + Python 3.13 in this environment.
-# - We pinned 8.0.28 which successfully connected during diagnostics.pymysql==1.4.6Flask>=3.1.2
-mysql-connector-python>=8.1.0
-
-# Optional: pin Werkzeug if you need specific behavior
-# Werkzeug>=3.1.3
+Flask==3.0.0
+flask-cors==4.0.0
+cloudinary==1.31.0
+requests==2.31.0
+mysql-connector-python==8.1.0
+pymysql==1.1.0
+DBUtils==3.1.0
+PyMuPDF==1.26.5
+python-dotenv==1.0.0
+python-docx==1.1.0
+Werkzeug==3.0.0
+lxml>=4.9.0

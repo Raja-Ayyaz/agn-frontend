@@ -1,0 +1,82 @@
+# AGN Job Bank Backend - Requirements for Hugging Face Spaces
+# Python 3.14+ compatible
+
+# ============================================================================
+# Core Web Framework
+# ============================================================================
+Flask==3.0.0
+flask-cors==4.0.0
+Werkzeug==3.0.0
+
+# ============================================================================
+# Database & Connection Pooling
+# ============================================================================
+# Primary database driver (PyMySQL - pure Python, faster than mysql-connector)
+pymysql==1.1.0
+
+# Fallback database driver (mysql-connector-python)
+mysql-connector-python==8.1.0
+
+# Database connection pooling for better performance
+DBUtils==3.1.0
+
+# ============================================================================
+# File Processing & CV Masking
+# ============================================================================
+# PDF processing and masking
+PyMuPDF==1.26.5
+
+# Word document (.docx) processing
+python-docx==1.1.0
+
+# XML parsing for Word document manipulation
+lxml>=4.9.0
+
+# ============================================================================
+# Cloud Storage & File Uploads
+# ============================================================================
+# Cloudinary for CV storage
+cloudinary==1.31.0
+
+# ============================================================================
+# Utilities
+# ============================================================================
+# HTTP requests for downloading remote CVs
+requests==2.31.0
+
+# Environment variable management
+python-dotenv==1.0.0
+
+# ============================================================================
+# Production Server (Recommended for Hugging Face Spaces)
+# ============================================================================
+# Gunicorn for production WSGI server
+gunicorn==21.2.0
+
+# ============================================================================
+# Optional: Performance & Monitoring
+# ============================================================================
+# For better JSON serialization performance (optional)
+# ujson==5.8.0
+
+# For monitoring and health checks (optional)
+# psutil==5.9.6
+
+# ============================================================================
+# Development Dependencies (Comment out for production)
+# ============================================================================
+# pytest==7.4.3
+# pytest-cov==4.1.0
+# black==23.12.1
+# flake8==6.1.0
+
+# ============================================================================
+# Security & SSL (for database connections)
+# ============================================================================
+# cryptography for SSL/TLS support
+cryptography>=41.0.0
+
+# ============================================================================
+# Type Checking (Optional - for development)
+# ============================================================================
+# typing-extensions==4.9.0

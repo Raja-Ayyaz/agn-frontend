@@ -73,6 +73,6 @@ exports/
 *.json
 !cv-storage-api-2f7734b5aa02.json
 
-# Old requirements (keep requirements.txt for Docker build!)
-# requirements.txt
+# Old requirements
+requirements.txt
 requirements-installed.txt

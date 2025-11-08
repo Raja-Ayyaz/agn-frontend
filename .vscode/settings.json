@@ -1,0 +1,12 @@
+{
+  // Workspace-level Python interpreter to match the environment where packages were installed.
+  // This helps Pylance resolve imports (cloudinary, flask_cors, etc.).
+  "python.defaultInterpreterPath": "C:/Python314/python.exe",
+  "python.pythonPath": "C:/Python314/python.exe",
+
+  // Optional: reduce noise by using the workspace interpreter for analysis
+  "python.analysis.typeCheckingMode": "basic",
+
+  // Help Pylance find packages installed in the interpreter's site-packages
+  "python.analysis.extraPaths": ["C:/Python314/Lib/site-packages"]
+}

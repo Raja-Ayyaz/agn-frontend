@@ -1,0 +1,55 @@
+# =========================
+# 🔒 Sensitive credentials
+# =========================
+.env
+cv-storage-api-*.json
+isrgrootx1.pem
+
+# =========================
+# ⚙️ Python cache & temp files
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# =========================
+# 🧰 Virtual environment (if used)
+# =========================
+venv/
+.env/
+
+# =========================
+# 🧾 Local-only or helper scripts
+# =========================
+start_server.ps1
+code.txt
+
+# =========================
+# 📁 System / IDE files
+# =========================
+.vscode/
+.DS_Store
+Thumbs.db
+
+# =========================
+# 🧠 Optional: Documentation files
+# =========================
+# If you want to keep internal docs private, uncomment these:
+# *.md
+
+# =========================
+# ✅ Keep these files tracked
+# =========================
+# main.py
+# db_conn.py
+# cloudinary_helper.py
+# upload_to_cloudinary.py
+# employer_view.py
+# admin_panal_view.py
+# processor.py
+# insert_employee_form.py
+# insert_employeer_signup.py
+# hire_request_table.sql
+# requirements.txt

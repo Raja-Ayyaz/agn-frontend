@@ -116,7 +116,7 @@ def check_employer_credentials(username: str, password: str) -> Optional[int]:
         employer_id, stored = row[0], (row[1] or "")
         # direct match
         if password == stored:
-            return int(employer_id)
+            return (employer_id,)
         # truncated plaintext (VARCHAR(15) common in this project)
         if len(password) > 15 and password[:15] == stored:
             return int(employer_id)
