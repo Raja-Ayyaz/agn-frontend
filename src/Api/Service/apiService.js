@@ -36,11 +36,11 @@ export async function employerLogin(username, password) {
   });
 }
 
-export async function employerSignup({ username, company_name, email, password }) {
+export async function employerSignup({ username, company_name, email, password, phone, location, referance }) {
   return request('/api/employer/signup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, company_name, email, password }),
+    body: JSON.stringify({ username, company_name, email, password, phone, location, referance }),
   });
 }
 

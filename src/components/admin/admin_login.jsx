@@ -223,18 +223,13 @@ export default function AdminLogin() {
                     )}
                   </button>
 
-                  {/* Clear Button */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUsername("")
-                      setPassword("")
-                      setError("")
-                    }}
-                    className="w-full border-2 border-gray-300 text-black font-bold py-3 rounded-lg hover:bg-gray-100 transition"
+                  {/* Prominent signup button (more visible than link below) */}
+                  <Link
+                    to="/employer-signup"
+                    className="w-full inline-flex items-center justify-center gap-2 bg-orange text-black font-black py-3 rounded-lg transition hover:shadow-lg hover:scale-105"
                   >
-                    Clear Fields
-                  </button>
+                    Create Employer Account
+                  </Link>
                 </form>
 
                 <div className="mt-6 text-center">

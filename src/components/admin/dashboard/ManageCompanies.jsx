@@ -28,9 +28,11 @@ export default function ManageCompanies() {
     const username = (company.username || "").toLowerCase()
     const companyName = (company.comapny_name || "").toLowerCase()
     const email = (company.email || "").toLowerCase()
-    const phone = (company.phone || "").toLowerCase()
+  const phone = (company.phone || "").toLowerCase()
+  const location = (company.location || "").toLowerCase()
+  const referance = (company.referance || "").toLowerCase()
 
-    const allFields = `${username} ${companyName} ${email} ${phone}`
+  const allFields = `${username} ${companyName} ${email} ${phone} ${location} ${referance}`
 
     return searchTerms.every((term) => allFields.includes(term))
   })
@@ -100,6 +102,8 @@ export default function ManageCompanies() {
     { key: "comapny_name", label: "Company Name" },
     { key: "email", label: "Email" },
     { key: "phone", label: "Phone" },
+    { key: "location", label: "Location" },
+    { key: "referance", label: "Reference" },
   ]
 
   return (
@@ -185,6 +189,14 @@ export default function ManageCompanies() {
                           <span className="text-xs font-bold text-slate-600 min-w-[70px]">Phone:</span>
                           <span className="text-xs text-slate-800">{row.phone || "-"}</span>
                         </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs font-bold text-slate-600 min-w-[70px]">Location:</span>
+                            <span className="text-xs text-slate-800">{row.location || "-"}</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs font-bold text-slate-600 min-w-[70px]">Reference:</span>
+                            <span className="text-xs text-slate-800">{row.referance || "-"}</span>
+                          </div>
                       </div>
 
                       {/* Action Button */}

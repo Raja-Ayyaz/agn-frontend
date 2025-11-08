@@ -29,9 +29,13 @@ export default function HirePage() {
     company_name: "",
     email: "",
     password: "",
+    phone: "",
+    location: "",
+    referance: "",
   })
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const [sideImage, setSideImage] = useState(null)
   const STATIC_SIDE_IMAGE = "/images/Hire_side.jpg"
 
@@ -52,6 +56,7 @@ export default function HirePage() {
     e.preventDefault()
     setError("")
     setSubmitted(false)
+    setLoading(true)
 
     try {
       const result = await employerSignup({
@@ -59,11 +64,14 @@ export default function HirePage() {
         company_name: formData.company_name,
         email: formData.email,
         password: formData.password,
+        phone: formData.phone,
+        location: formData.location,
+        referance: formData.referance,
       })
 
       if (result.ok) {
         setSubmitted(true)
-        setFormData({ username: "", company_name: "", email: "", password: "" })
+  setFormData({ username: "", company_name: "", email: "", password: "", phone: "", location: "", referance: "" })
         
         // Redirect to login page after 2 seconds
         setTimeout(() => {
@@ -75,6 +83,8 @@ export default function HirePage() {
     } catch (err) {
       console.error("Error:", err)
       setError(err.message || "An error occurred during registration")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -170,6 +180,7 @@ export default function HirePage() {
                         value={formData.username}
                         onChange={handleChange}
                         required
+                        disabled={loading}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
@@ -180,6 +191,7 @@ export default function HirePage() {
                         name="company_name"
                         value={formData.company_name}
                         onChange={handleChange}
+                        disabled={loading}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
@@ -191,6 +203,7 @@ export default function HirePage() {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        disabled={loading}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
@@ -203,6 +216,40 @@ export default function HirePage() {
                         onChange={handleChange}
                         required
                         maxLength={15}
+                        disabled={loading}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
+                      />
+                    </div>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Phone</label>
+                      <input
+                        type="text"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        disabled={loading}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
+                      />
+                    </div>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Location</label>
+                      <input
+                        type="text"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        disabled={loading}
+                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
+                      />
+                    </div>
+                    <div className="stagger-item">
+                      <label className="block text-sm font-black text-black mb-3">Reference</label>
+                      <input
+                        type="text"
+                        name="referance"
+                        value={formData.referance}
+                        onChange={handleChange}
+                        disabled={loading}
                         className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-orange focus:outline-none transition-smooth focus:shadow-lg focus:ring-2 focus:ring-orange"
                       />
                     </div>
@@ -212,9 +259,20 @@ export default function HirePage() {
                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 bg-black text-orange hover:bg-gray-900 font-black text-lg px-8 py-4 rounded-xl transition-smooth transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    disabled={loading}
+                    aria-busy={loading}
+                    className={`flex-1 font-black text-lg px-8 py-4 rounded-xl transition-smooth transform ${loading ? 'bg-gray-400 text-gray-800 cursor-not-allowed' : 'bg-black text-orange hover:bg-gray-900 active:scale-95 shadow-lg hover:shadow-xl hover:scale-105'}`}
                   >
-                    Create Employer Account <ArrowRight className="ml-2 inline" size={20} />
+                    {loading ? (
+                      <span className="inline-flex items-center gap-3">
+                        <span className="w-4 h-4 rounded-full border-2 border-t-orange border-gray-200 animate-spin" aria-hidden="true" />
+                        Creating...
+                      </span>
+                    ) : (
+                      <>
+                        Create Employer Account <ArrowRight className="ml-2 inline" size={20} />
+                      </>
+                    )}
                   </button>
                   <a
                     href="/"
