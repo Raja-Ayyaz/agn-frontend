@@ -1,0 +1,47 @@
+===========================================
+ENVIRONMENT VARIABLES FOR HUGGING FACE
+===========================================
+
+⚠️ IMPORTANT: DO NOT UPLOAD THIS FILE!
+Set these values in Hugging Face Settings → Variables as SECRETS
+
+-------------------------------------------
+DATABASE CONFIGURATION
+-------------------------------------------
+
+DB_HOST = gateway01.eu-central-1.prod.aws.tidbcloud.com
+DB_PORT = 4000
+DB_USER = 4YoWi5wpZWfFZMg.root
+DB_PASSWORD = rM9HHqklqdSdDSfi
+DB_NAME = agn
+DB_POOL_SIZE = 10
+
+-------------------------------------------
+CLOUDINARY CONFIGURATION
+-------------------------------------------
+
+Cloudinary_Cloud_Name = daknxfxvv
+Cloudinary_API_Key = 782796493951941
+Cloudinary_API_Secret = uhw7NmEOPTfRv4b9cyasDe25hBc
+
+-------------------------------------------
+HOW TO SET IN HUGGING FACE
+-------------------------------------------
+
+1. Go to: https://huggingface.co/spaces/AGN768/backend
+2. Click "Settings" tab
+3. Scroll to "Variables and secrets"
+4. Click "New secret"
+5. Add each variable above
+   - Name: Copy the name (e.g., DB_HOST)
+   - Value: Copy the value
+   - Check "Secret" box
+6. Repeat for all 9 variables
+
+-------------------------------------------
+VERIFICATION
+-------------------------------------------
+
+After setting variables, check in your space logs:
+- Pool initialization should show successful connection
+- No "missing environment variable" errors

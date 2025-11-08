@@ -1,0 +1,11 @@
+# System packages required for AGN Job Bank Backend
+# These will be installed on Hugging Face Spaces
+
+# For OCR support (image-based PDF processing)
+tesseract-ocr
+tesseract-ocr-eng
+poppler-utils
+
+# Note: If OCR is not needed (only text-based PDFs),
+# you can delete this file and the app will still work
+# with the fallback white-box redaction method.
