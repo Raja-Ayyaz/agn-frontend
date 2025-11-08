@@ -2,8 +2,8 @@ import zipfile, tempfile, shutil, os
 from lxml import etree
 from regix_pattren import PHONE_REGEX, EMAIL_REGEX
 
-DEFAULT_PHONE = "+92-300-0000000"
-DEFAULT_EMAIL = "hidden@email.com"
+DEFAULT_PHONE = "+92 3037774400"
+DEFAULT_EMAIL = "agnjobbank123@gmail.com"
 
 def mask_docx_xml_text(root_xml):
     ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
