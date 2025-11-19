@@ -9,11 +9,51 @@ export default function ManageEmployees() {
   const [searchQuery, setSearchQuery] = useState("")
   const [allEmployees, setAllEmployees] = useState([])
   const [toasts, setToasts] = useState([])
+  const [viewedCVs, setViewedCVs] = useState({})
 
   const showToast = (type, text, duration = 4500) => {
     const id = Date.now() + Math.random()
     setToasts((t) => [...t, { id, type, text }])
     setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), duration)
+  }
+
+  // Load viewed CVs from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('agn_viewed_cvs')
+      if (stored) {
+        setViewedCVs(JSON.parse(stored))
+      }
+    } catch (err) {
+      console.error('Error loading viewed CVs:', err)
+    }
+  }, [])
+
+  // Mark CV as viewed
+  const markCVAsViewed = (empId, cvType) => {
+    const key = `${empId}_${cvType}`
+    const timestamp = new Date().toISOString()
+    const updated = { ...viewedCVs, [key]: timestamp }
+    setViewedCVs(updated)
+    try {
+      localStorage.setItem('agn_viewed_cvs', JSON.stringify(updated))
+    } catch (err) {
+      console.error('Error saving viewed CV:', err)
+    }
+  }
+
+  // Check if CV has been viewed
+  const isCVViewed = (empId, cvType) => {
+    const key = `${empId}_${cvType}`
+    return !!viewedCVs[key]
+  }
+
+  // Handle CV link click
+  const handleCVClick = (url, empId, cvType) => {
+    if (url) {
+      markCVAsViewed(empId, cvType)
+      window.open(url, '_blank')
+    }
   }
 
   useEffect(() => {
@@ -342,14 +382,18 @@ export default function ManageEmployees() {
                         <div className="flex items-start gap-2">
                           <span className="text-xs font-bold text-slate-600 min-w-[60px]">CV:</span>
                           {row.cv ? (
-                            <a
-                              href={row.cv}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+                            <button
+                              onClick={() => handleCVClick(row.cv, row.employee_id, 'original')}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1.5"
                             >
+                              <span 
+                                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                  isCVViewed(row.employee_id, 'original') ? 'bg-emerald-500' : 'bg-red-500'
+                                }`}
+                                title={isCVViewed(row.employee_id, 'original') ? 'Viewed' : 'Not viewed'}
+                              />
                               View CV
-                            </a>
+                            </button>
                           ) : (
                             <span className="text-xs text-slate-400">No CV</span>
                           )}
@@ -393,14 +437,18 @@ export default function ManageEmployees() {
                           {row.masked_cv && (
                             <div className="flex gap-2">
                               <span className="text-xs font-bold text-slate-600 min-w-[100px]">Masked CV:</span>
-                              <a
-                                href={row.masked_cv}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold"
+                              <button
+                                onClick={() => handleCVClick(row.masked_cv, row.employee_id, 'masked')}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1.5"
                               >
+                                <span 
+                                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                    isCVViewed(row.employee_id, 'masked') ? 'bg-emerald-500' : 'bg-red-500'
+                                  }`}
+                                  title={isCVViewed(row.employee_id, 'masked') ? 'Viewed' : 'Not viewed'}
+                                />
                                 View Masked
-                              </a>
+                              </button>
                             </div>
                           )}
                         </div>
@@ -457,14 +505,18 @@ export default function ManageEmployees() {
                           <td key={col.key} className="px-6 py-4 text-slate-700 font-medium whitespace-nowrap">
                             {col.key === "cv" || col.key === "masked_cv" ? (
                               row[col.key] ? (
-                                <a
-                                  href={row[col.key]}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:text-blue-800 underline font-semibold"
+                                <button
+                                  onClick={() => handleCVClick(row[col.key], row.employee_id, col.key === 'cv' ? 'original' : 'masked')}
+                                  className="text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-2"
                                 >
+                                  <span 
+                                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                      isCVViewed(row.employee_id, col.key === 'cv' ? 'original' : 'masked') ? 'bg-emerald-500' : 'bg-red-500'
+                                    }`}
+                                    title={isCVViewed(row.employee_id, col.key === 'cv' ? 'original' : 'masked') ? 'Viewed' : 'Not viewed'}
+                                  />
                                   View
-                                </a>
+                                </button>
                               ) : (
                                 <span className="text-slate-400">-</span>
                               )
