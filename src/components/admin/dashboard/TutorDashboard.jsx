@@ -181,11 +181,24 @@ export default function TutorDashboard() {
         return
       }
 
+      // Create a well-formatted message with teacher details
+      const message = [
+        `TEACHER PROFILE`,
+        `━━━━━━━━━━━━━━━━`,
+        ``,
+        `Name: ${teacher?.name || 'N/A'}`,
+        teacher?.subjects ? `Subjects: ${teacher.subjects}` : null,
+        teacher?.experience ? `Experience: ${teacher.experience}` : null,
+        ``,
+        `CV Link:`,
+        `${cvLink}`
+      ].filter(Boolean).join('\n')
+
       // Copy to clipboard (best-effort)
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(cvLink)
-          showToast("success", "CV link copied to clipboard")
+          showToast("success", "CV link copied to clipboard! Opening WhatsApp...")
         } else {
           // Fallback copy
           const ta = document.createElement('textarea')
@@ -196,15 +209,15 @@ export default function TutorDashboard() {
           ta.select()
           document.execCommand('copy')
           document.body.removeChild(ta)
-          showToast("success", "CV link copied to clipboard")
+          showToast("success", "CV link copied! Opening WhatsApp...")
         }
       } catch (err) {
         // Non-fatal: just notify user
-        showToast("info", "Could not copy automatically — WhatsApp will open with the link")
+        showToast("info", "Opening WhatsApp with CV details...")
       }
 
       // Open WhatsApp (works for mobile app and web)
-      const encoded = encodeURIComponent(`CV of ${teacher?.name || ''}\n${cvLink}`)
+      const encoded = encodeURIComponent(message)
       const whatsappUrl = `https://wa.me/?text=${encoded}`
       window.open(whatsappUrl, '_blank')
     } catch (err) {

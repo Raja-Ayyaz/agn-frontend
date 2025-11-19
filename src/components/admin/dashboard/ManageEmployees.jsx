@@ -62,7 +62,9 @@ export default function ManageEmployees() {
 
       const j = await r.json()
       if (j.ok) {
-        setAllEmployees(j.rows)
+        // Sort by employee_id descending to show newest first
+        const sortedRows = (j.rows || []).sort((a, b) => (b.employee_id || 0) - (a.employee_id || 0))
+        setAllEmployees(sortedRows)
       } else {
         showToast("error", `API error: ${j.error}`)
       }
@@ -115,12 +117,24 @@ export default function ManageEmployees() {
         return
       }
 
-  const message = `CV of ${emp?.name || ''}%0A${cvLink}`
+      // Create a well-formatted message with employee details
+      const message = [
+        `CANDIDATE PROFILE`,
+        `━━━━━━━━━━━━━━━━`,
+        ``,
+        `Name: ${emp?.name || 'N/A'}`,
+        emp?.field ? `Field: ${emp.field}` : null,
+        emp?.experience ? `Experience: ${emp.experience}` : null,
+        ``,
+        `CV Link:`,
+        `${cvLink}`
+      ].filter(Boolean).join('\n')
+
       // Copy to clipboard (best-effort)
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(cvLink)
-          showToast("success", "CV link copied to clipboard")
+          showToast("success", "CV link copied to clipboard! Opening WhatsApp...")
         } else {
           // Fallback copy
           const ta = document.createElement('textarea')
@@ -131,15 +145,15 @@ export default function ManageEmployees() {
           ta.select()
           document.execCommand('copy')
           document.body.removeChild(ta)
-          showToast("success", "CV link copied to clipboard")
+          showToast("success", "CV link copied! Opening WhatsApp...")
         }
       } catch (err) {
         // Non-fatal: just notify user
-        showToast("info", "Could not copy automatically — WhatsApp will open with the link")
+        showToast("info", "Opening WhatsApp with CV details...")
       }
 
       // Open WhatsApp (works for mobile app and web)
-      const encoded = encodeURIComponent(`CV of ${emp?.name || ''}\n${cvLink}`)
+      const encoded = encodeURIComponent(message)
       const whatsappUrl = `https://wa.me/?text=${encoded}`
       window.open(whatsappUrl, '_blank')
     } catch (err) {

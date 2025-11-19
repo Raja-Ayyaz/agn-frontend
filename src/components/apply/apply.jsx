@@ -688,19 +688,19 @@ export default function ApplyPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                name: "Sarah Johnson",
+                name: "Ahmad ali",
                 role: "Senior Accountant",
                 company: "KPMG",
                 testimonial: "AGN Job Bank helped me land my dream role. The process was smooth and professional.",
               },
               {
-                name: "Michael Chen",
+                name: "Shahbaz Khan",
                 role: "Finance Manager",
                 company: "Deloitte",
                 testimonial: "Excellent support throughout the application process. Highly recommended!",
               },
               {
-                name: "Emma Williams",
+                name: "Amna Rafeeq",
                 role: "Tax Specialist",
                 company: "EY",
                 testimonial: "Within 2 weeks of applying, I had my job offer. Amazing experience!",

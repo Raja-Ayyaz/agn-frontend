@@ -124,12 +124,25 @@ export default function ManageJobs() {
           <div className="space-y-3">
             {jobs.map((job) => (
               <div key={job.job_id || job.id} className="p-3 rounded-lg border border-slate-100 flex items-start justify-between">
-                <div>
-                  <h4 className="font-black text-sm">{job.name}</h4>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between mb-1">
+                    <h4 className="font-black text-sm">{job.name}</h4>
+                    {job.created_at && (
+                      <span className="text-xs text-slate-500 ml-2">
+                        Posted: {new Date(job.created_at).toLocaleDateString('en-US', { 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-slate-600">{job.experience} • {job.location}</p>
                   <p className="text-xs text-slate-700 mt-1 break-words">{job.details}</p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
+                <div className="flex flex-col items-end gap-2 ml-3">
                   <button onClick={() => handleDelete(job.job_id || job.id)} className="bg-red-600 text-white px-3 py-1 rounded text-xs flex items-center gap-2">
                     <Trash2 size={14} /> Delete
                   </button>

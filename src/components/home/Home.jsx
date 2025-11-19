@@ -106,7 +106,17 @@ function JobsCarousel() {
                   className="job-card bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-100 flex-1 min-h-[160px] max-h-[260px] overflow-hidden flex flex-col"
                 >
                   <div className="mb-2">
-                    <h3 className="text-base sm:text-lg font-black mb-1 leading-tight break-words">{job.name}</h3>
+                    <div className="flex items-start justify-between mb-1 gap-2">
+                      <h3 className="text-base sm:text-lg font-black leading-tight break-words flex-1">{job.name}</h3>
+                      {job.created_at && (
+                        <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
+                          {new Date(job.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric'
+                          })}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs sm:text-sm text-slate-600 mb-2 truncate">{job.experience} • {job.location}</p>
                   </div>
                   <p className="text-sm text-slate-700 mb-4 line-clamp-3 flex-1">{job.details}</p>
