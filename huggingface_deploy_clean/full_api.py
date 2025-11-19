@@ -1291,10 +1291,10 @@ def list_employees():
 
             base = "SELECT * FROM employees"
             if where_clauses:
-                sql = base + " WHERE " + " AND ".join(where_clauses) + " LIMIT %s"
+                sql = base + " WHERE " + " AND ".join(where_clauses) + " ORDER BY employee_id DESC LIMIT %s"
                 params.append(limit)
             else:
-                sql = base + " LIMIT %s"
+                sql = base + " ORDER BY employee_id DESC LIMIT %s"
                 params = [limit]
 
             # Debug: print SQL and params to help troubleshoot matching issues
@@ -1313,7 +1313,7 @@ def list_employees():
             if len(result) == 0 and "role" in filters:
                 try:
                     # simpler fallback: LOWER(field) LIKE %role%
-                    fallback_sql = base + " WHERE LOWER(field) LIKE CONCAT('%%', LOWER(%s), '%%') LIMIT %s"
+                    fallback_sql = base + " WHERE LOWER(field) LIKE CONCAT('%%', LOWER(%s), '%%') ORDER BY employee_id DESC LIMIT %s"
                     fallback_params = (filters["role"], limit)
                     try:
                         print("[debug] fallback list_employees SQL:", fallback_sql)

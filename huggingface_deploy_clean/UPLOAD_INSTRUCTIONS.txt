@@ -55,6 +55,41 @@ git commit -m "Deploy AGN Job Bank backend"
 git push
 ```
 
+### Option C: Push from Main Repository (RECOMMENDED) ✅
+
+**Use this method to push updates from your main AGN website repository:**
+
+```powershell
+# Navigate to your main repository
+cd "d:\AGN website"
+
+# Check git remotes (you should see both 'origin' and 'huggingface')
+git remote -v
+
+# Stage all changes you want to push
+git add huggingface_deploy_clean/
+git add backend/full_api.py
+git add backend/requirements.txt
+# Add any other modified files
+
+# Commit the changes
+git commit -m "Update Hugging Face deployment files"
+
+# Push to GitHub (optional - for backup)
+git push origin add-readme-to-main
+
+# Push to Hugging Face Space (CRITICAL - this updates your live app)
+git push huggingface HEAD:main
+```
+
+**IMPORTANT NOTES:**
+- The repository has TWO remotes:
+  - `origin` = GitHub (https://github.com/Raja-Ayyaz/agn-frontend.git)
+  - `huggingface` = Hugging Face Space (https://huggingface.co/spaces/AGN768/backend)
+- Pushing to `origin` does NOT update your Hugging Face app
+- You MUST push to `huggingface` remote to update the live deployment
+- Command: `git push huggingface HEAD:main` pushes your current branch to HF main
+
 ---
 
 ## STEP 2: Set Environment Variables ⚠️ CRITICAL
