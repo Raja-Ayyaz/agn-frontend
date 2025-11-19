@@ -1,9 +1,10 @@
 # full_api.py
 """
-Full REST API bridging your frontend and backend logic.
+Full REST API bridging your frontend and backend logic - SECURITY ENHANCED
 
 - Keeps original backend modules intact (processor.py, pdf_masker.py, word_masker.py).
 - Uses cloudinary_helper for uploads.
+- Security features: JWT auth, rate limiting, input validation, SQL injection prevention
 - Provides endpoints:
     GET  /api/health
     POST /insert_employee              (keeps compatibility with current react: http://localhost:8000/insert_employee)
@@ -18,10 +19,38 @@ import tempfile
 import traceback
 import fitz  # PyMuPDF for PDF validation
 from typing import List, Dict, Any
+from datetime import timedelta
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+
+# Security middleware
+try:
+    from security_middleware import SecurityMiddleware
+    SECURITY_ENABLED = True
+    print("🔐 Security middleware loaded")
+except ImportError:
+    SECURITY_ENABLED = False
+    print("⚠️ Security middleware not available - running in legacy mode")
+    # Create dummy decorator if security not available
+    class SecurityMiddleware:
+        @staticmethod
+        def rate_limit(*args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+        @staticmethod
+        def require_auth(*args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+        @staticmethod
+        def sanitize_input(data):
+            return data
+        @staticmethod
+        def generate_token(*args, **kwargs):
+            return "legacy_mode_no_token"
 
 # Compatibility shim: pkgutil.get_loader was removed in newer Python versions (3.12+).
 # Some older Flask/Werkzeug versions call pkgutil.get_loader; if it's missing, add a safe
@@ -55,8 +84,37 @@ except Exception as e:
 
 
 app = Flask(__name__)
-CORS(app)  # allow requests from your frontend during development
+
+# Secure CORS configuration
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:5174",
+    "http://127.0.0.1:3000",
+]
+
+CORS(app, origins=ALLOWED_ORIGINS, supports_credentials=True)
 app.config["MAX_CONTENT_LENGTH"] = 30 * 1024 * 1024  # 30MB max default
+
+# Security settings
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
+app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # No JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
+
+# Security headers middleware
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    # Content Security Policy
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    return response
 
 
 def allowed_file(filename: str) -> bool:
@@ -181,16 +239,50 @@ def health():
 
 
 # --- Authentication helpers (adapted from main.py) ---------------------------------
+try:
+    import bcrypt
+    BCRYPT_AVAILABLE = True
+except ImportError:
+    BCRYPT_AVAILABLE = False
+    print("⚠️ bcrypt not available, using SHA-256 (less secure). Install: pip install bcrypt")
+
 def _sha256(text: str) -> str:
     import hashlib
-
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
+def _verify_password(password: str, stored: str) -> bool:
+    """Verify password against stored hash. Supports bcrypt, SHA-256, and plaintext (legacy)."""
+    if not stored:
+        return False
+    
+    # Try bcrypt first (most secure)
+    if BCRYPT_AVAILABLE and stored.startswith('$2b$'):
+        try:
+            return bcrypt.checkpw(password.encode('utf-8'), stored.encode('utf-8'))
+        except Exception:
+            pass
+    
+    # Try plaintext match (legacy)
+    if password == stored:
+        return True
+    
+    # Try SHA-256 (legacy)
+    if _sha256(password) == stored:
+        return True
+    
+    return False
+
+def _hash_password(password: str) -> str:
+    """Hash password using bcrypt if available, otherwise SHA-256."""
+    if BCRYPT_AVAILABLE:
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    else:
+        return _sha256(password)
 
 def check_admin_credentials(username: str, password: str) -> bool:
     """Return True if username/password match an entry in admin table.
 
-    Accepts plaintext or SHA-256 hashed stored values (backwards compatible).
+    Supports bcrypt (recommended), SHA-256, and plaintext (backwards compatible).
     """
     try:
         with get_db_connection() as conn:
@@ -201,12 +293,9 @@ def check_admin_credentials(username: str, password: str) -> bool:
             
             if not row:
                 return False
+            
             stored = row[0] or ""
-            if password == stored:
-                return True
-            if _sha256(password) == stored:
-                return True
-            return False
+            return _verify_password(password, stored)
     except Exception:
         return False
 
@@ -214,8 +303,8 @@ def check_admin_credentials(username: str, password: str) -> bool:
 def check_employer_credentials(username: str, password: str):
     """Return tuple (employer_id, role) if credentials valid, otherwise None.
 
-    Tries plaintext, truncated plaintext (VARCHAR(15) legacy), and SHA-256. Also returns
-    the `role` column from the employer table so the caller can decide routing.
+    Supports bcrypt (recommended), SHA-256, truncated plaintext (VARCHAR(15) legacy), and plaintext.
+    Also returns the `role` column from the employer table so the caller can decide routing.
     """
     try:
         with get_db_connection() as conn:
@@ -226,32 +315,56 @@ def check_employer_credentials(username: str, password: str):
             
             if not row:
                 return None
+            
             employer_id = row[0]
             stored = row[1] or ""
             role = (row[2] or "").lower()
-            if password == stored:
+            
+            # Verify password
+            if _verify_password(password, stored):
                 return (int(employer_id), role)
+            
+            # Legacy: check truncated password (VARCHAR(15))
             if len(password) > 15 and password[:15] == stored:
                 return (int(employer_id), role)
-            if _sha256(password) == stored:
-                return (int(employer_id), role)
+            
             return None
     except Exception:
         return None
 
 
 @app.route("/api/admin/login", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=60)  # Prevent brute force
 def api_admin_login():
-    """Admin login endpoint. Expects JSON {username, password}."""
+    """Admin login endpoint with JWT token generation. Expects JSON {username, password}."""
     try:
         data = request.get_json(silent=True) or {}
+        
+        # Sanitize inputs
+        data = SecurityMiddleware.sanitize_input(data)
+        
         username = (data.get("username") or "").strip()
         password = (data.get("password") or "").strip()
+        
         if not username or not password:
             return jsonify({"ok": False, "error": "username and password required"}), 400
+        
         ok = check_admin_credentials(username, password)
+        
         if ok:
-            return jsonify({"ok": True})
+            # Generate JWT token
+            token = SecurityMiddleware.generate_token(
+                user_id=username,
+                role="admin",
+                username=username
+            )
+            return jsonify({
+                "ok": True,
+                "token": token,
+                "role": "admin",
+                "username": username
+            })
+        
         return jsonify({"ok": False, "error": "invalid credentials"}), 401
     except Exception as e:
         traceback.print_exc()
@@ -259,19 +372,42 @@ def api_admin_login():
 
 
 @app.route("/api/employer/login", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=60)  # Prevent brute force
 def api_employer_login():
-    """Employer login. Expects JSON {username, password}. Returns employer_id on success."""
+    """Employer login with JWT token. Expects JSON {username, password}. Returns employer_id and token."""
     try:
         data = request.get_json(silent=True) or {}
+        
+        # Sanitize inputs
+        data = SecurityMiddleware.sanitize_input(data)
+        
         username = (data.get("username") or "").strip()
         password = (data.get("password") or "").strip()
+        
         if not username or not password:
             return jsonify({"ok": False, "error": "username and password required"}), 400
+        
         emp = check_employer_credentials(username, password)
+        
         if emp:
             # check_employer_credentials now returns (employer_id, role)
             emp_id, role = emp
-            return jsonify({"ok": True, "employer_id": int(emp_id), "role": role})
+            
+            # Generate JWT token
+            token = SecurityMiddleware.generate_token(
+                user_id=str(emp_id),
+                role=role,
+                username=username
+            )
+            
+            return jsonify({
+                "ok": True,
+                "employer_id": int(emp_id),
+                "role": role,
+                "token": token,
+                "username": username
+            })
+        
         return jsonify({"ok": False, "error": "invalid credentials"}), 401
     except Exception as e:
         traceback.print_exc()
@@ -279,6 +415,7 @@ def api_employer_login():
 
 
 @app.route("/api/employer/signup", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=3, window_seconds=300)  # Prevent spam signups
 def api_employer_signup():
     """Create a new employer account.
 
@@ -313,24 +450,16 @@ def api_employer_signup():
                 cursor.close()
                 return jsonify({"ok": False, "error": "Email already exists"}), 400
 
-            use_hash = os.environ.get("AGN_USE_HASH", "false").lower() in ("1", "true", "yes")
-            if use_hash:
-                password_to_store = _sha256(password_raw)
-                if len(password_to_store) > 15:
-                    cursor.close()
-                    return (
-                        jsonify({
-                            "ok": False,
-                            "error": "hashed password length (64) exceeds employer.password column size. Set AGN_USE_HASH=0 or increase column size to VARCHAR(255).",
-                        }),
-                        400,
-                    )
-            else:
-                # truncate to 15 chars to match legacy DB if necessary
-                if len(password_raw) > 15:
-                    password_to_store = password_raw[:15]
-                else:
-                    password_to_store = password_raw
+            # Hash password securely (bcrypt preferred, falls back to SHA-256)
+            password_to_store = _hash_password(password_raw)
+            
+            # Check if hashed password exceeds column size
+            if len(password_to_store) > 255:
+                cursor.close()
+                return jsonify({
+                    "ok": False,
+                    "error": "Password hash too long. Please increase employer.password column to VARCHAR(255).",
+                }), 400
 
             # Insert with default role 'user' and include optional contact fields (phone, location, referance)
             cursor.execute(
@@ -375,6 +504,8 @@ def api_list_employers():
 
 
 @app.route("/api/hire-request", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['employer', 'user'])  # Authenticated employers only
+@SecurityMiddleware.rate_limit(max_requests=10, window_seconds=60)  # Prevent spam requests
 def api_create_hire_request():
     """Create a new hire request.
     
@@ -426,6 +557,7 @@ def api_create_hire_request():
 
 
 @app.route("/api/hire-requests/<int:employer_id>", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['employer', 'user', 'admin'])  # Employer or admin access
 def api_get_employer_hire_requests(employer_id):
     """Get all hire requests for a specific employer.
     
@@ -468,6 +600,7 @@ def api_get_employer_hire_requests(employer_id):
 
 
 @app.route("/api/admin/hire-requests", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_all_hire_requests():
     """Get all hire requests for admin panel.
     
@@ -513,6 +646,8 @@ def api_get_all_hire_requests():
 
 
 @app.route("/api/admin/hire-request/respond", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
+@SecurityMiddleware.rate_limit(max_requests=20, window_seconds=60)  # Reasonable limit for admin actions
 def api_respond_to_hire_request():
     """Admin responds to a hire request (accept or reject).
     
@@ -564,7 +699,196 @@ def api_respond_to_hire_request():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ===========================================================================================
+# TUTOR HIRE REQUEST ENDPOINTS (similar to hire requests but for tutoring/teaching)
+# ===========================================================================================
+
+@app.route("/api/tutor-request", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=3, window_seconds=300)  # Prevent spam from public form
+def api_create_tutor_request():
+    """Create a new tutor hire request from the public form.
+    
+    Accepts JSON with: requester_name, requester_email, requester_phone, requester_company,
+                       subject, message, preferred_teacher_field, preferred_experience, location
+    Inserts into tutor_hire_requests table with status='pending'
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        requester_name = (data.get("requester_name") or "").strip()
+        requester_email = (data.get("requester_email") or "").strip()
+        requester_phone = (data.get("requester_phone") or "").strip()
+        requester_company = (data.get("requester_company") or "").strip()
+        subject = (data.get("subject") or "").strip()
+        message = (data.get("message") or "").strip()
+        preferred_teacher_field = (data.get("preferred_teacher_field") or "").strip()
+        preferred_experience = (data.get("preferred_experience") or "").strip()
+        location = (data.get("location") or "").strip()
+        
+        if not requester_name or not requester_email:
+            return jsonify({"ok": False, "error": "requester_name and requester_email are required"}), 400
+        
+        if not message:
+            return jsonify({"ok": False, "error": "message is required"}), 400
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Insert new tutor hire request
+            cursor.execute("""
+                INSERT INTO tutor_hire_requests 
+                (requester_name, requester_email, requester_phone, requester_company, 
+                 subject, message, preferred_teacher_field, preferred_experience, location, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+            """, (requester_name, requester_email, requester_phone, requester_company, 
+                  subject, message, preferred_teacher_field, preferred_experience, location))
+            
+            request_id = cursor.lastrowid
+            cursor.close()
+            
+            return jsonify({"ok": True, "request_id": request_id, "status": "pending"})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/tutor-requests", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
+def api_get_all_tutor_requests():
+    """Get all tutor hire requests for admin panel.
+    
+    Returns all tutor hire requests ordered by created_at descending (newest first).
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT 
+                    id,
+                    requester_name,
+                    requester_email,
+                    requester_phone,
+                    requester_company,
+                    subject,
+                    message,
+                    preferred_teacher_field,
+                    preferred_experience,
+                    location,
+                    status,
+                    admin_response,
+                    created_at,
+                    updated_at
+                FROM tutor_hire_requests
+                ORDER BY created_at DESC
+            """)
+            
+            rows = cursor.fetchall()
+            result = rows_to_dicts(cursor, rows)
+            cursor.close()
+            
+            return jsonify({"ok": True, "count": len(result), "requests": result})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/admin/tutor-request/respond", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
+@SecurityMiddleware.rate_limit(max_requests=20, window_seconds=60)  # Reasonable admin limit
+def api_respond_to_tutor_request():
+    """Admin responds to a tutor hire request (accept or reject).
+    
+    Accepts JSON with: request_id, status ('accepted' or 'rejected'), admin_response
+    Updates the tutor hire request status and admin_response.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        request_id = data.get("request_id")
+        status = data.get("status")
+        admin_response = (data.get("admin_response") or "").strip()
+        
+        if not request_id:
+            return jsonify({"ok": False, "error": "request_id is required"}), 400
+        
+        if status not in ['accepted', 'rejected']:
+            return jsonify({"ok": False, "error": "status must be 'accepted' or 'rejected'"}), 400
+        
+        if not admin_response:
+            return jsonify({"ok": False, "error": "admin_response is required"}), 400
+        
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Check if request exists and is pending
+            cursor.execute("SELECT status FROM tutor_hire_requests WHERE id = %s", (request_id,))
+            existing = cursor.fetchone()
+            
+            if not existing:
+                cursor.close()
+                return jsonify({"ok": False, "error": "Tutor hire request not found"}), 404
+            
+            if existing[0] != 'pending':
+                cursor.close()
+                return jsonify({"ok": False, "error": f"Request has already been {existing[0]}"}), 400
+            
+            # Update the request with response
+            cursor.execute("""
+                UPDATE tutor_hire_requests 
+                SET status = %s, admin_response = %s, updated_at = CURRENT_TIMESTAMP
+                WHERE id = %s
+            """, (status, admin_response, request_id))
+            
+            cursor.close()
+            
+            return jsonify({"ok": True, "request_id": request_id, "status": status})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/employees/teachers", methods=["GET"])
+def api_list_teachers():
+    """Get all employees who are teachers.
+    
+    Filters employees where field contains 'teacher' or 'tutor' (case-insensitive).
+    Supports same query parameters as /api/employees endpoint.
+    """
+    try:
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            # Build query to filter teachers - only those with 'teacher' or 'tutor' in field column
+            query = """
+                SELECT employee_id, name, age, email, mobile_no, location, nearest_route,
+                       cnic_no, educational_profile, recent_completed_education,
+                       field, experience, experience_detail, cv as cv, masked_cv, subjects
+                FROM employees
+                WHERE (LOWER(field) LIKE '%teacher%' OR LOWER(field) LIKE '%tutor%'
+                       OR LOWER(field) LIKE '%teaching%')
+            """
+            
+            # Add search filters if provided
+            search = request.args.get("search", "").strip()
+            if search:
+                search_like = f"%{search}%"
+                query += """ AND (name LIKE %s OR email LIKE %s OR mobile_no LIKE %s 
+                                  OR location LIKE %s OR field LIKE %s OR subjects LIKE %s)"""
+                cursor.execute(query, (search_like, search_like, search_like, search_like, search_like, search_like))
+            else:
+                cursor.execute(query)
+            
+            rows = cursor.fetchall()
+            result = rows_to_dicts(cursor, rows)
+            cursor.close()
+            
+            return jsonify({"ok": True, "count": len(result), "rows": result})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 @app.route("/api/admin/dashboard/stats", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_dashboard_stats():
     """Get dashboard statistics for admin panel.
     
@@ -607,6 +931,7 @@ def api_get_dashboard_stats():
 
 
 @app.route("/api/admin/dashboard/recent-activity", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_recent_activity():
     """Get recent activity for admin dashboard.
     
@@ -997,6 +1322,7 @@ def home():
     return jsonify({"ok": True, "service": "full_api"})
 
 @app.route("/insert_employee", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=300)  # 5 applications per 5 minutes
 def insert_employee():
     """
     Insert new employee with CV processing.
@@ -1334,6 +1660,7 @@ def update_employee_cv(emp_id):
 
 
 @app.route("/api/employee/<int:emp_id>", methods=["DELETE"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def delete_employee(emp_id):
     """Delete an employee by ID."""
     try:
@@ -1357,6 +1684,7 @@ def delete_employee(emp_id):
 
 
 @app.route("/api/employer/<int:employer_id>", methods=["DELETE"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def delete_employer(employer_id):
     """Delete an employer/company by ID."""
     try:
@@ -1396,4 +1724,4 @@ def delete_employer(employer_id):
 
 if __name__ == "__main__":
     port = int(os.environ.get("CV_SERVICE_PORT", 8000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=False)

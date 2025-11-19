@@ -16,12 +16,39 @@ Full REST API bridging your frontend and backend logic.
 import os
 import tempfile
 import traceback
+import fitz  # PyMuPDF for PDF validation
 from typing import List, Dict, Any
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-import fitz  # PyMuPDF for PDF validation
+
+# Security middleware
+try:
+    from security_middleware import SecurityMiddleware
+    SECURITY_ENABLED = True
+    print("🔐 Security middleware loaded")
+except ImportError:
+    SECURITY_ENABLED = False
+    print("⚠️ Security middleware not available - running in legacy mode")
+    # Create dummy decorator if security not available
+    class SecurityMiddleware:
+        @staticmethod
+        def rate_limit(*args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+        @staticmethod
+        def require_auth(*args, **kwargs):
+            def decorator(f):
+                return f
+            return decorator
+        @staticmethod
+        def sanitize_input(data):
+            return data
+        @staticmethod
+        def generate_token(*args, **kwargs):
+            return "legacy_mode_no_token"
 
 # Compatibility shim: pkgutil.get_loader was removed in newer Python versions (3.12+).
 # Some older Flask/Werkzeug versions call pkgutil.get_loader; if it's missing, add a safe
@@ -57,6 +84,22 @@ except Exception as e:
 app = Flask(__name__)
 CORS(app)  # allow requests from your frontend during development
 app.config["MAX_CONTENT_LENGTH"] = 30 * 1024 * 1024  # 30MB max default
+
+# Security settings for production
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY', os.urandom(24))
+app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # No JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+
+# Security headers middleware
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    return response
 
 
 def allowed_file(filename: str) -> bool:
@@ -160,16 +203,50 @@ def health():
 
 
 # --- Authentication helpers (adapted from main.py) ---------------------------------
+try:
+    import bcrypt
+    BCRYPT_AVAILABLE = True
+except ImportError:
+    BCRYPT_AVAILABLE = False
+    print("⚠️ bcrypt not available, using SHA-256 (less secure). Install: pip install bcrypt")
+
 def _sha256(text: str) -> str:
     import hashlib
-
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
+def _verify_password(password: str, stored: str) -> bool:
+    """Verify password against stored hash. Supports bcrypt, SHA-256, and plaintext (legacy)."""
+    if not stored:
+        return False
+    
+    # Try bcrypt first (most secure)
+    if BCRYPT_AVAILABLE and stored.startswith('$2b$'):
+        try:
+            return bcrypt.checkpw(password.encode('utf-8'), stored.encode('utf-8'))
+        except Exception:
+            pass
+    
+    # Try plaintext match (legacy)
+    if password == stored:
+        return True
+    
+    # Try SHA-256 (legacy)
+    if _sha256(password) == stored:
+        return True
+    
+    return False
+
+def _hash_password(password: str) -> str:
+    """Hash password using bcrypt if available, otherwise SHA-256."""
+    if BCRYPT_AVAILABLE:
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    else:
+        return _sha256(password)
 
 def check_admin_credentials(username: str, password: str) -> bool:
     """Return True if username/password match an entry in admin table.
 
-    Accepts plaintext or SHA-256 hashed stored values (backwards compatible).
+    Supports bcrypt (recommended), SHA-256, and plaintext (backwards compatible).
     """
     try:
         with get_db_connection() as conn:
@@ -180,12 +257,9 @@ def check_admin_credentials(username: str, password: str) -> bool:
             
             if not row:
                 return False
+            
             stored = row[0] or ""
-            if password == stored:
-                return True
-            if _sha256(password) == stored:
-                return True
-            return False
+            return _verify_password(password, stored)
     except Exception:
         return False
 
@@ -193,8 +267,8 @@ def check_admin_credentials(username: str, password: str) -> bool:
 def check_employer_credentials(username: str, password: str):
     """Return tuple (employer_id, role) if credentials valid, otherwise None.
 
-    Tries plaintext, truncated plaintext (VARCHAR(15) legacy), and SHA-256. Also returns
-    the `role` column from the employer table so the caller can decide routing.
+    Supports bcrypt (recommended), SHA-256, truncated plaintext (VARCHAR(15) legacy), and plaintext.
+    Also returns the `role` column from the employer table so the caller can decide routing.
     """
     try:
         with get_db_connection() as conn:
@@ -205,32 +279,56 @@ def check_employer_credentials(username: str, password: str):
             
             if not row:
                 return None
+            
             employer_id = row[0]
             stored = row[1] or ""
             role = (row[2] or "").lower()
-            if password == stored:
+            
+            # Verify password
+            if _verify_password(password, stored):
                 return (int(employer_id), role)
+            
+            # Legacy: check truncated password (VARCHAR(15))
             if len(password) > 15 and password[:15] == stored:
                 return (int(employer_id), role)
-            if _sha256(password) == stored:
-                return (int(employer_id), role)
+            
             return None
     except Exception:
         return None
 
 
 @app.route("/api/admin/login", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=60)  # Prevent brute force
 def api_admin_login():
-    """Admin login endpoint. Expects JSON {username, password}."""
+    """Admin login endpoint with JWT token generation. Expects JSON {username, password}."""
     try:
         data = request.get_json(silent=True) or {}
+        
+        # Sanitize inputs
+        data = SecurityMiddleware.sanitize_input(data)
+        
         username = (data.get("username") or "").strip()
         password = (data.get("password") or "").strip()
+        
         if not username or not password:
             return jsonify({"ok": False, "error": "username and password required"}), 400
+        
         ok = check_admin_credentials(username, password)
+        
         if ok:
-            return jsonify({"ok": True})
+            # Generate JWT token
+            token = SecurityMiddleware.generate_token(
+                user_id=username,
+                role="admin",
+                username=username
+            )
+            return jsonify({
+                "ok": True,
+                "token": token,
+                "role": "admin",
+                "username": username
+            })
+        
         return jsonify({"ok": False, "error": "invalid credentials"}), 401
     except Exception as e:
         traceback.print_exc()
@@ -238,19 +336,42 @@ def api_admin_login():
 
 
 @app.route("/api/employer/login", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=60)  # Prevent brute force
 def api_employer_login():
-    """Employer login. Expects JSON {username, password}. Returns employer_id on success."""
+    """Employer login with JWT token. Expects JSON {username, password}. Returns employer_id and token."""
     try:
         data = request.get_json(silent=True) or {}
+        
+        # Sanitize inputs
+        data = SecurityMiddleware.sanitize_input(data)
+        
         username = (data.get("username") or "").strip()
         password = (data.get("password") or "").strip()
+        
         if not username or not password:
             return jsonify({"ok": False, "error": "username and password required"}), 400
+        
         emp = check_employer_credentials(username, password)
+        
         if emp:
             # check_employer_credentials now returns (employer_id, role)
             emp_id, role = emp
-            return jsonify({"ok": True, "employer_id": int(emp_id), "role": role})
+            
+            # Generate JWT token
+            token = SecurityMiddleware.generate_token(
+                user_id=str(emp_id),
+                role=role,
+                username=username
+            )
+            
+            return jsonify({
+                "ok": True,
+                "employer_id": int(emp_id),
+                "role": role,
+                "token": token,
+                "username": username
+            })
+        
         return jsonify({"ok": False, "error": "invalid credentials"}), 401
     except Exception as e:
         traceback.print_exc()
@@ -258,6 +379,7 @@ def api_employer_login():
 
 
 @app.route("/api/employer/signup", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=3, window_seconds=300)  # Prevent spam signups
 def api_employer_signup():
     """Create a new employer account.
 
@@ -292,24 +414,16 @@ def api_employer_signup():
                 cursor.close()
                 return jsonify({"ok": False, "error": "Email already exists"}), 400
 
-            use_hash = os.environ.get("AGN_USE_HASH", "false").lower() in ("1", "true", "yes")
-            if use_hash:
-                password_to_store = _sha256(password_raw)
-                if len(password_to_store) > 15:
-                    cursor.close()
-                    return (
-                        jsonify({
-                            "ok": False,
-                            "error": "hashed password length (64) exceeds employer.password column size. Set AGN_USE_HASH=0 or increase column size to VARCHAR(255).",
-                        }),
-                        400,
-                    )
-            else:
-                # truncate to 15 chars to match legacy DB if necessary
-                if len(password_raw) > 15:
-                    password_to_store = password_raw[:15]
-                else:
-                    password_to_store = password_raw
+            # Hash password securely (bcrypt preferred, falls back to SHA-256)
+            password_to_store = _hash_password(password_raw)
+            
+            # Check if hashed password exceeds column size
+            if len(password_to_store) > 255:
+                cursor.close()
+                return jsonify({
+                    "ok": False,
+                    "error": "Password hash too long. Please increase employer.password column to VARCHAR(255).",
+                }), 400
 
             # Insert with default role 'user' and include optional contact fields (phone, location, referance)
             cursor.execute(
@@ -354,6 +468,8 @@ def api_list_employers():
 
 
 @app.route("/api/hire-request", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['employer', 'user'])  # Authenticated employers only
+@SecurityMiddleware.rate_limit(max_requests=10, window_seconds=60)  # Prevent spam requests
 def api_create_hire_request():
     """Create a new hire request.
     
@@ -405,6 +521,7 @@ def api_create_hire_request():
 
 
 @app.route("/api/hire-requests/<int:employer_id>", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['employer', 'user', 'admin'])  # Employer or admin access
 def api_get_employer_hire_requests(employer_id):
     """Get all hire requests for a specific employer.
     
@@ -447,6 +564,7 @@ def api_get_employer_hire_requests(employer_id):
 
 
 @app.route("/api/admin/hire-requests", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_all_hire_requests():
     """Get all hire requests for admin panel.
     
@@ -492,6 +610,8 @@ def api_get_all_hire_requests():
 
 
 @app.route("/api/admin/hire-request/respond", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
+@SecurityMiddleware.rate_limit(max_requests=20, window_seconds=60)  # Reasonable limit for admin actions
 def api_respond_to_hire_request():
     """Admin responds to a hire request (accept or reject).
     
@@ -544,6 +664,7 @@ def api_respond_to_hire_request():
 
 
 @app.route("/api/admin/dashboard/stats", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_dashboard_stats():
     """Get dashboard statistics for admin panel.
     
@@ -586,6 +707,7 @@ def api_get_dashboard_stats():
 
 
 @app.route("/api/admin/dashboard/recent-activity", methods=["GET"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_recent_activity():
     """Get recent activity for admin dashboard.
     
@@ -796,6 +918,7 @@ def api_create_job():
 
 
 @app.route("/api/jobs/<int:job_id>", methods=["DELETE"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_delete_job(job_id):
     """Delete a job (admin only).
 
@@ -959,6 +1082,7 @@ def home():
     return jsonify({"ok": True, "service": "full_api"})
 
 @app.route("/insert_employee", methods=["POST"])
+@SecurityMiddleware.rate_limit(max_requests=5, window_seconds=300)  # 5 applications per 5 minutes
 def insert_employee():
     """
     Insert new employee with CV processing.
@@ -1229,6 +1353,8 @@ def get_employee(emp_id):
 
 
 @app.route("/api/employee/<int:emp_id>/update_cv", methods=["POST"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
+@SecurityMiddleware.rate_limit(max_requests=10, window_seconds=60)  # Reasonable limit
 def update_employee_cv(emp_id):
     """
     Replace CV for an existing employee; accepts file upload (cv) or cv_url (JSON/form).
@@ -1301,6 +1427,7 @@ def update_employee_cv(emp_id):
 
 
 @app.route("/api/employee/<int:emp_id>", methods=["DELETE"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def delete_employee(emp_id):
     """Delete an employee by ID."""
     try:
@@ -1324,6 +1451,7 @@ def delete_employee(emp_id):
 
 
 @app.route("/api/employer/<int:employer_id>", methods=["DELETE"])
+@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def delete_employer(employer_id):
     """Delete an employer/company by ID."""
     try:
