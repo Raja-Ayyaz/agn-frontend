@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Eye, EyeOff, ArrowRight, Phone, Mail, MapPin, Linkedin, Twitter, Check, BarChart2, Users, Briefcase, FileText, TrendingUp } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import NavBar from "../shared/NavBar"
@@ -15,6 +15,18 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    const adminAuth = localStorage.getItem('agn_admin_authenticated');
+    const employerAuth = localStorage.getItem('agn_employer_authenticated');
+    
+    if (adminAuth === '1') {
+      navigate('/admin/panel', { replace: true });
+    } else if (employerAuth === '1') {
+      navigate('/employer-dashboard', { replace: true });
+    }
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -71,7 +83,6 @@ export default function AdminLogin() {
       setError("Invalid credentials or account role not recognized")
       setLoading(false)
     } catch (err) {
-      console.error(err)
       setError("An error occurred. Please try again.")
       setLoading(false)
     }

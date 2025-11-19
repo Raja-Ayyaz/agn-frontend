@@ -106,6 +106,47 @@ export default function ManageEmployees() {
     input.click()
   }
 
+  async function handleWhatsAppShare(emp) {
+    // emp is the employee row object
+    try {
+      const cvLink = emp?.masked_cv || emp?.cv
+      if (!cvLink) {
+        showToast("error", `No CV available for ${emp?.name || 'this employee'}`)
+        return
+      }
+
+  const message = `CV of ${emp?.name || ''}%0A${cvLink}`
+      // Copy to clipboard (best-effort)
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(cvLink)
+          showToast("success", "CV link copied to clipboard")
+        } else {
+          // Fallback copy
+          const ta = document.createElement('textarea')
+          ta.value = cvLink
+          ta.style.position = 'fixed'
+          ta.style.left = '-9999px'
+          document.body.appendChild(ta)
+          ta.select()
+          document.execCommand('copy')
+          document.body.removeChild(ta)
+          showToast("success", "CV link copied to clipboard")
+        }
+      } catch (err) {
+        // Non-fatal: just notify user
+        showToast("info", "Could not copy automatically — WhatsApp will open with the link")
+      }
+
+      // Open WhatsApp (works for mobile app and web)
+      const encoded = encodeURIComponent(`CV of ${emp?.name || ''}\n${cvLink}`)
+      const whatsappUrl = `https://wa.me/?text=${encoded}`
+      window.open(whatsappUrl, '_blank')
+    } catch (err) {
+      showToast("error", `WhatsApp share error: ${err?.message || err}`)
+    }
+  }
+
   async function handleDeleteEmployee(empId, empName) {
     if (!confirm(`Are you sure you want to delete employee "${empName}"? This action cannot be undone.`)) {
       return
@@ -186,19 +227,15 @@ export default function ManageEmployees() {
   }
 
   const columns = [
-    { key: "employee_id", label: "ID" },
     { key: "name", label: "Name" },
     { key: "age", label: "Age" },
-    { key: "email", label: "Email" },
     { key: "mobile_no", label: "Mobile No" },
     { key: "location", label: "Location" },
     { key: "nearest_route", label: "Nearest Route" },
-    { key: "cnic_no", label: "CNIC No" },
     { key: "educational_profile", label: "Educational Profile" },
     { key: "recent_completed_education", label: "Recent Education" },
     { key: "field", label: "Field" },
     { key: "experience", label: "Experience" },
-    { key: "experience_detail", label: "Experience Detail" },
     { key: "cv", label: "CV" },
     { key: "masked_cv", label: "Masked CV" },
   ]
@@ -364,6 +401,12 @@ export default function ManageEmployees() {
                           <Upload size={14} /> Update CV
                         </button>
                         <button
+                          onClick={() => handleWhatsAppShare(row)}
+                          className="flex-1 bg-emerald-500 text-white px-3 py-2 rounded-lg font-semibold hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs shadow-md"
+                        >
+                          <span className="text-sm">📲</span> Share
+                        </button>
+                        <button
                           onClick={() => handleDeleteEmployee(row.employee_id, row.name)}
                           className="flex-1 bg-red-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-red-700 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs shadow-md"
                         >
@@ -423,6 +466,12 @@ export default function ManageEmployees() {
                               className="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 text-xs shadow-md hover:shadow-lg"
                             >
                               <Upload size={14} /> Update CV
+                            </button>
+                            <button
+                              onClick={() => handleWhatsAppShare(row)}
+                              className="bg-emerald-500 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-emerald-600 transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 text-xs shadow-md hover:shadow-lg"
+                            >
+                              <span className="text-sm">📲</span> Share
                             </button>
                             <button
                               onClick={() => handleDeleteEmployee(row.employee_id, row.name)}

@@ -81,7 +81,6 @@ export default function HirePage() {
         setError(result.error || "Registration failed")
       }
     } catch (err) {
-      console.error("Error:", err)
       setError(err.message || "An error occurred during registration")
     } finally {
       setLoading(false)

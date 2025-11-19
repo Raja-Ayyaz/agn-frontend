@@ -20,7 +20,6 @@ export default function ManageJobs() {
       if (json && json.ok) setJobs(json.jobs || [])
       else setJobs([])
     } catch (err) {
-      console.error("Failed to load jobs", err)
       setJobs([])
     }
   }
@@ -57,7 +56,6 @@ export default function ManageJobs() {
         showToast('error', msg)
       }
     } catch (err) {
-      console.error(err)
       showToast('error', err && err.message ? err.message : 'An error occurred while creating the job')
     } finally {
       setLoading(false)
@@ -80,7 +78,6 @@ export default function ManageJobs() {
         showToast('error', msg)
       }
     } catch (err) {
-      console.error(err)
       showToast('error', err && err.message ? err.message : 'An error occurred while deleting the job')
     } finally {
       setLoading(false)

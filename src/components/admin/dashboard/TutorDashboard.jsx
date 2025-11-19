@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import {
   Users,
-  Briefcase,
+  GraduationCap,
   MapPin,
   Clock,
   CheckCircle,
@@ -13,13 +13,17 @@ import {
   Building2,
   FileText,
   X,
+  BookOpen,
+  Phone,
 } from "lucide-react"
-import { getAllHireRequests, respondToHireRequest } from "../../../Api/Service/apiService"
+import CONFIG from "../../../Api/Config/config"
 
-export default function HireRequests() {
+export default function TutorDashboard() {
   const [allRequests, setAllRequests] = useState([])
+  const [allTeachers, setAllTeachers] = useState([])
   const [filteredRequests, setFilteredRequests] = useState([])
   const [loading, setLoading] = useState(true)
+  const [teachersLoading, setTeachersLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState("all")
   const [responseModal, setResponseModal] = useState(false)
   const [selectedRequest, setSelectedRequest] = useState(null)
@@ -36,6 +40,7 @@ export default function HireRequests() {
 
   useEffect(() => {
     fetchAllRequests()
+    fetchAllTeachers()
   }, [])
 
   useEffect(() => {
@@ -49,17 +54,42 @@ export default function HireRequests() {
   const fetchAllRequests = async () => {
     setLoading(true)
     try {
-      const response = await getAllHireRequests()
-      if (response && response.ok) {
-        setAllRequests(response.requests || [])
-        setFilteredRequests(response.requests || [])
+      const token = localStorage.getItem('agn_auth_token')
+      const response = await fetch(`${CONFIG.BASE_URL}/api/admin/tutor-requests`, {
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      })
+      const data = await response.json()
+      
+      if (data && data.ok) {
+        setAllRequests(data.requests || [])
+        setFilteredRequests(data.requests || [])
       } else {
-        showToast("error", response?.error || "Failed to load hire requests")
+        showToast("error", data?.error || "Failed to load tutor requests")
       }
     } catch (error) {
-      showToast("error", "Failed to load hire requests")
+      showToast("error", "Failed to load tutor requests")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchAllTeachers = async () => {
+    setTeachersLoading(true)
+    try {
+      const response = await fetch(`${CONFIG.BASE_URL}/api/employees/teachers`)
+      const data = await response.json()
+      
+      if (data && data.ok) {
+        setAllTeachers(data.rows || [])
+      } else {
+        showToast("error", data?.error || "Failed to load teachers")
+      }
+    } catch (error) {
+      showToast("error", "Failed to load teachers")
+    } finally {
+      setTeachersLoading(false)
     }
   }
 
@@ -86,19 +116,29 @@ export default function HireRequests() {
     setSubmitting(true)
     try {
       const newStatus = responseAction === "accept" ? "accepted" : "rejected"
+      const token = localStorage.getItem('agn_auth_token')
 
-      const response = await respondToHireRequest({
-        request_id: selectedRequest.request_id,
-        status: newStatus,
-        response_message: responseMessage.trim(),
+      const response = await fetch(`${CONFIG.BASE_URL}/api/admin/tutor-request/respond`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: JSON.stringify({
+          request_id: selectedRequest.id,
+          status: newStatus,
+          admin_response: responseMessage.trim(),
+        }),
       })
 
-      if (response && response.ok) {
+      const data = await response.json()
+
+      if (data && data.ok) {
         showToast("success", `Request ${newStatus} successfully!`)
         closeResponseModal()
         fetchAllRequests()
       } else {
-        showToast("error", response?.error || "Failed to update request")
+        showToast("error", data?.error || "Failed to update request")
       }
     } catch (error) {
       showToast("error", "Failed to submit response")
@@ -133,6 +173,45 @@ export default function HireRequests() {
     }
   }
 
+  const handleWhatsAppShare = async (teacher) => {
+    try {
+      const cvLink = teacher?.masked_cv || teacher?.cv
+      if (!cvLink) {
+        showToast("error", `No CV available for ${teacher?.name || 'this teacher'}`)
+        return
+      }
+
+      // Copy to clipboard (best-effort)
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(cvLink)
+          showToast("success", "CV link copied to clipboard")
+        } else {
+          // Fallback copy
+          const ta = document.createElement('textarea')
+          ta.value = cvLink
+          ta.style.position = 'fixed'
+          ta.style.left = '-9999px'
+          document.body.appendChild(ta)
+          ta.select()
+          document.execCommand('copy')
+          document.body.removeChild(ta)
+          showToast("success", "CV link copied to clipboard")
+        }
+      } catch (err) {
+        // Non-fatal: just notify user
+        showToast("info", "Could not copy automatically — WhatsApp will open with the link")
+      }
+
+      // Open WhatsApp (works for mobile app and web)
+      const encoded = encodeURIComponent(`CV of ${teacher?.name || ''}\n${cvLink}`)
+      const whatsappUrl = `https://wa.me/?text=${encoded}`
+      window.open(whatsappUrl, '_blank')
+    } catch (err) {
+      showToast("error", `WhatsApp share error: ${err?.message || err}`)
+    }
+  }
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A"
     const date = new Date(dateString)
@@ -155,15 +234,87 @@ export default function HireRequests() {
       <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 md:gap-4">
           <div>
-            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-black mb-1 sm:mb-2">Hire Requests Management</h2>
-            <p className="text-xs sm:text-sm md:text-base text-slate-600">Review and respond to employer hire requests</p>
+            <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-black mb-1 sm:mb-2 flex items-center gap-2">
+              <GraduationCap className="text-orange" size={28} />
+              Tutor Hiring Dashboard
+            </h2>
+            <p className="text-xs sm:text-sm md:text-base text-slate-600">Manage tutor hire requests and available teachers</p>
           </div>
           <button
-            onClick={fetchAllRequests}
+            onClick={() => {
+              fetchAllRequests()
+              fetchAllTeachers()
+            }}
             className="bg-orange hover:opacity-90 text-dark font-black px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 lg:py-3 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm md:text-base w-full sm:w-auto"
           >
             Refresh
           </button>
+        </div>
+      </div>
+
+      {/* Available Teachers Section */}
+      <div className="mb-3 sm:mb-4 md:mb-6 lg:mb-8">
+        <div className="bg-white rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 border-2 border-slate-200 shadow-lg">
+          <div className="flex items-center gap-2 mb-3 sm:mb-4 md:mb-5">
+            <Users className="text-blue-600" size={20} />
+            <h3 className="text-base sm:text-lg md:text-xl font-black text-black">Available Teachers</h3>
+            <span className="ml-auto bg-blue-100 text-blue-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-black">
+              {allTeachers.length} Teachers
+            </span>
+          </div>
+
+          {teachersLoading ? (
+            <div className="flex items-center justify-center py-8 sm:py-12">
+              <div className="w-8 sm:w-10 h-8 sm:h-10 border-4 border-orange border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : allTeachers.length === 0 ? (
+            <div className="text-center py-8 sm:py-12">
+              <GraduationCap className="mx-auto text-slate-400 mb-3" size={40} />
+              <p className="text-sm text-slate-600">No teachers found in the system</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+              {allTeachers.slice(0, 6).map((teacher) => (
+                <div
+                  key={teacher.employee_id}
+                  className="bg-blue-50 border-2 border-blue-200 rounded-xl p-2 sm:p-3 md:p-4 hover:shadow-md transition-all duration-300"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1">
+                      <h4 className="font-black text-black text-sm sm:text-base mb-1">{teacher.name}</h4>
+                      <p className="text-xs text-slate-600 font-semibold">{teacher.field || "Teacher"}</p>
+                    </div>
+                    <div className="bg-blue-600 text-white p-1.5 rounded-full">
+                      <GraduationCap size={14} />
+                    </div>
+                  </div>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center gap-1 text-slate-700">
+                      <MapPin size={12} />
+                      <span>{teacher.location || "N/A"}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-slate-700">
+                      <BookOpen size={12} />
+                      <span>{teacher.experience || "N/A"}</span>
+                    </div>
+                  </div>
+                  {(teacher.cv || teacher.masked_cv) && (
+                    <button
+                      onClick={() => handleWhatsAppShare(teacher)}
+                      className="w-full mt-2 bg-emerald-500 text-white px-2 py-1.5 rounded-lg font-semibold hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs shadow-md"
+                    >
+                      <span className="text-sm">📲</span> Share CV
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          {allTeachers.length > 6 && (
+            <p className="text-center text-xs text-slate-500 mt-3">
+              Showing 6 of {allTeachers.length} teachers. Go to Manage Employees to see all.
+            </p>
+          )}
         </div>
       </div>
 
@@ -172,7 +323,7 @@ export default function HireRequests() {
         <div className="bg-white rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 border-2 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300">
           <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-1 sm:mb-2">
             <FileText className="text-blue-600" size={16} />
-            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Total</span>
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Total Requests</span>
           </div>
           <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-black">{allRequests.length}</p>
         </div>
@@ -181,11 +332,11 @@ export default function HireRequests() {
           className="bg-light rounded-xl p-2 sm:p-3 md:p-4 lg:p-5 xl:p-6 border-2 border-orange shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer transform hover:scale-105"
           onClick={() => setFilterStatus("pending")}
         >
-            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-1 sm:mb-2">
-              <Clock className="text-orange" size={16} />
-              <span className="text-xs sm:text-sm text-slate-600 font-semibold">Pending</span>
-            </div>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-orange">{pendingCount}</p>
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 mb-1 sm:mb-2">
+            <Clock className="text-orange" size={16} />
+            <span className="text-xs sm:text-sm text-slate-600 font-semibold">Pending</span>
+          </div>
+          <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-orange">{pendingCount}</p>
         </div>
 
         <div
@@ -265,19 +416,19 @@ export default function HireRequests() {
           <div className="text-center py-12 sm:py-16 md:py-20 px-2 sm:px-4">
             <FileText className="mx-auto text-slate-400 mb-3 sm:mb-4" size={48} />
             <h4 className="text-base sm:text-lg md:text-xl font-black text-slate-700 mb-1 sm:mb-2">
-              No {filterStatus !== "all" ? filterStatus : ""} Requests Found
+              No {filterStatus !== "all" ? filterStatus : ""} Tutor Requests Found
             </h4>
             <p className="text-xs sm:text-sm md:text-base text-slate-500">
               {filterStatus === "all"
-                ? "No hire requests have been submitted yet."
+                ? "No tutor hire requests have been submitted yet."
                 : `No ${filterStatus} requests to display.`}
             </p>
           </div>
         ) : (
           <div className="divide-y divide-slate-200">
             {filteredRequests.map((request, index) => (
-                <div
-                key={request.request_id || index}
+              <div
+                key={request.id || index}
                 className="p-2 sm:p-3 md:p-4 lg:p-6 hover:bg-slate-50 transition-all duration-300 border-l-4 border-transparent hover:border-orange"
               >
                 <div className="flex items-start justify-between mb-2 sm:mb-3 md:mb-4">
@@ -289,53 +440,69 @@ export default function HireRequests() {
                         {getStatusIcon(request.status)}
                         <span className="uppercase">{request.status}</span>
                       </div>
-                      <span className="text-xs sm:text-sm text-slate-500 font-semibold">Request #{request.request_id}</span>
+                      <span className="text-xs sm:text-sm text-slate-500 font-semibold">Request #{request.id}</span>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
-                      {/* Employer Details */}
-                      <div className="bg-blue-50 rounded-xl p-2 sm:p-3 md:p-4 border-2 border-blue-200">
+                      {/* Requester Details */}
+                      <div className="bg-purple-50 rounded-xl p-2 sm:p-3 md:p-4 border-2 border-purple-200">
                         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-2 sm:mb-3">
-                          <Building2 className="text-blue-600" size={16} />
-                          <h4 className="font-black text-black text-xs sm:text-sm md:text-base">Employer Details</h4>
-                        </div>
-                        <div className="space-y-1 sm:space-y-1.5 md:space-y-2 text-xs sm:text-sm">
-                          <div>
-                            <span className="text-slate-600 font-semibold">Company:</span>
-                            <p className="text-black font-bold">{request.employer_company || "N/A"}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-600 font-semibold">Contact:</span>
-                            <p className="text-black font-bold">{request.employer_username || "N/A"}</p>
-                          </div>
-                          <div>
-                            <span className="text-slate-600 font-semibold">Email:</span>
-                            <p className="text-black font-bold text-xs break-all">{request.employer_email || "N/A"}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Employee Details */}
-                      <div className="bg-emerald-50 rounded-xl p-2 sm:p-3 md:p-4 border-2 border-emerald-200">
-                        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-2 sm:mb-3">
-                          <Users className="text-emerald-600" size={16} />
-                          <h4 className="font-black text-black text-xs sm:text-sm md:text-base">Candidate Details</h4>
+                          <Building2 className="text-purple-600" size={16} />
+                          <h4 className="font-black text-black text-xs sm:text-sm md:text-base">Requester Details</h4>
                         </div>
                         <div className="space-y-1 sm:space-y-1.5 md:space-y-2 text-xs sm:text-sm">
                           <div>
                             <span className="text-slate-600 font-semibold">Name:</span>
-                            <p className="text-black font-bold">{request.employee_name || "N/A"}</p>
+                            <p className="text-black font-bold">{request.requester_name || "N/A"}</p>
                           </div>
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-2 md:gap-4">
-                            <div className="flex items-center gap-1">
-                              <Briefcase size={12} className="text-emerald-600" />
-                              <span className="text-black font-bold">{request.employee_field || "N/A"}</span>
+                          <div>
+                            <span className="text-slate-600 font-semibold">Company:</span>
+                            <p className="text-black font-bold">{request.requester_company || "N/A"}</p>
+                          </div>
+                          <div>
+                            <span className="text-slate-600 font-semibold">Email:</span>
+                            <p className="text-black font-bold text-xs break-all">{request.requester_email || "N/A"}</p>
+                          </div>
+                          {request.requester_phone && (
+                            <div>
+                              <span className="text-slate-600 font-semibold">Phone:</span>
+                              <p className="text-black font-bold">{request.requester_phone}</p>
                             </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Requirements */}
+                      <div className="bg-emerald-50 rounded-xl p-2 sm:p-3 md:p-4 border-2 border-emerald-200">
+                        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-2 sm:mb-3">
+                          <GraduationCap className="text-emerald-600" size={16} />
+                          <h4 className="font-black text-black text-xs sm:text-sm md:text-base">Requirements</h4>
+                        </div>
+                        <div className="space-y-1 sm:space-y-1.5 md:space-y-2 text-xs sm:text-sm">
+                          {request.subject && (
+                            <div>
+                              <span className="text-slate-600 font-semibold">Subject:</span>
+                              <p className="text-black font-bold">{request.subject}</p>
+                            </div>
+                          )}
+                          {request.preferred_teacher_field && (
+                            <div>
+                              <span className="text-slate-600 font-semibold">Field:</span>
+                              <p className="text-black font-bold">{request.preferred_teacher_field}</p>
+                            </div>
+                          )}
+                          {request.preferred_experience && (
+                            <div>
+                              <span className="text-slate-600 font-semibold">Experience:</span>
+                              <p className="text-black font-bold">{request.preferred_experience}</p>
+                            </div>
+                          )}
+                          {request.location && (
                             <div className="flex items-center gap-1">
                               <MapPin size={12} className="text-emerald-600" />
-                              <span className="text-black font-bold">{request.employee_location || "N/A"}</span>
+                              <span className="text-black font-bold">{request.location}</span>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -347,40 +514,38 @@ export default function HireRequests() {
                           <Clock size={14} className="text-slate-600" />
                           <span className="text-xs text-slate-600 font-semibold">Request Sent</span>
                         </div>
-                        <p className="text-xs sm:text-sm font-black text-black">{formatDate(request.request_date)}</p>
+                        <p className="text-xs sm:text-sm font-black text-black">{formatDate(request.created_at)}</p>
                       </div>
-                      {request.response_date && (
+                      {request.updated_at && request.status !== "pending" && (
                         <div className="bg-slate-50 rounded-lg p-2 sm:p-2.5 md:p-3 border-2 border-slate-200">
                           <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-0.5 sm:mb-1">
                             <Clock size={14} className="text-slate-600" />
                             <span className="text-xs text-slate-600 font-semibold">Response Date</span>
                           </div>
-                          <p className="text-xs sm:text-sm font-black text-black">{formatDate(request.response_date)}</p>
+                          <p className="text-xs sm:text-sm font-black text-black">{formatDate(request.updated_at)}</p>
                         </div>
                       )}
                     </div>
 
                     {/* Request Message */}
                     {request.message && (
-                      <div
-                        className={`mt-2 sm:mt-3 md:mt-4 rounded-xl p-2 sm:p-3 md:p-4 border-2 ${
-                          request.status === "pending" ? "bg-white border-slate-300" : "bg-blue-50 border-blue-300"
-                        }`}
-                      >
+                      <div className="mt-2 sm:mt-3 md:mt-4 rounded-xl p-2 sm:p-3 md:p-4 border-2 bg-white border-slate-300">
                         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-1 sm:mb-1.5 md:mb-2">
-                          <Mail
-                            size={14}
-                            className={request.status === "pending" ? "text-slate-600" : "text-blue-600"}
-                          />
-                          <span
-                            className={`text-xs font-semibold ${
-                              request.status === "pending" ? "text-slate-600" : "text-blue-600"
-                            }`}
-                          >
-                            {request.status === "pending" ? "Employer's Message" : "Admin Response"}
-                          </span>
+                          <Mail size={14} className="text-slate-600" />
+                          <span className="text-xs font-semibold text-slate-600">Request Message</span>
                         </div>
                         <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{request.message}</p>
+                      </div>
+                    )}
+
+                    {/* Admin Response */}
+                    {request.admin_response && request.status !== "pending" && (
+                      <div className="mt-2 sm:mt-3 md:mt-4 rounded-xl p-2 sm:p-3 md:p-4 border-2 bg-blue-50 border-blue-300">
+                        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-1 sm:mb-1.5 md:mb-2">
+                          <Mail size={14} className="text-blue-600" />
+                          <span className="text-xs font-semibold text-blue-600">Admin Response</span>
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">{request.admin_response}</p>
                       </div>
                     )}
                   </div>
@@ -411,7 +576,7 @@ export default function HireRequests() {
         )}
       </div>
 
-      {/* Response Modal - Fixed positioning to center and ensure proper z-index stacking */}
+      {/* Response Modal */}
       {responseModal && selectedRequest && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-3 md:p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl animate-in zoom-in-95 duration-300 max-h-[95vh] flex flex-col">
@@ -426,10 +591,10 @@ export default function HireRequests() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white mb-1 sm:mb-2">
-                    {responseAction === "accept" ? "Accept" : "Reject"} Hire Request
+                    {responseAction === "accept" ? "Accept" : "Reject"} Tutor Request
                   </h3>
                   <p className="text-white text-xs sm:text-sm font-semibold">
-                    Request #{selectedRequest.request_id} - {selectedRequest.employee_name}
+                    Request #{selectedRequest.id} - {selectedRequest.requester_name}
                   </p>
                 </div>
                 <button
@@ -448,20 +613,20 @@ export default function HireRequests() {
               <div className="bg-slate-50 rounded-xl p-2 sm:p-3 md:p-4 border-2 border-slate-200">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
                   <div>
-                    <span className="text-slate-600 font-semibold">Employer:</span>
-                    <p className="text-black font-bold">{selectedRequest.employer_company}</p>
+                    <span className="text-slate-600 font-semibold">Requester:</span>
+                    <p className="text-black font-bold">{selectedRequest.requester_name}</p>
                   </div>
                   <div>
-                    <span className="text-slate-600 font-semibold">Candidate:</span>
-                    <p className="text-black font-bold">{selectedRequest.employee_name}</p>
+                    <span className="text-slate-600 font-semibold">Company:</span>
+                    <p className="text-black font-bold">{selectedRequest.requester_company || "N/A"}</p>
                   </div>
                   <div>
-                    <span className="text-slate-600 font-semibold">Position:</span>
-                    <p className="text-black font-bold">{selectedRequest.employee_field}</p>
+                    <span className="text-slate-600 font-semibold">Subject:</span>
+                    <p className="text-black font-bold">{selectedRequest.subject || "N/A"}</p>
                   </div>
                   <div>
                     <span className="text-slate-600 font-semibold">Location:</span>
-                    <p className="text-black font-bold">{selectedRequest.employee_location}</p>
+                    <p className="text-black font-bold">{selectedRequest.location || "N/A"}</p>
                   </div>
                 </div>
               </div>
@@ -474,7 +639,7 @@ export default function HireRequests() {
                 <textarea
                   value={responseMessage}
                   onChange={(e) => setResponseMessage(e.target.value)}
-                  placeholder={`Enter your ${responseAction === "accept" ? "acceptance" : "rejection"} message to the employer...`}
+                  placeholder={`Enter your ${responseAction === "accept" ? "acceptance" : "rejection"} message to the requester...`}
                   rows={5}
                   className="w-full px-2 sm:px-3 md:px-4 py-2 sm:py-2.5 md:py-3 rounded-lg border-2 border-slate-300 focus:border-orange focus:outline-none transition-all duration-200 font-medium resize-none text-xs sm:text-sm"
                   disabled={submitting}
@@ -482,7 +647,7 @@ export default function HireRequests() {
                 />
                 <p className="text-slate-500 text-xs mt-1 sm:mt-2">
                   {responseAction === "accept"
-                    ? "Provide details about next steps, contact information, or any other relevant information."
+                    ? "Provide details about available teachers, contact information, or next steps."
                     : "Provide a professional reason for the rejection."}
                 </p>
               </div>

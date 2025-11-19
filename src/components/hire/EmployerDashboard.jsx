@@ -46,6 +46,7 @@ export default function EmployerDashboard() {
     localStorage.removeItem("agn_employer_user")
     localStorage.removeItem("agn_employer_authenticated")
     localStorage.removeItem("agn_employer_id")
+    localStorage.removeItem("agn_auth_token")  // Clear JWT token
     sessionStorage.clear()
     // Redirect to home page
     navigate("/")
@@ -87,7 +88,6 @@ export default function EmployerDashboard() {
           setSearchResults({ jobTitle, experience, count: 0, timestamp: new Date().toLocaleTimeString(), rows: [] })
         }
       } catch (err) {
-        console.error("Search error", err)
         setSearchResults({ jobTitle, experience, count: 0, timestamp: new Date().toLocaleTimeString(), rows: [] })
       }
       setSubmitted(true)
@@ -146,7 +146,7 @@ export default function EmployerDashboard() {
           setFieldOptions(Array.from(fieldSet).filter(Boolean).sort())
         }
       } catch (err) {
-        console.error("Failed to load employee options", err)
+        // Silent fail
       }
     })()
     return () => {
@@ -211,7 +211,6 @@ export default function EmployerDashboard() {
         alert(res?.error || "Failed to post job. Please try again.")
       }
     } catch (err) {
-      console.error("Post job error", err)
       alert(err?.message || "Failed to post job. Please try again.")
     } finally {
       setPostingJob(false)
@@ -252,7 +251,6 @@ export default function EmployerDashboard() {
         alert(response?.error || "Failed to create hire request")
       }
     } catch (error) {
-      console.error("Hire request error:", error)
       alert(error.message || "Failed to create hire request. Please try again.")
     } finally {
       setSubmittingHire(false)
@@ -276,7 +274,6 @@ export default function EmployerDashboard() {
         alert(response?.error || "Failed to load hire requests")
       }
     } catch (error) {
-      console.error("Load requests error:", error)
       alert("Failed to load hire requests. Please try again.")
     } finally {
       setLoadingRequests(false)

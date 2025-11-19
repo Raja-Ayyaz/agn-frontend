@@ -2,12 +2,40 @@ import CONFIG from '../Config/config';
 
 const BASE = CONFIG.BASE_URL.replace(/\/$/, '');
 
+// Token management
+const TOKEN_KEY = 'agn_auth_token';
+
+export function saveToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 async function request(path, opts = {}) {
+  // Add auth token to headers if available
+  const token = getToken();
+  if (token) {
+    opts.headers = {
+      ...opts.headers,
+      'Authorization': `Bearer ${token}`
+    };
+  }
+  
   const res = await fetch(`${BASE}${path}`, opts);
   const text = await res.text();
   try {
     const json = text ? JSON.parse(text) : null;
     if (!res.ok) {
+      // If 401 Unauthorized, clear token
+      if (res.status === 401) {
+        clearToken();
+      }
       const err = new Error(json && json.error ? json.error : `Request failed: ${res.status}`);
       err.response = json;
       throw err;
@@ -21,19 +49,33 @@ async function request(path, opts = {}) {
 }
 
 export async function adminLogin(username, password) {
-  return request('/api/admin/login', {
+  const result = await request('/api/admin/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
+  
+  // Save token if provided
+  if (result && result.token) {
+    saveToken(result.token);
+  }
+  
+  return result;
 }
 
 export async function employerLogin(username, password) {
-  return request('/api/employer/login', {
+  const result = await request('/api/employer/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
   });
+  
+  // Save token if provided
+  if (result && result.token) {
+    saveToken(result.token);
+  }
+  
+  return result;
 }
 
 export async function employerSignup({ username, company_name, email, password, phone, location, referance }) {

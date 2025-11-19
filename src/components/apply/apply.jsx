@@ -47,16 +47,21 @@ export default function ApplyPage() {
     applying_for: "",
     experience: "",
     experience_detail: "",
+    subjects: "",
   })
   const [cvFile, setCvFile] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
-  // Prefill applying_for from URL param ?job=...
+  // Prefill applying_for from URL param ?job=... or ?type=teaching
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search)
       const job = params.get('job')
-      if (job) {
+      const type = params.get('type')
+      
+      if (type === 'teaching') {
+        setFormData((f) => ({ ...f, applying_for: 'Teacher' }))
+      } else if (job) {
         setFormData((f) => ({ ...f, applying_for: decodeURIComponent(job) }))
       }
     } catch (e) {
@@ -133,13 +138,10 @@ export default function ApplyPage() {
         clearTimeout(timeoutId)
         const result = await response.json()
         
-        console.log("Response status:", response.status, "Result:", result)
-        
         if (!response.ok) {
           // Backend returned an error (400, 500, etc.)
           // Extract the error message from the JSON response
           const errorMsg = result.error || `Server error: ${response.status}`
-          console.log("Throwing error with message:", errorMsg)
           throw new Error(errorMsg)
         }
         return result
@@ -170,9 +172,6 @@ export default function ApplyPage() {
       })
       .catch((error) => {
         setIsLoading(false)
-        console.log("Caught error:", error)
-        console.log("Error name:", error.name)
-        console.log("Error message:", error.message)
         
         let errorMsg = "Failed to submit application. Please try again or contact support."
         
@@ -187,11 +186,9 @@ export default function ApplyPage() {
           errorMsg = error.message
         }
         
-        console.log("Final error message to display:", errorMsg)
         setResultType('error')
         setResultMessage(errorMsg)
         setShowResultModal(true)
-        console.error("Error:", error)
       })
   }
 
@@ -521,6 +518,29 @@ export default function ApplyPage() {
                   placeholder="Tell us about your relevant experience, key achievements, and why you're interested in this role..."
                 />
               </div>
+
+              {/* Subjects field - only show for teachers */}
+              {(formData.applying_for.toLowerCase().includes('teacher') || 
+                formData.applying_for.toLowerCase().includes('tutor') || 
+                formData.applying_for.toLowerCase().includes('teaching')) && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Subjects You Can Teach <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="subjects"
+                    value={formData.subjects}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-transparent outline-none transition-all"
+                    placeholder="e.g., Mathematics, Physics, Chemistry, English"
+                  />
+                  <p className="text-sm text-gray-500 mt-1">
+                    Enter subjects separated by commas. This helps students find the right teacher.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* CV Upload Section */}

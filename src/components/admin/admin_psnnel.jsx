@@ -13,12 +13,14 @@ import {
   LayoutDashboard,
   Menu,
   Briefcase,
+  GraduationCap,
 } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { getDashboardStats, getRecentActivity } from "../../Api/Service/apiService"
 import ManageEmployees from "./dashboard/ManageEmployees"
 import ManageCompanies from "./dashboard/ManageCompanies"
 import HireRequests from "./dashboard/HireRequests"
+import TutorDashboard from "./dashboard/TutorDashboard"
 import SettingsPanel from "./dashboard/SettingsPanel"
 import ManageJobs from "./dashboard/ManageJobs"
 
@@ -84,12 +86,10 @@ export default function AdminPanel() {
     setLoadingStats(true)
     try {
       const statsResponse = await getDashboardStats()
-      console.log("Dashboard Stats Response:", statsResponse)
       if (statsResponse && statsResponse.ok) {
         setDashboardStats(statsResponse.stats)
       }
     } catch (error) {
-      console.error("Error fetching dashboard stats:", error)
       showToast("error", "Failed to load dashboard statistics")
     } finally {
       setLoadingStats(false)
@@ -99,18 +99,12 @@ export default function AdminPanel() {
     setLoadingActivities(true)
     try {
       const activityResponse = await getRecentActivity()
-      console.log("Recent Activity Response:", activityResponse)
-      console.log("Activities array:", activityResponse?.activities)
-      console.log("Activities length:", activityResponse?.activities?.length)
       if (activityResponse && activityResponse.ok) {
-        console.log("Setting recent activities:", activityResponse.activities)
         setRecentActivities(activityResponse.activities || [])
       } else {
-        console.log("Activity response not ok or missing")
         setRecentActivities([])
       }
     } catch (error) {
-      console.error("Error fetching recent activity:", error)
       showToast("error", "Failed to load recent activity")
       setRecentActivities([])
     } finally {
@@ -173,6 +167,7 @@ export default function AdminPanel() {
   const handleLogout = () => {
     localStorage.removeItem("agn_admin_user")
     localStorage.removeItem("agn_admin_authenticated")
+    localStorage.removeItem("agn_auth_token")  // Clear JWT token
     showToast("success", "Logged out successfully")
     setTimeout(() => navigate("/"), 1000)
   }
@@ -183,6 +178,7 @@ export default function AdminPanel() {
     { id: "companies", label: "Companies", icon: Building2 },
     { id: "jobs", label: "Jobs", icon: Briefcase },
     { id: "hire-requests", label: "Hire Requests", icon: FileText },
+    { id: "tutor-dashboard", label: "Tutor Hiring", icon: GraduationCap },
     { id: "settings", label: "Settings", icon: Settings },
   ]
 
@@ -411,6 +407,8 @@ export default function AdminPanel() {
           {activeSection === "jobs" && <ManageJobs />}
 
           {activeSection === "hire-requests" && <HireRequests />}
+
+          {activeSection === "tutor-dashboard" && <TutorDashboard />}
 
           {activeSection === "settings" && <SettingsPanel />}
           </div>

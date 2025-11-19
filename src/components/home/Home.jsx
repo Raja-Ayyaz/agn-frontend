@@ -231,6 +231,22 @@ export default function Home() {
     } catch (err) {}
   }
 
+  const openApplyTeaching = (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    window.location.href = "/apply?type=teaching"
+    try {
+      window.scrollTo(0, 0)
+    } catch (err) {}
+  }
+
+  const openHireTeacher = (e) => {
+    if (e && e.preventDefault) e.preventDefault()
+    window.location.href = "/tutor-dashboard"
+    try {
+      window.scrollTo(0, 0)
+    } catch (err) {}
+  }
+
   return (
     <div className="min-h-screen bg-light overflow-x-hidden">
   <style>{`
@@ -346,6 +362,42 @@ export default function Home() {
                       style={{ animationDelay: "0.5s" }}
                     >
                       <Search size={18} className="text-dark" />
+                    </div>
+                  </div>
+                </a>
+
+                <a
+                  href="/apply?type=teaching"
+                  onClick={openApplyTeaching}
+                  className="cta-card bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-transparent cursor-pointer block card-animate stagger-3 no-overflow"
+                >
+                  <h3 className="text-lg font-black text-dark mb-2">Apply for Teaching</h3>
+                  <p className="text-muted mb-3 text-sm">Join as a teacher or tutor</p>
+                  <div className="flex items-center justify-between">
+                    <ArrowRight className="text-orange font-bold transition-transform duration-300" size={20} />
+                    <div
+                      className="w-10 h-10 sm:w-12 sm:h-12 bg-light rounded-lg flex items-center justify-center icon-bounce"
+                      style={{ animationDelay: "0.7s" }}
+                    >
+                      <span className="text-dark text-xl">🎓</span>
+                    </div>
+                  </div>
+                </a>
+
+                <a
+                  href="/tutor-dashboard"
+                  onClick={openHireTeacher}
+                  className="cta-card bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-transparent cursor-pointer block card-animate stagger-4 no-overflow"
+                >
+                  <h3 className="text-lg font-black text-dark mb-2">Hire a Teacher</h3>
+                  <p className="text-muted mb-3 text-sm">Find qualified tutors</p>
+                  <div className="flex items-center justify-between">
+                    <ArrowRight className="text-orange font-bold transition-transform duration-300" size={20} />
+                    <div
+                      className="w-10 h-10 sm:w-12 sm:h-12 bg-light rounded-lg flex items-center justify-center icon-bounce"
+                      style={{ animationDelay: "0.9s" }}
+                    >
+                      <span className="text-dark text-xl">📚</span>
                     </div>
                   </div>
                 </a>
