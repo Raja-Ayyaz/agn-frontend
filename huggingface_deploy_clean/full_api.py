@@ -664,7 +664,6 @@ def api_respond_to_hire_request():
 
 
 @app.route("/api/admin/dashboard/stats", methods=["GET"])
-@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_dashboard_stats():
     """Get dashboard statistics for admin panel.
     
@@ -707,7 +706,6 @@ def api_get_dashboard_stats():
 
 
 @app.route("/api/admin/dashboard/recent-activity", methods=["GET"])
-@SecurityMiddleware.require_auth(roles=['admin'])  # Admin only
 def api_get_recent_activity():
     """Get recent activity for admin dashboard.
     
