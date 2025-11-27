@@ -32,7 +32,7 @@ import { useRef } from "react"
 function JobsCarousel() {
   const [jobs, setJobs] = useState([])
   const [groupIndex, setGroupIndex] = useState(0)
-  const [visible, setVisible] = useState(3)
+  const [visible, setVisible] = useState(4) // Default to 4 for desktop
   const [isPaused, setIsPaused] = useState(false)
   const timer = useRef(null)
 
@@ -43,7 +43,11 @@ function JobsCarousel() {
         const { getJobs } = await import("../../Api/Service/apiService")
         const json = await getJobs()
         if (!cancelled) {
-          if (json && json.ok) setJobs(json.jobs || [])
+          if (json && json.ok) {
+            // Reverse to show newest jobs first
+            const jobsList = json.jobs || []
+            setJobs(jobsList.reverse())
+          }
           else setJobs([])
         }
       } catch (err) {
@@ -76,10 +80,14 @@ function JobsCarousel() {
 
   // auto-advance
   useEffect(() => {
-    if (isPaused) return
-    if (!jobs || jobs.length === 0) return
+    if (isPaused || !jobs || jobs.length === 0) {
+      if (timer.current) clearInterval(timer.current)
+      return
+    }
     timer.current = setInterval(() => setGroupIndex((g) => (g + 1) % groupCount), 4200)
-    return () => clearInterval(timer.current)
+    return () => {
+      if (timer.current) clearInterval(timer.current)
+    }
   }, [jobs, visible, isPaused, groupCount])
 
   if (!jobs || jobs.length === 0) {
@@ -96,18 +104,18 @@ function JobsCarousel() {
       <div className="overflow-hidden rounded-2xl bg-transparent">
         <div
           className="flex transition-transform duration-600 ease-in-out"
-          style={{ width: `${groupCount * 100}%`, transform: `translateX(-${groupIndex * (100 / groupCount)}%)` }}
+          style={{ transform: `translateX(-${groupIndex * 100}%)` }}
         >
           {groups.map((group, gi) => (
-            <div key={gi} className="w-full flex gap-4 p-4 box-border" style={{ width: `${100 / groupCount}%` }}>
+            <div key={gi} className="min-w-full flex gap-4 p-4 box-border flex-shrink-0">
               {group.map((job, i) => (
                 <article
                   key={job.job_id || job.id || `${gi}-${i}`}
-                  className="job-card bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-100 flex-1 min-h-[160px] max-h-[260px] overflow-hidden flex flex-col"
+                  className="job-card bg-white rounded-2xl p-5 sm:p-6 shadow-md border border-gray-100 flex-1 min-w-0 max-w-full h-[240px] overflow-hidden flex flex-col"
                 >
                   <div className="mb-2">
                     <div className="flex items-start justify-between mb-1 gap-2">
-                      <h3 className="text-base sm:text-lg font-black leading-tight break-words flex-1">{job.name}</h3>
+                      <h3 className="text-base sm:text-lg font-black leading-tight break-words flex-1 min-w-0">{job.name}</h3>
                       {job.created_at && (
                         <span className="text-xs text-slate-400 whitespace-nowrap flex-shrink-0">
                           {new Date(job.created_at).toLocaleDateString('en-US', { 
@@ -130,8 +138,9 @@ function JobsCarousel() {
                   </div>
                 </article>
               ))}
+              {/* Fill empty spaces to maintain grid layout */}
               {Array.from({ length: Math.max(0, visible - group.length) }).map((_, k) => (
-                <div key={`empty-${k}`} className="hidden sm:block flex-1" />
+                <div key={`empty-${k}`} className="flex-1 min-w-0" />
               ))}
             </div>
           ))}

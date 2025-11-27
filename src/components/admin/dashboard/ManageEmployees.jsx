@@ -48,11 +48,45 @@ export default function ManageEmployees() {
     return !!viewedCVs[key]
   }
 
-  // Handle CV link click
-  const handleCVClick = (url, empId, cvType) => {
-    if (url) {
-      markCVAsViewed(empId, cvType)
-      window.open(url, '_blank')
+  // Handle CV view - opens in new tab
+  const handleCVView = (url, empId, cvType) => {
+    if (!url) return
+    markCVAsViewed(empId, cvType)
+    window.open(url, '_blank')
+  }
+
+  // Handle CV download with proper filename
+  const handleCVDownload = async (emp) => {
+    const url = emp.masked_cv || emp.cv
+    if (!url) {
+      showToast("error", "No CV available to download")
+      return
+    }
+    
+    try {
+      // Create proper filename
+      const cleanName = (emp.name || 'Employee').replace(/[^a-zA-Z0-9]/g, '_')
+      const extension = url.toLowerCase().includes('.docx') ? '.docx' : '.pdf'
+      const filename = `${cleanName}_CV${extension}`
+      
+      showToast("info", "Downloading CV...")
+      
+      // Fetch and download with proper name
+      const response = await fetch(url)
+      const blob = await response.blob()
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+      
+      showToast("success", `Downloaded: ${filename}`)
+    } catch (err) {
+      showToast("error", "Download failed. Please try again.")
+      console.error('Download error:', err)
     }
   }
 
@@ -379,25 +413,6 @@ export default function ManageEmployees() {
                           <span className="text-xs font-bold text-slate-600 min-w-[60px]">Field:</span>
                           <span className="text-xs text-slate-800">{row.field || "-"}</span>
                         </div>
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs font-bold text-slate-600 min-w-[60px]">CV:</span>
-                          {row.cv ? (
-                            <button
-                              onClick={() => handleCVClick(row.cv, row.employee_id, 'original')}
-                              className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1.5"
-                            >
-                              <span 
-                                className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                                  isCVViewed(row.employee_id, 'original') ? 'bg-emerald-500' : 'bg-red-500'
-                                }`}
-                                title={isCVViewed(row.employee_id, 'original') ? 'Viewed' : 'Not viewed'}
-                              />
-                              View CV
-                            </button>
-                          ) : (
-                            <span className="text-xs text-slate-400">No CV</span>
-                          )}
-                        </div>
                       </div>
 
                       {/* Expandable Details */}
@@ -434,11 +449,28 @@ export default function ManageEmployees() {
                             <span className="text-xs font-bold text-slate-600 min-w-[100px]">Experience:</span>
                             <span className="text-xs text-slate-800">{row.experience || "-"}</span>
                           </div>
+                          {row.cv && (
+                            <div className="flex gap-2">
+                              <span className="text-xs font-bold text-slate-600 min-w-[100px]">Original CV:</span>
+                              <button
+                                onClick={() => handleCVView(row.cv, row.employee_id, 'original')}
+                                className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1.5"
+                              >
+                                <span 
+                                  className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                    isCVViewed(row.employee_id, 'original') ? 'bg-emerald-500' : 'bg-red-500'
+                                  }`}
+                                  title={isCVViewed(row.employee_id, 'original') ? 'Viewed' : 'Not viewed'}
+                                />
+                                View
+                              </button>
+                            </div>
+                          )}
                           {row.masked_cv && (
                             <div className="flex gap-2">
                               <span className="text-xs font-bold text-slate-600 min-w-[100px]">Masked CV:</span>
                               <button
-                                onClick={() => handleCVClick(row.masked_cv, row.employee_id, 'masked')}
+                                onClick={() => handleCVView(row.masked_cv, row.employee_id, 'masked')}
                                 className="text-xs text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-1.5"
                               >
                                 <span 
@@ -447,7 +479,7 @@ export default function ManageEmployees() {
                                   }`}
                                   title={isCVViewed(row.employee_id, 'masked') ? 'Viewed' : 'Not viewed'}
                                 />
-                                View Masked
+                                View
                               </button>
                             </div>
                           )}
@@ -460,7 +492,14 @@ export default function ManageEmployees() {
                           onClick={() => updateCvForEmployee(row.employee_id)}
                           className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs shadow-md"
                         >
-                          <Upload size={14} /> Update CV
+                          <Upload size={14} /> Update
+                        </button>
+                        <button
+                          onClick={() => handleCVDownload(row)}
+                          className="flex-1 bg-purple-600 text-white px-3 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 flex items-center justify-center gap-1.5 text-xs shadow-md"
+                          disabled={!row.masked_cv && !row.cv}
+                        >
+                          <Download size={14} /> Download
                         </button>
                         <button
                           onClick={() => handleWhatsAppShare(row)}
@@ -506,7 +545,7 @@ export default function ManageEmployees() {
                             {col.key === "cv" || col.key === "masked_cv" ? (
                               row[col.key] ? (
                                 <button
-                                  onClick={() => handleCVClick(row[col.key], row.employee_id, col.key === 'cv' ? 'original' : 'masked')}
+                                  onClick={() => handleCVView(row[col.key], row.employee_id, col.key === 'cv' ? 'original' : 'masked')}
                                   className="text-blue-600 hover:text-blue-800 underline font-semibold flex items-center gap-2"
                                 >
                                   <span 
@@ -531,7 +570,14 @@ export default function ManageEmployees() {
                               onClick={() => updateCvForEmployee(row.employee_id)}
                               className="bg-blue-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 text-xs shadow-md hover:shadow-lg"
                             >
-                              <Upload size={14} /> Update CV
+                              <Upload size={14} /> Update
+                            </button>
+                            <button
+                              onClick={() => handleCVDownload(row)}
+                              className="bg-purple-600 text-white px-3 py-1.5 rounded-lg font-semibold hover:bg-purple-700 transition-all duration-300 transform hover:scale-105 whitespace-nowrap flex items-center gap-1.5 text-xs shadow-md hover:shadow-lg"
+                              disabled={!row.masked_cv && !row.cv}
+                            >
+                              <Download size={14} /> Download
                             </button>
                             <button
                               onClick={() => handleWhatsAppShare(row)}

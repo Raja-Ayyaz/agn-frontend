@@ -17,7 +17,11 @@ export default function ManageJobs() {
   async function fetchJobs() {
     try {
       const json = await getJobs()
-      if (json && json.ok) setJobs(json.jobs || [])
+      if (json && json.ok) {
+        // Reverse to show newest jobs first
+        const jobsList = json.jobs || []
+        setJobs(jobsList.reverse())
+      }
       else setJobs([])
     } catch (err) {
       setJobs([])
